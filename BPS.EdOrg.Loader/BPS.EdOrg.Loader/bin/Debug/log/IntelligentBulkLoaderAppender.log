@@ -1,0 +1,3 @@
+﻿2019-04-26 12:40:02,992 ERROR [9] IntelligentBulkLoader.Program.Main - Index and length must refer to a location within the string.
+Parameter name: length
+2019-04-26 14:04:15,144 ERROR [8] IntelligentBulkLoader.Program.GetSchoolList - Error while getting school list:Unable to retrieve an authorization code. Error message: 

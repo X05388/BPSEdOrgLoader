@@ -1,0 +1,33 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="EdFi.LoadTools.Test.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="OauthUrl" Type="(Web Service URL)" Scope="User">
+      <Value Profile="(Default)">http://localhost:54746</Value>
+    </Setting>
+    <Setting Name="ApiUrl" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://localhost:54746/api/v2.0/2016/</Value>
+    </Setting>
+    <Setting Name="SwaggerUrl" Type="(Web Service URL)" Scope="User">
+      <Value Profile="(Default)">http://localhost:54746/metadata</Value>
+    </Setting>
+    <Setting Name="WorkingFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="InterchangeFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Projects\Data\SampleData</Value>
+    </Setting>
+    <Setting Name="OauthKey" Type="System.String" Scope="User">
+      <Value Profile="(Default)">3CBC33559D</Value>
+    </Setting>
+    <Setting Name="OauthSecret" Type="System.String" Scope="User">
+      <Value Profile="(Default)">E0F0D8A8F4</Value>
+    </Setting>
+    <Setting Name="XsdFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">..\..\..\..\..\..\..\Ed-Fi-ODS\Application\schema.codegen</Value>
+    </Setting>
+    <Setting Name="InterchangeOrderFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">..\..\..\..\..\..\Ed-Fi-ODS-Implementation\Extensions\Metadata</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

@@ -1,0 +1,150 @@
+2019-04-25 15:14:46,398 1 [1] INFO  Program [(null)] - Api Url:                  http://localhost:54746/api/v2.0/
+2019-04-25 15:14:46,413 1 [1] INFO  Program [(null)] - School Year:              2016
+2019-04-25 15:14:46,413 1 [1] INFO  Program [(null)] - Retries:                  3
+2019-04-25 15:14:46,414 1 [1] INFO  Program [(null)] - Oauth Key:                populatedSandbox
+2019-04-25 15:14:46,414 1 [1] INFO  Program [(null)] - Metadata Url:             http://localhost:54746/metadata
+2019-04-25 15:14:46,414 1 [1] INFO  Program [(null)] - Data Folder:              C:\BostonPS\Output
+2019-04-25 15:14:46,414 1 [1] INFO  Program [(null)] - Working Folder:           C:\BostonPS\Working
+2019-04-25 15:14:46,414 1 [1] INFO  Program [(null)] - Xsd Folder:               C:\BostonPS\XsdFolder
+2019-04-25 15:14:46,416 1 [1] INFO  Program [(null)] - Interchange Order Folder: C:\BostonPS\XsdFolder\Metadata
+2019-04-25 15:14:46,599 1 [1] INFO  XsdMetadataFactory [(null)] - Loading XSD Metadata
+2019-04-25 15:14:53,174 1 [1] INFO  SwaggerMetadataRetriever [(null)] - Loading API Metadata
+2019-04-25 15:14:55,699 1 [1] INFO  MetadataMappingFactory [(null)] - Creating XSD to Json data mappings
+2019-04-25 15:14:58,764 25 [25] INFO  IsNotEmptyStep [EducationOrganization] - not empty
+2019-04-25 15:14:58,772 25 [25] INFO  EdFi.LoadTools.Engine.InterchangePipeline.ValidateXmlStep [EducationOrganization] - Validated
+2019-04-25 15:14:58,775 25 [25] INFO  FindReferencesStep [EducationOrganization] - 0 references to 0 resources found
+2019-04-25 15:14:58,779 25 [25] INFO  PreloadReferencesStep [EducationOrganization] - 0 references preloaded
+2019-04-25 15:14:59,043 7 [7] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 971DFAD414922D0A2321379BD87CA124A168274F] - 8 Created
+2019-04-25 15:14:59,044 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 99BEE470B9E9C94716856F06120C6F8A13DB5147] - 8 Created
+2019-04-25 15:14:59,045 17 [17] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter FD198FBB441062E0965B68170D63FE7FA8C5A2B1] - 8 Created
+2019-04-25 15:14:59,047 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter B8C217D543DF4EAE04558C7201BF3B32DB5F6C62] - 10 Created
+2019-04-25 15:14:59,044 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter A1379BA867549C8F59447C1A126CE03905D061F2] - 8 Created
+2019-04-25 15:14:59,048 17 [17] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 01EF12DFF20F056B0C04C4BEC2FD9114D85B3385] - 10 Created
+2019-04-25 15:14:59,082 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 66FE9BAC5DBD9904C07EAF478CA61C455DD7FD98] - 14 Created
+2019-04-25 15:14:59,148 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter EE08E322C6D6984EFF592DB6B316ADA6118325CF] - 15 Created
+2019-04-25 15:14:59,191 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter DFE7ABABD25BD30274632ED1F5B213AA71C8F919] - 16 Created
+2019-04-25 15:14:59,192 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 6B2CE16CED3899D8BC04BF81D422DFF192EB96AB] - 16 Created
+2019-04-25 15:14:59,222 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 26B264C4D29EB765CE41EDA1BBAF6E4851EAEF74] - 18 Created
+2019-04-25 15:14:59,229 17 [17] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter E719933A536D50B32455D6135ADBFD1A246F8F0D] - 19 Created
+2019-04-25 15:14:59,296 17 [17] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter B8A2ACC0443E9DBCF61CD1B3838736088AC8D68A] - 20 Created
+2019-04-25 15:14:59,297 17 [17] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 5E2963EA7D8A18B52CE401C74604D9CA04B6D301] - 21 Created
+2019-04-25 15:14:59,307 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 3F5E0665D37E30FF11A52DA6AFAF518B4EA43B71] - 22 Created
+2019-04-25 15:14:59,336 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 40B67A10F94FC6EBF23B523C7437E2E1B148E9B5] - 23 Created
+2019-04-25 15:14:59,342 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 7DAAD02FC09B5FE1A32E7A7E8BF583A6E6D6BC6A] - 24 Created
+2019-04-25 15:14:59,343 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter C3BC37BBC0E87507364EEBC382397A79B719D11C] - 24 Created
+2019-04-25 15:14:59,371 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter D0C5D454F8DFD9F5D97D9787F84763985096F3CE] - 26 Created
+2019-04-25 15:14:59,428 17 [17] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 3CE1D3CC8B54F11A643F0FB3A0134B8F7869E990] - 27 Created
+2019-04-25 15:14:59,459 17 [17] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 1F38D528C38BBCF59FFDA73DE2C395F36B728987] - 28 Created
+2019-04-25 15:14:59,459 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 4F93AEEDE416223A460F98754371A13B8A51D2B8] - 28 Created
+2019-04-25 15:14:59,471 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter C5BADA02CCF62F0EC476D8C39B1C310F67ABBB71] - 30 Created
+2019-04-25 15:14:59,472 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 18E5E0CE9E7EF3109B316139010730D088DEF8B5] - 31 Created
+2019-04-25 15:14:59,498 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 37476A10D6048C876F2DC617E8DC321ED3B83189] - 32 Created
+2019-04-25 15:14:59,550 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 0A4CB49129007E7BB1369AE4626928328AE58068] - 33 Created
+2019-04-25 15:14:59,580 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 5117BB676BCBBD945C9DA91C61B713A420A2B276] - 34 Created
+2019-04-25 15:14:59,609 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter F049B689C2762E7F60A0CC555B3F21E1DFA3A1A1] - 35 Created
+2019-04-25 15:14:59,610 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 8679B6365318457CB448A52101B5D256438CEF89] - 35 Created
+2019-04-25 15:14:59,687 17 [17] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter E24033E057CEC7D0893832107CE1ACA3F8258B2C] - 37 Created
+2019-04-25 15:14:59,687 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 3778C90E033AB68C06B80D5ECAB1A9CD1FF5840C] - 37 Created
+2019-04-25 15:14:59,714 17 [17] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 457D772C722FB4C30A760EFE822354B27DCD632E] - 39 Created
+2019-04-25 15:14:59,715 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter B9DD21D42B4E9EE47486EF79E1B89D00FFC73971] - 39 Created
+2019-04-25 15:14:59,718 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 7D2C23A4BA1F74CBF9F2F3F9A97F99E9E5A6A295] - 41 Created
+2019-04-25 15:14:59,747 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter C2609C74C8744ADCD9E3853BA1DB51167D24B69B] - 42 Created
+2019-04-25 15:14:59,778 17 [17] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 649785C2CB7D0B4EA36D484D94E933A7E4B7F4EB] - 43 Created
+2019-04-25 15:14:59,803 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter D9D9F9948850BA80CDDC4D3811A84FCC6825C9CF] - 44 Created
+2019-04-25 15:14:59,807 17 [17] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 4B5FA27BB08FD0F6B8B8E6D21A1DD29D69188F62] - 45 Created
+2019-04-25 15:14:59,837 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 3AF7DB03D884D3C5F3B7D12D8231B443C194EDDA] - 46 Created
+2019-04-25 15:14:59,838 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter C3F7794D954E3AD8672884209AA34107EDC0959F] - 47 Created
+2019-04-25 15:14:59,846 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 7E9EEEC922174D0E415B5070705E2686B627AC99] - 48 Created
+2019-04-25 15:14:59,852 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter BBCC6E32FADAB10FD0B9126DB00106695F950FE7] - 49 Created
+2019-04-25 15:14:59,876 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 1B17002949174D6E6A71BDB60B3A8A9D87C1F6A0] - 50 Created
+2019-04-25 15:14:59,877 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 749D06047811E84B6E4EC68F71DF414314C6EAF1] - 50 Created
+2019-04-25 15:14:59,882 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter FC9246C13284B807FD6167CCB6BCE1E413C29F04] - 52 Created
+2019-04-25 15:14:59,931 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter C63C37E07EB402EAE4C9A285808520D11921446A] - 53 Created
+2019-04-25 15:14:59,956 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 3D0436073A02AB0CCA599D0AF350521AF3B31672] - 54 Created
+2019-04-25 15:14:59,981 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter FC8271AF89191987C13455B1DA35251FCD8DB03E] - 55 Created
+2019-04-25 15:15:00,010 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter FA902926CBCB077252BCAB8EFAD6A19911B291AE] - 56 Created
+2019-04-25 15:15:00,045 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 07C58CA86BFF9332F1B96E98DAC54E1EA34B367C] - 57 Created
+2019-04-25 15:15:00,047 17 [17] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 3486F5D4B33C24614924449368CD4A10BCD25D6C] - 58 Created
+2019-04-25 15:15:00,080 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter E88100BA4BEA3D8161E4B3FBF00DA295A953184A] - 59 Created
+2019-04-25 15:15:00,081 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 02C4BB1B4FBCFE2D806D3FA467833D2881841ABD] - 60 Created
+2019-04-25 15:15:00,120 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter ABB29958F4E1FD7273D695DF46A418EADB8A3FFE] - 61 Created
+2019-04-25 15:15:00,129 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter BB7D5CDA10FD1A798DE84D6FF703F84C7FC6D70F] - 62 Created
+2019-04-25 15:15:00,129 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 2F491193DBE7DAEA86560F451989D80C0F57CE48] - 62 Created
+2019-04-25 15:15:00,130 17 [17] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 30E387B04D11E4D7ED58A16EE790D3F1971A1369] - 62 Created
+2019-04-25 15:15:00,135 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter A82BEDE0EA11B43B8F829B0A38E8461BAD874824] - 65 Created
+2019-04-25 15:15:00,191 17 [17] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter BAF9D1A94A2B6965D7869DB4CD0A48EEDE192BA4] - 66 Created
+2019-04-25 15:15:00,230 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 33AB972508203712B757BEE2C512C017E945B0C8] - 67 Created
+2019-04-25 15:15:00,231 17 [17] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter D5ADB799ED88EF8119FECDB0204F7EB62CFA174B] - 67 Created
+2019-04-25 15:15:00,231 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 32674168F6E004AFE9D78F12C285439A740BD771] - 67 Created
+2019-04-25 15:15:00,271 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 3E4C7129812013F46442C78BAD08C00395F9AD9E] - 70 Created
+2019-04-25 15:15:00,296 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 36162F6F9D9CAFDFB1A9CB81CC3CC29490C55CE2] - 71 Created
+2019-04-25 15:15:00,301 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 0680C9EC1B7E6817C7DD9D9B6A824AF48B133462] - 72 Created
+2019-04-25 15:15:00,303 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 63F6F0C8D1579501C25084FF7DBB26997A0AF7F5] - 73 Created
+2019-04-25 15:15:00,351 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 334155E6A979BA1CA7A9DD701D77DC7F2CFA5057] - 74 Created
+2019-04-25 15:15:00,352 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter DDB4154480E7A114052393255CE2E8038F0958D4] - 74 Created
+2019-04-25 15:15:00,356 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 0D1E6BA6B41EDAFC2DAB9BE4F12BDCE07591245A] - 76 Created
+2019-04-25 15:15:00,382 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 7D1EC131BEB3DE936EF09C9AFE05EF77251B8481] - 77 Created
+2019-04-25 15:15:00,382 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter B381E4CBD9E6D162C09F85857DB5865BA46F9B0E] - 77 Created
+2019-04-25 15:15:00,437 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 662A5DFB9A4C4D26181FC40356B402B2CCB2A1E8] - 79 Created
+2019-04-25 15:15:00,464 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter CA041F90ABEC2E7E0A7F628A7FCBFB8DE6EF9F00] - 80 Created
+2019-04-25 15:15:00,467 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 2A115FC8B7D8E11280D549E62457520FE7139806] - 81 Created
+2019-04-25 15:15:00,494 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter CCCD2A2C6D7244F22D3F0A6B440CB9D1FDD11F29] - 82 Created
+2019-04-25 15:15:00,495 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 0DA0CC418F38BBF867C72700976AC194A8C79D92] - 82 Created
+2019-04-25 15:15:00,520 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 0A3FE65AE5F9DB66E2DEF15FC7B410CD4DF9430D] - 84 Created
+2019-04-25 15:15:00,545 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 2C2E4E361D1A02AF34AF1ACB380531A6DB377BCF] - 85 Created
+2019-04-25 15:15:00,570 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter CF5505D8C3F9E15564A4E2C05D5C8AE2FEC17422] - 86 Created
+2019-04-25 15:15:00,597 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 67EA87D3B812FF55E239EEA1E96E39BE9C9F8AFF] - 87 Created
+2019-04-25 15:15:00,647 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 986544D0BA42D9C0D9F3AB6353B4BDEA7E799BB5] - 88 Created
+2019-04-25 15:15:00,672 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter E5354B080A91F7D3BA5F251566BA6A28B2BC8FAD] - 89 Created
+2019-04-25 15:15:00,672 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 9FB7104A8C244EC21D2B95EB0A0FE0593DFBCC40] - 89 Created
+2019-04-25 15:15:00,675 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 894407C13CD52179E4A9727B4AA9BC1A55DB3C90] - 91 Created
+2019-04-25 15:15:00,680 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 23D13EB213DA50CC32A3A0FC157E5001B933A0F0] - 92 Created
+2019-04-25 15:15:00,762 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 3403E3E3FBF9B4E476458A5534B8993B9ACFE313] - 93 Created
+2019-04-25 15:15:00,763 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 69495843E60265E97A9FEAD8BA5A88712EF451BC] - 94 Created
+2019-04-25 15:15:00,774 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter D74E6A4DE0076E6907956CB18446C6DBA6E76C91] - 95 Created
+2019-04-25 15:15:00,775 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter B444FD0A342FC4A1CAA60EB6E5404BB7D0FD223E] - 95 Created
+2019-04-25 15:15:00,776 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter D8E4BB0E570E4A5882A808D85D2D2756C2688BE2] - 96 Created
+2019-04-25 15:15:00,800 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 1F4522AD474C93D7899E6049DD60314E6792FB69] - 98 Created
+2019-04-25 15:15:00,807 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter B6D4910C1793B161F4E9B6969BE3CDBEA2405C7A] - 99 Created
+2019-04-25 15:15:00,833 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter B05D76FC20AACCEE61F2AB0816F12693089CA397] - 100 Created
+2019-04-25 15:15:00,863 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 1818B473ED6F582921392AF7652B21065E9289F9] - 101 Created
+2019-04-25 15:15:00,890 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter A85BAFD8575BCE99E62BFA88E1A573FF3054EC6B] - 102 Created
+2019-04-25 15:15:00,890 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter BD14FA0430B2B2CA11E68834FB52C892A43CB3AF] - 102 Created
+2019-04-25 15:15:00,896 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 68E3D484C337F7818C81D342CB0257B5D72C1D87] - 104 Created
+2019-04-25 15:15:00,901 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 73A604F62621DEFF80362174DF8BB3F2E203B593] - 105 Created
+2019-04-25 15:15:00,901 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 4DEC187DEAD43BC06A87536B9055C072F59A94D9] - 105 Created
+2019-04-25 15:15:00,957 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 52AA33FF13225068FCD8A9D907503FD8AFF8251A] - 107 Created
+2019-04-25 15:15:00,982 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 210FB4F437DC6FA4F4E8C0A16EA6EA926824DE66] - 108 Created
+2019-04-25 15:15:00,985 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 084480B26404EEB3AFA9A07B409CC94194325F81] - 109 Created
+2019-04-25 15:15:00,988 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 4E1894F2279A66A58DB0A055198407A53B3D8562] - 110 Created
+2019-04-25 15:15:01,014 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 7E96001004C8F1A302BF9B746D95BDE8181CA984] - 111 Created
+2019-04-25 15:15:01,014 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 7E851513F5278B7974C56A3A28A0EB9B1E16D849] - 111 Created
+2019-04-25 15:15:01,024 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter C40A9D6726C4CD5CA8937E643E0F217B7460E55A] - 113 Created
+2019-04-25 15:15:01,053 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 09AE8D66F2B7478C1B7BF5010685BCF792E4E5B9] - 114 Created
+2019-04-25 15:15:01,055 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 08EFDA46BCF7A5BC4BD68B035C876B0071F024C9] - 115 Created
+2019-04-25 15:15:01,082 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 4758DC8E1B7B056C2E62A98A6A4736823312D172] - 116 Created
+2019-04-25 15:15:01,082 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter F6D517F214584A4BBEAE36E31BDEFAC168845E33] - 116 Created
+2019-04-25 15:15:01,123 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 151F843E6C756056BAF421D3523558060C64735A] - 118 Created
+2019-04-25 15:15:01,149 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 57F93DFF03174D1C670DD500E8A6D28C0D3421B4] - 119 Created
+2019-04-25 15:15:01,225 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 1F3070D892682ACB28336116685EBBA34A411C7E] - 120 Created
+2019-04-25 15:15:01,226 8 [8] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter C41EB5FF0252F2A8D85D8F0A481AB288C28C8CB6] - 120 Created
+2019-04-25 15:15:01,226 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter CE4FE49E8A7A4B213414E32033076F3ABFD22782] - 120 Created
+2019-04-25 15:15:01,231 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 2E6CB6B88FD1FA376099E6FE2E302B0B8AEAC7C6] - 123 Created
+2019-04-25 15:15:01,236 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter D5D6D219A886C96EEAE96DC5D952B6DF53A4B631] - 124 Created
+2019-04-25 15:15:01,239 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter E608F135E9E218010F0B21F8FD3BAD3A581D5E34] - 125 Created
+2019-04-25 15:15:01,270 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 52A7A58C59B8DFDC17C01ECE6B95D1989D5A429F] - 126 Created
+2019-04-25 15:15:01,318 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 0590B326B1CA8F6DB49CC5A10A3A39C90AA9D559] - 127 Created
+2019-04-25 15:15:01,326 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter BD77AAAD63D4DD365A6C8872A6F972A542D3AC57] - 128 Created
+2019-04-25 15:15:01,349 18 [18] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter A011DA7244A701942472109632F34F4E3AEDD667] - 129 Created
+2019-04-25 15:15:01,355 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter CC92C44831AE1DAF93BBFCB40DC0105F72ECEB78] - 130 Created
+2019-04-25 15:15:01,451 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 994DDA30527D1797C3CD22B64F447260C0740D92] - 131 Created
+2019-04-25 15:15:01,453 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter CDA7E8B7D7958A511A303E0B6688D1870C4856FE] - 132 Created
+2019-04-25 15:15:01,455 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter BE46148F8BC379357308D25C05097514C1262FD9] - 133 Created
+2019-04-25 15:15:01,460 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter C36893635B6AB02A561926A07CB7879CF0355537] - 134 Created
+2019-04-25 15:15:01,463 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 972C8DAC9FAB232106E8EF712A2133E137848718] - 134 Created
+2019-04-25 15:15:01,466 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter B07FF8F26E857544B272AFDB86F5ECAC9B555E44] - 134 Created
+2019-04-25 15:15:01,496 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter AC1B02832B773AB2FB934CD0A400FA04FA41D8B6] - 134 Created
+2019-04-25 15:15:01,500 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 7105A82BBF1CA9FBB7E80ECE814721341A999585] - 134 Created
+2019-04-25 15:15:01,504 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 028CB5F1D6CF12B03E6CAC035AFAE46C94138F1F] - 134 Created
+2019-04-25 15:15:01,506 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 5300B3AA8CC79C19C78B744F4C7A02DC17DC0C9C] - 134 Created
+2019-04-25 15:15:01,516 9 [9] INFO  SubmitResource [EducationOrganization EducationOrganization-4-25-2019.xml EducationServiceCenter 37F81FF21CFFC1553C4D3CD382F3DE5FD9A884A3] - 134 Created

@@ -1,0 +1,23 @@
+﻿2019-04-23 16:45:46,947 ERROR [9] IntelligentBulkLoader.Program.ReadCrossWalkMultipleColumns - There is exception while reading crosswalk table :An item with the same key has already been added.
+2019-04-23 17:03:24,308 ERROR [8] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 17:06:05,552 ERROR [8] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 17:07:16,040 ERROR [8] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 17:08:04,227 ERROR [8] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 17:08:56,383 ERROR [9] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 17:10:56,681 ERROR [9] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 17:11:37,333 ERROR [8] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 17:13:01,704 ERROR [8] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 17:15:27,555 ERROR [8] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 17:16:15,449 ERROR [9] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 17:17:38,004 ERROR [9] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 17:17:52,789 ERROR [10] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 17:18:19,799 ERROR [9] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 17:18:39,070 ERROR [10] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 22:13:37,920 ERROR [9] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 22:19:29,318 ERROR [8] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 22:21:08,779 ERROR [8] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 22:51:19,299 ERROR [10] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 22:54:23,264 ERROR [8] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 22:58:18,411 ERROR [9] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 23:04:02,342 ERROR [9] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header
+2019-04-23 23:06:52,515 ERROR [8] IntelligentBulkLoader.Program.CreateXML - Input data text file does not contains the DeptID or Dept Title header

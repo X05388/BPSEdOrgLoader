@@ -1,0 +1,8 @@
+C:\Users\chauh\Downloads\Log4Net.CSharp\Log4Net.CSharp\Log4Net.CSharp\bin\Debug\Log4Net.CSharp.exe.config
+C:\Users\chauh\Downloads\Log4Net.CSharp\Log4Net.CSharp\Log4Net.CSharp\bin\Debug\Log4Net.CSharp.exe
+C:\Users\chauh\Downloads\Log4Net.CSharp\Log4Net.CSharp\Log4Net.CSharp\bin\Debug\Log4Net.CSharp.pdb
+C:\Users\chauh\Downloads\Log4Net.CSharp\Log4Net.CSharp\Log4Net.CSharp\bin\Debug\log4net.dll
+C:\Users\chauh\Downloads\Log4Net.CSharp\Log4Net.CSharp\Log4Net.CSharp\bin\Debug\log4net.xml
+C:\Users\chauh\Downloads\Log4Net.CSharp\Log4Net.CSharp\Log4Net.CSharp\obj\Debug\Log4Net.CSharp.csprojResolveAssemblyReference.cache
+C:\Users\chauh\Downloads\Log4Net.CSharp\Log4Net.CSharp\Log4Net.CSharp\obj\Debug\Log4Net.CSharp.exe
+C:\Users\chauh\Downloads\Log4Net.CSharp\Log4Net.CSharp\Log4Net.CSharp\obj\Debug\Log4Net.CSharp.pdb

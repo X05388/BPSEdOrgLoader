@@ -1,0 +1,51 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="EdFi.ApiLoader.Console.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="WorkingFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="OauthUrl" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://localhost:54746</Value>
+    </Setting>
+    <Setting Name="ApiUrl" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://localhost:54746/api/v2.0/</Value>
+    </Setting>
+    <Setting Name="SwaggerUrl" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://localhost:54746/metadata</Value>
+    </Setting>
+    <Setting Name="DataFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Projects\Data\SampleData</Value>
+    </Setting>
+    <Setting Name="OauthKey" Type="System.String" Scope="User">
+      <Value Profile="(Default)">3CBC33559D</Value>
+    </Setting>
+    <Setting Name="OauthSecret" Type="System.String" Scope="User">
+      <Value Profile="(Default)">E0F0D8A8F4</Value>
+    </Setting>
+    <Setting Name="MaxRetries" Type="System.Nullable&lt;System.Int32&gt;" Scope="User">
+      <Value Profile="(Default)">3</Value>
+    </Setting>
+    <Setting Name="InterchangeOrderFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">..\..\..\..\..\Extensions\Metadata</Value>
+    </Setting>
+    <Setting Name="ConnectionLimit" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">100</Value>
+    </Setting>
+    <Setting Name="TaskCapacity" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">500</Value>
+    </Setting>
+    <Setting Name="SchoolYear" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">2017</Value>
+    </Setting>
+    <Setting Name="XsdFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">..\..\..\..\..\Extensions\Schemas</Value>
+    </Setting>
+    <Setting Name="MaxSimultaneousApiRequests" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">500</Value>
+    </Setting>
+    <Setting Name="MetadataFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)" />
+    </Setting>
+  </Settings>
+</SettingsFile>
