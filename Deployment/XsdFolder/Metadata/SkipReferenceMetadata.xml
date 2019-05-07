@@ -1,0 +1,334 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  The order of the NormalizedSchemaTypeName elements is very important. The order of the SkipReferenceType elements is not. 
+  The extension metadata file will add to the core metadata.
+-->
+<SkipReferenceTypes>
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>StudentReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentCompetencyObjectiveIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentCompetencyObjectiveReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ReportCard</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>GradingPeriodReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentCompetencyObjectiveIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentCompetencyObjectiveReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ReportCard</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>StudentReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentLearningObjectiveIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentLearningObjectiveReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ReportCard</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+  
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>GradingPeriodReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentLearningObjectiveIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentLearningObjectiveReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ReportCard</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+  
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>StudentReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentSectionAssociationIdentityType" , "StudentSectionAssociationReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>GradeIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>GradeReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ReportCard</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+  
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>GradingPeriodReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>GradeIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>GradeReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ReportCard</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+  
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>StaffReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StaffEducationOrganizationEmploymentAssociationIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StaffEducationOrganizationEmploymentAssociationReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StaffEducationOrganizationAssignmentAssociation</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+  
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>StudentReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentSectionAssociationIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentSectionAssociationReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentLearningObjective</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+  
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>StudentReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentProgramAssociationIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentProgramAssociationReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentLearningObjective</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+  
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>StudentReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentSectionAssociationIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentSectionAssociationReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentCompetencyObjective</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+  
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>StudentReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentProgramAssociationIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentProgramAssociationReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentCompetencyObjective</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+
+    <SkipReferenceType>
+        <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>LocationIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>LocationReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentCompetencyObjective</NormalizedSchemaTypeName>
+    </SkipReferenceType>
+
+    <SkipReferenceType>
+        <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>ClassPeriodIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>ClassPeriodReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentCompetencyObjective</NormalizedSchemaTypeName>
+    </SkipReferenceType>
+
+    <SkipReferenceType>
+        <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>CourseOfferingIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>CourseOfferingReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentCompetencyObjective</NormalizedSchemaTypeName>
+    </SkipReferenceType>
+
+    <SkipReferenceType>
+        <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SessionIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SessionReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>CourseOfferingIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>CourseOfferingReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentCompetencyObjective</NormalizedSchemaTypeName>
+    </SkipReferenceType>
+
+    <SkipReferenceType>
+        <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>LocationIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>LocationReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentLearningObjective</NormalizedSchemaTypeName>
+    </SkipReferenceType>
+
+    <SkipReferenceType>
+        <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>ClassPeriodIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>ClassPeriodReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentLearningObjective</NormalizedSchemaTypeName>
+    </SkipReferenceType>
+
+    <SkipReferenceType>
+        <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>CourseOfferingIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>CourseOfferingReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentLearningObjective</NormalizedSchemaTypeName>
+    </SkipReferenceType>
+
+    <SkipReferenceType>
+        <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SessionIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SessionReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>CourseOfferingIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>CourseOfferingReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentLearningObjective</NormalizedSchemaTypeName>
+    </SkipReferenceType>
+
+    <SkipReferenceType>
+    <NormalizedSchemaTypeName>EducationOrganizationReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>CalendarDateIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>CalendarDateReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>BellSchedule</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+  
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ClassPeriodIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ClassPeriodReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>MeetingTime</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>BellSchedule</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+  
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>StudentReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ReportCardIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ReportCardReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentAcademicRecord</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+  
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>EducationOrganizationReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>CalendarDateIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>CalendarDateReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>SectionAttendanceTakenEvent</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>AssessmentReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>AssessmentItemIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>AssessmentItemReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ObjectiveAssessment</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+  
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>AssessmentReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ObjectiveAssessmentIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ObjectiveAssessmentReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ObjectiveAssessment</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+  
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>AssessmentReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>AssessmentItemIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>AssessmentItemReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentAssessmentItem</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentAssessment</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+  
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>AssessmentReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ObjectiveAssessmentIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ObjectiveAssessmentReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentObjectiveAssessment</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentAssessment</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+  
+  <SkipReferenceType>
+    <NormalizedSchemaTypeName>EducationOrganizationReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ReportCardIdentityType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>ReportCardReferenceType</NormalizedSchemaTypeName>
+    <NormalizedSchemaTypeName>StudentAcademicRecord</NormalizedSchemaTypeName>
+  </SkipReferenceType>
+
+    <SkipReferenceType>
+        <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>GradingPeriodIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>GradingPeriodReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>ReportCardIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>ReportCardReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentAcademicRecord</NormalizedSchemaTypeName>
+    </SkipReferenceType>
+
+    <SkipReferenceType>
+        <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>GradingPeriodIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>GradingPeriodReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>Session</NormalizedSchemaTypeName>
+    </SkipReferenceType>
+
+    <SkipReferenceType>
+        <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>AcademicWeekIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>AcademicWeekReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>Session</NormalizedSchemaTypeName>
+    </SkipReferenceType>
+
+    <SkipReferenceType>
+        <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>LocationIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>LocationReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>GradeIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>GradeReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>ReportCard</NormalizedSchemaTypeName>
+    </SkipReferenceType>
+
+    <SkipReferenceType>
+        <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>ClassPeriodIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>ClassPeriodReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>GradeIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>GradeReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>ReportCard</NormalizedSchemaTypeName>
+    </SkipReferenceType>
+
+    <SkipReferenceType>
+        <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>CourseOfferingIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>CourseOfferingReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>GradeIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>GradeReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>ReportCard</NormalizedSchemaTypeName>
+    </SkipReferenceType>
+
+    <SkipReferenceType>
+        <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SessionIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SessionReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>CourseOfferingIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>CourseOfferingReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>SectionReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>StudentSectionAssociationReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>GradeIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>GradeReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>ReportCard</NormalizedSchemaTypeName>
+    </SkipReferenceType>
+
+    <SkipReferenceType>
+        <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>GradingPeriodIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>GradingPeriodReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>Grade</NormalizedSchemaTypeName>
+    </SkipReferenceType>
+
+    <SkipReferenceType>
+        <NormalizedSchemaTypeName>SchoolReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>GradingPeriodIdentityType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>GradingPeriodReferenceType</NormalizedSchemaTypeName>
+        <NormalizedSchemaTypeName>GradebookEntry</NormalizedSchemaTypeName>
+    </SkipReferenceType>
+
+</SkipReferenceTypes>
