@@ -70,6 +70,7 @@ namespace BPS.EdOrg.Loader
             Log.Info($"CrossWalk File Path: {configuration.CrossWalkFilePath}");
             Log.Info($"Working Folder: {configuration.WorkingFolder}");
             Log.Info($"Xsd Folder:  {configuration.XsdFolder}");
+            Log.Info($"InterchangeOrder Folder:  {configuration.InterchangeOrderFolder}");
         }
         private static void LoadXML(Configuration configuration)
         {
@@ -106,6 +107,7 @@ namespace BPS.EdOrg.Loader
                 argumentBuilder.Append($"/m {configuration.MetadataUrl} ");
                 argumentBuilder.Append($"/o {configuration.OauthUrl} ");
                 argumentBuilder.Append($"/x {configuration.XsdFolder} ");
+                argumentBuilder.Append($"/i {configuration.InterchangeOrderFolder} ");
                 argumentBuilder.Append($"/w {configuration.WorkingFolder} ");
                 argumentBuilder.Append($"/y {configuration.SchoolYear}");
             }

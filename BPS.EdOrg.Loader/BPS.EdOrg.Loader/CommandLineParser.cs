@@ -91,6 +91,14 @@ namespace BPS.EdOrg.Loader
                     ConfigurationManager.AppSettings["XsdFolder"],
                     Path.Combine(Directory.GetCurrentDirectory(), "Schema")
                     ));
+
+            Setup(arg => arg.InterchangeOrderFolder).As('i', "Interchange")
+                .WithDescription("Path to a folder containing the Ed-Fi metadata files")
+                .SetDefault(GetFirstValue(
+                    ConfigurationManager.AppSettings["InterchangeOrderFolder"],
+                    Path.Combine(Directory.GetCurrentDirectory(), "Schema")
+                    ));
+            
         }
 
         private static string GetFirstValue(params string[] defaults)

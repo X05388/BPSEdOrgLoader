@@ -26,6 +26,7 @@ namespace BPS.EdOrg.Loader
         public bool Metadata { get; set; }
         public string MetadataUrl { get; set; }
         public string XsdFolder { get; set; }
+        public string InterchangeOrderFolder { get; set; }
         public string ApiLoaderExePath { get; set; }
         internal string Token { get; set; }
         
@@ -41,6 +42,7 @@ namespace BPS.EdOrg.Loader
                         string.IsNullOrEmpty(DataFilePath) ||
                         string.IsNullOrEmpty(CrossWalkFilePath) ||
                         string.IsNullOrEmpty(XsdFolder) ||
+                        string.IsNullOrEmpty(InterchangeOrderFolder) ||
                         string.IsNullOrEmpty(MetadataUrl) ||
                         string.IsNullOrEmpty(OauthKey) ||
                         string.IsNullOrEmpty(OauthSecret) ||
@@ -97,6 +99,9 @@ namespace BPS.EdOrg.Loader
 
                 if (string.IsNullOrEmpty(WorkingFolder) || !Directory.Exists(WorkingFolder))
                     sb.AppendLine("Option 'w:working' parse error. Provided value is not a directory.");
+
+                if (string.IsNullOrEmpty(InterchangeOrderFolder) || !Directory.Exists(InterchangeOrderFolder))
+                    sb.AppendLine("Option 'i:Interchange' parse error. Provided value is not a directory.");
 
                 return sb.ToString();
             }
