@@ -76,7 +76,7 @@ namespace BPS.EdOrg.Loader
         {
             try
             {
-                Log.Info($"Started executing EdFi.ApiLoader.Console from path :");
+                Log.Info($"Started executing EdFi.ApiLoader.Console from path :{configuration.ApiLoaderExePath}");
                 process.EnableRaisingEvents = true;
                 process.OutputDataReceived += new System.Diagnostics.DataReceivedEventHandler(process_OutputDataReceived);
                 process.ErrorDataReceived += new System.Diagnostics.DataReceivedEventHandler(process_ErrorDataReceived);

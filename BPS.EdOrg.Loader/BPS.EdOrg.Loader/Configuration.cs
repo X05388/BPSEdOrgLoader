@@ -77,7 +77,7 @@ namespace BPS.EdOrg.Loader
                     sb.AppendLine("Option 'a:apiurl' parse error. Provided value is not a url.");
 
                 if (string.IsNullOrEmpty(CrossWalkOAuthUrl) || !Uri.IsWellFormedUriString(CrossWalkOAuthUrl, UriKind.Absolute))
-                    sb.AppendLine("Option 'p:crosswalkoauthurl' parse error. Provided value is not a url.");
+                    sb.AppendLine("Option 'u:crosswalkoauthurl' parse error. Provided value is not a url.");
 
                 if (string.IsNullOrEmpty(CrossWalkSchoolApiUrl) || !Uri.IsWellFormedUriString(CrossWalkSchoolApiUrl, UriKind.Absolute))
                     sb.AppendLine("Option 'p:corsswalkapiurl' parse error. Provided value is not a url.");
@@ -86,10 +86,10 @@ namespace BPS.EdOrg.Loader
                     sb.AppendLine("Option 'd:data' parse error. Provided value is not a directory.");
 
                 if (string.IsNullOrEmpty(DataFilePath) || !Directory.Exists(DataFilePath))
-                    sb.AppendLine("Option 'd:data' parse error. Provided value is not a file path.");
+                    sb.AppendLine("Option 'b:data' parse error. Provided value is not a file path.");
 
                 if (string.IsNullOrEmpty(CrossWalkFilePath) || !Directory.Exists(CrossWalkFilePath))
-                    sb.AppendLine("Option 'd:data' parse error. Provided value is not a file path.");
+                    sb.AppendLine("Option 'c:data' parse error. Provided value is not a file path.");
 
                 if (string.IsNullOrEmpty(MetadataUrl) || !Uri.IsWellFormedUriString(MetadataUrl, UriKind.Absolute))
                     sb.AppendLine("Option 'metadataurl' parse error. Provided value is not a url.");
