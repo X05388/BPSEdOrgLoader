@@ -21,27 +21,45 @@ namespace BPS.EdOrg.Loader
             _log = logger;
         }
 
-        public List<SchoolResponse> GetSchoolList()
+        public List<string> GetSchoolList()
         {
-            List<SchoolResponse> schoolList = new List<SchoolResponse>();
+            List<string> existingDeptIds = new List<string>();
             try
             {
                 if (!string.IsNullOrEmpty(_accessToken))
                 {
                     var httpClient = new RestClient(_configuration.CrossWalkSchoolApiUrl);
-                    var request = new RestRequest(Method.GET);
-                    request.AddHeader("Authorization", "Bearer " + _accessToken);
-                    request.RequestFormat = RestSharp.DataFormat.Json;
-                    request.AddHeader("Content-Type", "application/json");
-                    var response = httpClient.Execute<List<SchoolResponse>>(request);
-                    if (response.StatusCode != HttpStatusCode.OK)
+                    int offset = 0, limit = 100;
+                    bool hasRecords = true;
+                    while (hasRecords)
                     {
-                        _log.Error($"Unable to retrieve school list from {httpClient.BaseUrl}");
+                        var response = GetRestResponse(httpClient, offset, limit);
+                        offset += limit;
+                        if (response.StatusCode != HttpStatusCode.OK)
+                        {
+                            _log.Error($"Unable to retrieve school list from {httpClient.BaseUrl}");
+                        }
+                        else
+                        {
+                            List<SchoolResponse> schoolList = response.Data;
+                            foreach (var school in schoolList)
+                            {
+                                string deptId = school.IdentificationCodes?
+                                    .Where(x => string.Equals(x.EducationOrganizationIdentificationSystemDescriptor, "school", StringComparison.OrdinalIgnoreCase))
+                                    .FirstOrDefault()?.IdentificationCode;
+                                if (!string.IsNullOrEmpty(deptId) && !string.Equals(deptId, "N/A", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    existingDeptIds.Add(deptId);
+                                }
+                            }
+                        }
+
+                        if (response.Data.Count == 0)
+                        {
+                            hasRecords = false;
+                        }
                     }
-                    else
-                    {
-                        schoolList = response.Data;
-                    }
+                   
                 }
                 else
                 {
@@ -52,7 +70,19 @@ namespace BPS.EdOrg.Loader
             {
                 _log.Error($"Exception while retrieve school list : {ex.Message}");
             }
-            return schoolList;
+            return existingDeptIds;
+        }
+
+        private IRestResponse<List<SchoolResponse>> GetRestResponse(RestClient httpClient, int offset , int limit)
+        {
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("Authorization", "Bearer " + _accessToken);
+            request.RequestFormat = RestSharp.DataFormat.Json;
+            request.AddHeader("Content-Type", "application/json");
+            request.AddParameter("offset", offset);
+            request.AddParameter("limit", limit);
+            var response = httpClient.Execute<List<SchoolResponse>>(request);
+            return response;
         }
     }
 }

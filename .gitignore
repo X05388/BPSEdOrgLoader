@@ -1,0 +1,15 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/BPS.BulkLoad/EdFi.ApiLoader.Console/bin/Release
+/BPS.BulkLoad/EdFi.ApiLoader.Console/obj/Release
+/BPS.BulkLoad/EdFi.LoadTools.Test/obj/Release
+/BPS.BulkLoad/EdFi.LoadTools.Test/bin/Release
+/BPS.EdOrg.Loader/BPS.EdOrg.Loader/bin
+/BPS.EdOrg.Loader/BPS.EdOrg.Loader/obj
+/BPS.BulkLoad/EdFi.ApiLoader.Console/obj/Debug
+/BPS.BulkLoad/EdFi.ApiLoader.Console/bin/Debug
+/BPS.BulkLoad/EdFi.LoadTools/obj/Release
+/BPS.BulkLoad/EdFi.LoadTools/bin/Release
+/BPS.BulkLoad/EdFi.LoadTools.Test/obj/Debug

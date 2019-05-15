@@ -71,7 +71,6 @@ namespace BPS.EdOrg.Loader.ApiClient
             bearerTokenRequest.AddParameter("Code", accessCode);
             bearerTokenRequest.AddParameter("Grant_type", "authorization_code");
 
-            //var a = oauthClient.Execute(bearerTokenRequest);
             var bearerTokenResponse = oauthClient.Execute<BearerTokenResponse>(bearerTokenRequest);
             if (bearerTokenResponse.StatusCode != HttpStatusCode.OK)
             {

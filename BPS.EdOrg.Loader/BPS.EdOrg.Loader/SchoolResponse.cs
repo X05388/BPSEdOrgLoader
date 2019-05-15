@@ -1,8 +1,15 @@
-﻿namespace BPS.EdOrg.Loader
+﻿using System.Collections.Generic;
+
+namespace BPS.EdOrg.Loader
 {
     public class SchoolResponse
     {
-        public string SchoolId { get; set; }
-        public string NameOfInstitution { get; set; }
+        public List<EducationOrganizationIdentificationSystem> IdentificationCodes { get; set; }
+    }
+
+    public class EducationOrganizationIdentificationSystem
+    {
+        public string EducationOrganizationIdentificationSystemDescriptor { get; set; }
+        public string IdentificationCode { get; set; }
     }
 }
