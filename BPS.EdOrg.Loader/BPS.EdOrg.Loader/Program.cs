@@ -8,6 +8,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.OleDb;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Net.Http;
 using BPS.EdOrg.Loader.ApiClient;
@@ -20,7 +21,7 @@ namespace BPS.EdOrg.Loader
 {
     class Program
     {
-        private static Process process = new Process();
+        private static readonly Process Process = new Process();
         private static readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         static void Main(string[] args)
         {
@@ -44,16 +45,16 @@ namespace BPS.EdOrg.Loader
                 {
                     Archive(param.Object);
                     LogConfiguration(param.Object);
-                    List<SchoolResponse> existingSchools = GetSchoolList(param.Object);
-                    CreateXML(param.Object, existingSchools);
-                    LoadXML(param.Object);
+                    List<string> existingSchools = GetDeptList(param.Object);
+                    CreateXml(param.Object, existingSchools);
+                    LoadXml(param.Object);
                 }
                 catch (Exception ex)
                 {
                     Log.Error(ex.Message);
                 }
             }
-        }        
+        }
         private static void LogConfiguration(Configuration configuration)
         {
             Log.Info($"Api Url: {configuration.ApiUrl}");
@@ -70,24 +71,25 @@ namespace BPS.EdOrg.Loader
             Log.Info($"CrossWalk File Path: {configuration.CrossWalkFilePath}");
             Log.Info($"Working Folder: {configuration.WorkingFolder}");
             Log.Info($"Xsd Folder:  {configuration.XsdFolder}");
+            Log.Info($"InterchangeOrder Folder:  {configuration.InterchangeOrderFolder}");
         }
-        private static void LoadXML(Configuration configuration)
+        private static void LoadXml(Configuration configuration)
         {
             try
             {
-                Log.Info($"Started executing EdFi.ApiLoader.Console from path :");
-                process.EnableRaisingEvents = true;
-                process.OutputDataReceived += new System.Diagnostics.DataReceivedEventHandler(process_OutputDataReceived);
-                process.ErrorDataReceived += new System.Diagnostics.DataReceivedEventHandler(process_ErrorDataReceived);
-                process.Exited += new System.EventHandler(process_Exited);
-                process.StartInfo.FileName = configuration.ApiLoaderExePath;
-                process.StartInfo.Arguments = GetArguments(configuration);
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.RedirectStandardError = true;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.Start();
-                process.BeginErrorReadLine();
-                process.BeginOutputReadLine();
+                Log.Info($"Started executing EdFi.ApiLoader.Console from path :{configuration.ApiLoaderExePath}");
+                Process.EnableRaisingEvents = true;
+                Process.OutputDataReceived += new System.Diagnostics.DataReceivedEventHandler(process_OutputDataReceived);
+                Process.ErrorDataReceived += new System.Diagnostics.DataReceivedEventHandler(process_ErrorDataReceived);
+                Process.Exited += new System.EventHandler(process_Exited);
+                Process.StartInfo.FileName = configuration.ApiLoaderExePath;
+                Process.StartInfo.Arguments = GetArguments(configuration);
+                Process.StartInfo.UseShellExecute = false;
+                Process.StartInfo.RedirectStandardError = true;
+                Process.StartInfo.RedirectStandardOutput = true;
+                Process.Start();
+                Process.BeginErrorReadLine();
+                Process.BeginOutputReadLine();
             }
             catch (Exception ex)
             {
@@ -106,6 +108,7 @@ namespace BPS.EdOrg.Loader
                 argumentBuilder.Append($"/m {configuration.MetadataUrl} ");
                 argumentBuilder.Append($"/o {configuration.OauthUrl} ");
                 argumentBuilder.Append($"/x {configuration.XsdFolder} ");
+                argumentBuilder.Append($"/i {configuration.InterchangeOrderFolder} ");
                 argumentBuilder.Append($"/w {configuration.WorkingFolder} ");
                 argumentBuilder.Append($"/y {configuration.SchoolYear}");
             }
@@ -117,7 +120,7 @@ namespace BPS.EdOrg.Loader
         }
         private static void process_Exited(object sender, EventArgs e)
         {
-            Log.Info($"process exited with code {process.ExitCode.ToString()}");
+            Log.Info($"process exited with code {Process.ExitCode.ToString()}");
         }
         private static void process_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
@@ -127,7 +130,7 @@ namespace BPS.EdOrg.Loader
         {
             Log.Info(e.Data);
         }
-        private static void CreateXML(Configuration configuration , List<SchoolResponse> existingSchools)
+        private static void CreateXml(Configuration configuration, List<string> existingDeptIds)
         {
             try
             {
@@ -143,10 +146,11 @@ namespace BPS.EdOrg.Loader
                 writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
                 writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
 
+
                 string dataFilePath = configuration.DataFilePath;
                 string[] lines = File.ReadAllLines(dataFilePath);
                 int i = 0;
-                int deptIDIndex = 0;
+                int deptIdIndex = 0;
                 int deptTitleIndex = 0;
                 int numberOfRecordsCreatedInXml = 0, numberOfRecordsSkipped = 0;
                 foreach (string line in lines)
@@ -154,10 +158,10 @@ namespace BPS.EdOrg.Loader
                     Log.Debug(line);
                     if (i++ == 0)
                     {
-                        string[] Headerfields = line.Split('\t');
-                        deptIDIndex = Array.IndexOf(Headerfields, "DeptID");
-                        deptTitleIndex = Array.IndexOf(Headerfields, "Dept Title");
-                        if (deptIDIndex < 0 || deptTitleIndex < 0)
+                        string[] header = line.Split('\t');
+                        deptIdIndex = Array.IndexOf(header, "DeptID");
+                        deptTitleIndex = Array.IndexOf(header, "Dept Title");
+                        if (deptIdIndex < 0 || deptTitleIndex < 0)
                         {
                             Log.Error($"Input data text file does not contains the DeptID or Dept Title headers");
                         }
@@ -167,10 +171,9 @@ namespace BPS.EdOrg.Loader
                     string[] fields = line.Split('\t');
                     if (fields.Length > 0)
                     {
-                        string deptId = fields[deptIDIndex]?.Trim();
+                        string deptId = fields[deptIdIndex]?.Trim();
                         string deptTitle = fields[deptTitleIndex]?.Trim();
-                        List<string> s = new List<string>();
-                        if (existingSchools.FindIndex(x=>(x.SchoolId.Trim()==deptId) && x.NameOfInstitution.Trim()==deptTitle)<0)
+                        if (!existingDeptIds.Contains(deptId))
                         {
                             Log.Debug($"Creating node for {deptId}-{deptTitle}");
                             CreateNode(deptId, deptTitle, writer);
@@ -179,7 +182,7 @@ namespace BPS.EdOrg.Loader
                         else
                         {
                             Log.Debug($"Record skipped : {line}");
-                            numberOfRecordsSkipped++;                           
+                            numberOfRecordsSkipped++;
                         }
                     }
                 }
@@ -189,7 +192,7 @@ namespace BPS.EdOrg.Loader
                 if (numberOfRecordsSkipped > 0)
                 {
                     Log.Info($"Number Of records created In Xml {numberOfRecordsCreatedInXml}");
-                    Log.Info($"Number of records skipped because crosswalkcontains the PeopleSoftIds - {numberOfRecordsSkipped}");
+                    Log.Info($"Number of records skipped because crosswalk contains the PeopleSoftIds - {numberOfRecordsSkipped}");
                 }
                 Log.Info("CreateXML ended successfully");
             }
@@ -269,10 +272,10 @@ namespace BPS.EdOrg.Loader
         {
             try
             {
-                Log.Info("Achiving started");
+                Log.Info("Archiving started");
                 MoveFiles(configuration);
                 DeleteOldFiles(configuration);
-                Log.Info("Achiving ended");
+                Log.Info("Archiving ended");
             }
             catch (Exception ex)
             {
@@ -316,7 +319,7 @@ namespace BPS.EdOrg.Loader
             {
                 string backupPath = Path.Combine(configuration.XMLOutputPath, "Backup");
                 string[] files = Directory.GetFiles(backupPath);
-                int numberOfBackupDays = Convert.ToInt16(ConfigurationManager.AppSettings.Get("BakupDays"));
+                int numberOfBackupDays = Convert.ToInt16(ConfigurationManager.AppSettings.Get("BackupDays"));
                 foreach (string file in files)
                 {
                     FileInfo fi = new FileInfo(file);
@@ -332,18 +335,20 @@ namespace BPS.EdOrg.Loader
                 Log.Error(ex.Message);
             }
         }
-        private static List<SchoolResponse> GetSchoolList(Configuration configuration)
+        private static List<string> GetDeptList(Configuration configuration)
         {
-            List<SchoolResponse> schoolList = new List<SchoolResponse>();
+            
+            List<string> existingDeptIds = new List<string>();
             try
             {
                 TokenRetriever tokenRetriever = new TokenRetriever(configuration);
-                string _token = tokenRetriever.ObtainNewBearerToken();
-                if (!string.IsNullOrEmpty(_token))
+
+                string token = tokenRetriever.ObtainNewBearerToken();
+                if (!string.IsNullOrEmpty(token))
                 {
                     Log.Info($"Crosswalk API token retrieved successfully");
-                    RestServiceManager restManager = new RestServiceManager(configuration, _token, Log);
-                    schoolList = restManager.GetSchoolList();
+                    RestServiceManager restManager = new RestServiceManager(configuration, token, Log);
+                    existingDeptIds = restManager.GetSchoolList();
                 }
                 else
                 {
@@ -355,7 +360,7 @@ namespace BPS.EdOrg.Loader
                 Log.Error($"Error while getting school list:{ex.Message}");
             }
 
-            return schoolList;
+            return existingDeptIds;
         }
     }
 }
