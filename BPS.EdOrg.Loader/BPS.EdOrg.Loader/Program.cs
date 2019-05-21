@@ -219,7 +219,7 @@ namespace BPS.EdOrg.Loader
 
                 writer.WriteStartElement("EducationOrganizationIdentificationSystem");
                 writer.WriteStartElement("CodeValue");
-                writer.WriteString("Other");
+                writer.WriteString("School");
                 writer.WriteEndElement();
                 writer.WriteEndElement();
                 writer.WriteEndElement();
