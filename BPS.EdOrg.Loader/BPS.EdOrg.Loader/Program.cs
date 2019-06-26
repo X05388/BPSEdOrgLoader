@@ -46,7 +46,7 @@ namespace BPS.EdOrg.Loader
                     Archive(param.Object);
                     LogConfiguration(param.Object);
                     List<string> existingSchools = GetDeptList(param.Object);
-                    CreateXml(param.Object, existingSchools);
+                    //CreateXml(param.Object, existingSchools);
                     CreateXmlJob(param.Object, existingSchools);
                     LoadXml(param.Object);
                 }
@@ -223,7 +223,7 @@ namespace BPS.EdOrg.Loader
                 string dataFilePath = configuration.DataFilePath;
                 string[] lines = File.ReadAllLines(dataFilePath);
                 int i = 0;
-                int jobCodeIndex = 0;
+                int empIdIndex = 0;
                 int deptIdIndex = 0;
                 int actionIndex=0; int  actionDateIndex = 0;
                 int numberOfRecordsCreatedInXml = 0, numberOfRecordsSkipped = 0;
@@ -233,11 +233,11 @@ namespace BPS.EdOrg.Loader
                     if (i++ == 0)
                     {
                         string[] header = line.Split('\t');
-                        jobCodeIndex = Array.IndexOf(header, "Job Code");
+                        empIdIndex = Array.IndexOf(header, "ID");
                         deptIdIndex = Array.IndexOf(header, "Deptid");
                         actionIndex = Array.IndexOf(header, "Action");
                         actionDateIndex = Array.IndexOf(header, "Action Dt");
-                        if (deptIdIndex < 0 || actionDateIndex < 0 || jobCodeIndex < 0)
+                        if (deptIdIndex < 0 || actionDateIndex < 0 || empIdIndex<0)
                         {
                             Log.Error($"Input data text file does not contains the ID or JobCode or ActionDt headers");
                         }
@@ -247,14 +247,14 @@ namespace BPS.EdOrg.Loader
                     string[] fields = line.Split('\t');
                     if (fields.Length > 0)
                     {
-                        string jobCode = fields[jobCodeIndex]?.Trim();
+                        string staffId = fields[empIdIndex]?.Trim();
                         string deptID = fields[deptIdIndex]?.Trim();
                         string action = fields[actionIndex]?.Trim();
                         string endDate = fields[actionDateIndex]?.Trim();
                         if (!existingDeptIds.Contains(deptID))
                         {
-                            Log.Debug($"Creating node for {jobCode}-{deptID}-{endDate}");
-                            CreateNodeJob(jobCode, deptID, action, endDate, writer);
+                            Log.Debug($"Creating node for {staffId}-{deptID}-{endDate}");
+                            CreateNodeJob(staffId, deptID, action, endDate, writer);
                             numberOfRecordsCreatedInXml++;
                         }
                         else
@@ -280,22 +280,22 @@ namespace BPS.EdOrg.Loader
             }
         }
 
-        private static void CreateNodeJob(string jobCode, string deptID, string action, string endDate, XmlTextWriter writer)
+        private static void CreateNodeJob(string staffId,string deptID, string action, string endDate, XmlTextWriter writer)
         {
             try
             {
                 if (action.Equals("TER"))
                 {
-                    Log.Info($"CreateNode started for deptID:{deptID} and EndDate:{endDate}");
+                    Log.Info($"CreateNode started for jobcode:{deptID} and EndDate:{endDate}");
                     writer.WriteStartElement("StaffSchoolAssociation");
 
-                    //writer.WriteStartElement("staffId");
-                    //writer.WriteString(staffId);
-                    //writer.WriteEndElement();
-
-                    writer.WriteStartElement("Department");
-                    writer.WriteString(jobCode);
+                    writer.WriteStartElement("staffId");
+                    writer.WriteString(staffId);
                     writer.WriteEndElement();
+
+                    //writer.WriteStartElement("Department");
+                    //writer.WriteString(jobCode);
+                    //writer.WriteEndElement();
 
                     writer.WriteStartElement("EducationOrganizationID");
                     writer.WriteString(deptID);
