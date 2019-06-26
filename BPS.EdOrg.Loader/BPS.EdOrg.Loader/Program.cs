@@ -131,6 +131,78 @@ namespace BPS.EdOrg.Loader
         {
             Log.Info(e.Data);
         }
+
+        private static void CreateXml(Configuration configuration, List<string> existingDeptIds)
+        {
+            try
+            {
+                Log.Info("CreateXML started");
+                string xmlOutPutPath = ConfigurationManager.AppSettings["XMLOutputPath"];
+                string filePath = Path.Combine(xmlOutPutPath, $"EducationOrganization-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
+                XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
+                writer.WriteStartDocument();
+                writer.Formatting = Formatting.Indented;
+                writer.Indentation = 2;
+                writer.WriteStartElement("InterchangeEducationOrganization");
+                writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
+                writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
+                writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
+
+
+                string dataFilePath = configuration.DataFilePath;
+                string[] lines = File.ReadAllLines(dataFilePath);
+                int i = 0;
+                int deptIdIndex = 0;
+                int deptTitleIndex = 0;
+                int numberOfRecordsCreatedInXml = 0, numberOfRecordsSkipped = 0;
+                foreach (string line in lines)
+                {
+                    Log.Debug(line);
+                    if (i++ == 0)
+                    {
+                        string[] header = line.Split('\t');
+                        deptIdIndex = Array.IndexOf(header, "DeptID");
+                        deptTitleIndex = Array.IndexOf(header, "Dept Title");
+                        if (deptIdIndex < 0 || deptTitleIndex < 0)
+                        {
+                            Log.Error($"Input data text file does not contains the DeptID or Dept Title headers");
+                        }
+                        continue;
+                    }
+
+                    string[] fields = line.Split('\t');
+                    if (fields.Length > 0)
+                    {
+                        string deptId = fields[deptIdIndex]?.Trim();
+                        string deptTitle = fields[deptTitleIndex]?.Trim();
+                        if (!existingDeptIds.Contains(deptId))
+                        {
+                            Log.Debug($"Creating node for {deptId}-{deptTitle}");
+                            CreateNode(deptId, deptTitle, writer);
+                            numberOfRecordsCreatedInXml++;
+                        }
+                        else
+                        {
+                            Log.Debug($"Record skipped : {line}");
+                            numberOfRecordsSkipped++;
+                        }
+                    }
+                }
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
+                writer.Close();
+                if (numberOfRecordsSkipped > 0)
+                {
+                    Log.Info($"Number Of records created In Xml {numberOfRecordsCreatedInXml}");
+                    Log.Info($"Number of records skipped because crosswalk contains the PeopleSoftIds - {numberOfRecordsSkipped}");
+                }
+                Log.Info("CreateXML ended successfully");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error while creating XML , Exception: {ex.Message}");
+            }
+        }
         private static void CreateXmlJob(Configuration configuration, List<string> existingDeptIds)
         {
             try
