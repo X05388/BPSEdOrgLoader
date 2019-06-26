@@ -47,6 +47,7 @@ namespace BPS.EdOrg.Loader
                     LogConfiguration(param.Object);
                     List<string> existingSchools = GetDeptList(param.Object);
                     CreateXml(param.Object, existingSchools);
+                    CreateXmlJob(param.Object, existingSchools);
                     LoadXml(param.Object);
                 }
                 catch (Exception ex)
@@ -130,7 +131,7 @@ namespace BPS.EdOrg.Loader
         {
             Log.Info(e.Data);
         }
-        private static void CreateXml(Configuration configuration, List<string> existingDeptIds)
+        private static void CreateXmlJob(Configuration configuration, List<string> existingDeptIds)
         {
             try
             {
@@ -150,8 +151,9 @@ namespace BPS.EdOrg.Loader
                 string dataFilePath = configuration.DataFilePath;
                 string[] lines = File.ReadAllLines(dataFilePath);
                 int i = 0;
-                int deptIdIndex = 0;
-                int deptTitleIndex = 0;
+                int empIdIndex = 0;
+                int jobCodeIndex = 0;
+                int actionIndex=0; int  actionDateIndex = 0;
                 int numberOfRecordsCreatedInXml = 0, numberOfRecordsSkipped = 0;
                 foreach (string line in lines)
                 {
@@ -159,11 +161,13 @@ namespace BPS.EdOrg.Loader
                     if (i++ == 0)
                     {
                         string[] header = line.Split('\t');
-                        deptIdIndex = Array.IndexOf(header, "DeptID");
-                        deptTitleIndex = Array.IndexOf(header, "Dept Title");
-                        if (deptIdIndex < 0 || deptTitleIndex < 0)
+                        empIdIndex = Array.IndexOf(header, "ID");
+                        jobCodeIndex = Array.IndexOf(header, "Job Code");
+                        actionIndex = Array.IndexOf(header, "Action");
+                        actionDateIndex = Array.IndexOf(header, "Action Dt");
+                        if (jobCodeIndex < 0 || actionDateIndex < 0 || empIdIndex<0)
                         {
-                            Log.Error($"Input data text file does not contains the DeptID or Dept Title headers");
+                            Log.Error($"Input data text file does not contains the ID or JobCode or ActionDt headers");
                         }
                         continue;
                     }
@@ -171,12 +175,14 @@ namespace BPS.EdOrg.Loader
                     string[] fields = line.Split('\t');
                     if (fields.Length > 0)
                     {
-                        string deptId = fields[deptIdIndex]?.Trim();
-                        string deptTitle = fields[deptTitleIndex]?.Trim();
-                        if (!existingDeptIds.Contains(deptId))
+                        string staffId = fields[empIdIndex]?.Trim();
+                        string jobCode = fields[jobCodeIndex]?.Trim();
+                        string action = fields[actionIndex]?.Trim();
+                        string endDate = fields[actionDateIndex]?.Trim();
+                        if (!existingDeptIds.Contains(jobCode))
                         {
-                            Log.Debug($"Creating node for {deptId}-{deptTitle}");
-                            CreateNode(deptId, deptTitle, writer);
+                            Log.Debug($"Creating node for {staffId}-{jobCode}-{endDate}");
+                            CreateNodeJob(staffId, jobCode,action, endDate, writer);
                             numberOfRecordsCreatedInXml++;
                         }
                         else
@@ -201,10 +207,46 @@ namespace BPS.EdOrg.Loader
                 Log.Error($"Error while creating XML , Exception: {ex.Message}");
             }
         }
-        private static void CreateNode(string deptId, string deptTitle, XmlTextWriter writer)
+
+        private static void CreateNodeJob(string staffId,string jobCode,string action, string endDate, XmlTextWriter writer)
         {
             try
             {
+                Log.Info($"CreateNode started for jobcode:{jobCode} and EndDate:{endDate}");
+                writer.WriteStartElement("StaffSchoolAssociation");
+
+                writer.WriteStartElement("staffId");
+                writer.WriteString(staffId);
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("Department");
+                writer.WriteString(jobCode);
+                writer.WriteEndElement();
+                if (action.Equals("TER"))
+                {
+
+                    writer.WriteStartElement("Action");
+                    writer.WriteString(action);
+                    writer.WriteEndElement();
+
+                    writer.WriteStartElement("EndDate");
+                    writer.WriteString(endDate);
+                    writer.WriteEndElement();
+                }
+                
+                writer.WriteEndElement();
+                Log.Info($"CreateNode Ended successfully for jobcode:{jobCode} and EndDate:{endDate}");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"There is exception while creating Node for jobcode:{jobCode} and EndDate:{endDate}, Exception  :{ex.Message}");
+            }
+        }
+
+        private static void CreateNode(string deptId, string deptTitle, XmlTextWriter writer)
+            {
+                try
+                {
                 Log.Info($"CreateNode started for DeptId:{deptId} and DeptTitle:{deptTitle}");
                 writer.WriteStartElement("EducationServiceCenter");
 
