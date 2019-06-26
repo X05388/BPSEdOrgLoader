@@ -310,8 +310,11 @@ namespace BPS.EdOrg.Loader
                     writer.WriteEndElement();
 
                     writer.WriteEndElement();
+
                     Log.Info($"CreateNode Ended successfully for jobcode:{deptID} and EndDate:{endDate}");
                 }
+                
+               
                 
             }
             catch (Exception ex)
