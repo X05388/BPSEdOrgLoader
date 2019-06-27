@@ -12,4 +12,12 @@ namespace BPS.EdOrg.Loader
         public string EducationOrganizationIdentificationSystemDescriptor { get; set; }
         public string IdentificationCode { get; set; }
     }
+
+    public class StaffResponse
+    {
+        public List<string> staffUniqueId { get; set; }
+    }
+
+    
+    
 }

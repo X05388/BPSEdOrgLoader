@@ -45,9 +45,14 @@ namespace BPS.EdOrg.Loader
                 {
                     Archive(param.Object);
                     LogConfiguration(param.Object);
-                    List<string> existingSchools = GetDeptList(param.Object);
+                    // For Dept_tbl.txt
+                    //List<string> existingSchools = GetDeptList(param.Object);
                     //CreateXml(param.Object, existingSchools);
-                    CreateXmlJob(param.Object, existingSchools);
+
+                    //For JobCode_tbl.txt
+                    List<string> existingStaffId = GetStaffList(param.Object);
+                    CreateXmlJob(param.Object, existingStaffId);
+
                     LoadXml(param.Object);
                 }
                 catch (Exception ex)
@@ -61,6 +66,7 @@ namespace BPS.EdOrg.Loader
             Log.Info($"Api Url: {configuration.ApiUrl}");
             Log.Info($"CrossWalk Cross Walk OAuth Url:   {configuration.CrossWalkOAuthUrl}");
             Log.Info($"CrossWalk School Api Url:   {configuration.CrossWalkSchoolApiUrl}");
+            Log.Info($"CrossWalk Staff Api Url:   {configuration.CrossWalkStaffApiUrl}");
             Log.Info($"School Year: {configuration.SchoolYear}");
             Log.Info($"CrossWalk Key:   {configuration.CrossWalkKey}");
             Log.Info($"CrossWalk Secret:   {configuration.CrossWalkSecret}");
@@ -132,10 +138,24 @@ namespace BPS.EdOrg.Loader
             Log.Info(e.Data);
         }
 
+
+        private static void CreateXmlGeneric()
+        {
+            try
+            {
+            }
+            catch(Exception ex)
+            {
+                Log.Error($"Error while creating XML , Exception: {ex.Message}");
+            }
+
+
+        }
         private static void CreateXml(Configuration configuration, List<string> existingDeptIds)
         {
             try
             {
+
                 Log.Info("CreateXML started");
                 string xmlOutPutPath = ConfigurationManager.AppSettings["XMLOutputPath"];
                 string filePath = Path.Combine(xmlOutPutPath, $"EducationOrganization-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
@@ -147,8 +167,6 @@ namespace BPS.EdOrg.Loader
                 writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
                 writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
                 writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
-
-
                 string dataFilePath = configuration.DataFilePath;
                 string[] lines = File.ReadAllLines(dataFilePath);
                 int i = 0;
@@ -203,7 +221,7 @@ namespace BPS.EdOrg.Loader
                 Log.Error($"Error while creating XML , Exception: {ex.Message}");
             }
         }
-        private static void CreateXmlJob(Configuration configuration, List<string> existingDeptIds)
+        private static void CreateXmlJob(Configuration configuration, List<string> existingStaffId)
         {
             try
             {
@@ -251,7 +269,7 @@ namespace BPS.EdOrg.Loader
                         string deptID = fields[deptIdIndex]?.Trim();
                         string action = fields[actionIndex]?.Trim();
                         string endDate = fields[actionDateIndex]?.Trim();
-                        if (!existingDeptIds.Contains(deptID))
+                        if (existingStaffId.Contains(staffId))
                         {
                             Log.Debug($"Creating node for {staffId}-{deptID}-{endDate}");
                             CreateNodeJob(staffId, deptID, action, endDate, writer);
@@ -483,6 +501,34 @@ namespace BPS.EdOrg.Loader
             }
 
             return existingDeptIds;
+        }
+
+        private static List<string> GetStaffList(Configuration configuration)
+        {
+
+            List<string> existingStaffIds = new List<string>();
+            try
+            {
+                TokenRetriever tokenRetriever = new TokenRetriever(configuration);
+
+                string token = tokenRetriever.ObtainNewBearerToken();
+                if (!string.IsNullOrEmpty(token))
+                {
+                    Log.Info($"Crosswalk API token retrieved successfully");
+                    RestServiceManager restManager = new RestServiceManager(configuration, token, Log);
+                    existingStaffIds = restManager.GetStaffList();
+                }
+                else
+                {
+                    Log.Error($"Error while retrieving access token for Crosswalk API");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error while getting school list:{ex.Message}");
+            }
+
+            return existingStaffIds;
         }
     }
 }

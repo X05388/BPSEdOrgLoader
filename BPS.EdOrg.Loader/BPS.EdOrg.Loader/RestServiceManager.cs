@@ -73,6 +73,58 @@ namespace BPS.EdOrg.Loader
             return existingDeptIds;
         }
 
+
+        public List<string> GetStaffList()
+        {
+            List<string> existingStaffIds = new List<string>();
+            try
+            {
+                if (!string.IsNullOrEmpty(_accessToken))
+                {
+                    var httpClient = new RestClient(_configuration.CrossWalkStaffApiUrl);
+                    int offset = 0, limit = 100;
+                    bool hasRecords = true;
+                    while (hasRecords)
+                    {
+                        var response = GetRestResponseStaff(httpClient, offset, limit);
+                        offset += limit;
+                        if (response.StatusCode != HttpStatusCode.OK)
+                        {
+                            _log.Error($"Unable to retrieve staff list from {httpClient.BaseUrl}");
+                        }
+                        else
+                        {
+                            List<StaffResponse> staffList = response.Data;
+                            foreach (var staff in staffList)
+                            {
+                                string staffId = staff.staffUniqueId[0].ToString();
+                                    
+                                if (!string.IsNullOrEmpty(staffId) && !string.Equals(staffId, "N/A", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    existingStaffIds.Add(staffId);
+                                }
+                            }
+                        }
+
+                        if (response.Data.Count == 0)
+                        {
+                            hasRecords = false;
+                        }
+                    }
+
+                }
+                else
+                {
+                    _log.Error($"Bearer token not provided for retrieving staff list from API");
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Exception while retrieve staff list : {ex.Message}");
+            }
+            return existingStaffIds;
+        }
+
         private IRestResponse<List<SchoolResponse>> GetRestResponse(RestClient httpClient, int offset , int limit)
         {
             var request = new RestRequest(Method.GET);
@@ -82,6 +134,18 @@ namespace BPS.EdOrg.Loader
             request.AddParameter("offset", offset);
             request.AddParameter("limit", limit);
             var response = httpClient.Execute<List<SchoolResponse>>(request);
+            return response;
+        }
+
+        private IRestResponse<List<StaffResponse>> GetRestResponseStaff(RestClient httpClient, int offset, int limit)
+        {
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("Authorization", "Bearer " + _accessToken);
+            request.RequestFormat = RestSharp.DataFormat.Json;
+            request.AddHeader("Content-Type", "application/json");
+            request.AddParameter("offset", offset);
+            request.AddParameter("limit", limit);
+            var response = httpClient.Execute<List<StaffResponse>>(request);
             return response;
         }
     }
