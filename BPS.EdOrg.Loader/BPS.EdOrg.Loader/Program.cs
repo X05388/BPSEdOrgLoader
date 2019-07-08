@@ -45,21 +45,36 @@ namespace BPS.EdOrg.Loader
                 {
                     Archive(param.Object);
                     LogConfiguration(param.Object);
-                    // For Dept_tbl.txt
-                    //List<string> existingSchools = GetDeptList(param.Object);
-                    //CreateXml(param.Object, existingSchools);
 
-                    //For JobCode_tbl.txt
-                    List<string> existingStaffId = GetStaffList(param.Object);
-                    CreateXmlJob(param.Object, existingStaffId);
+                    // creating the xml and executing the file through command line parser
+                    RunDeptFile(param);
+                    RunJobCodeFile(param);
 
-                    LoadXml(param.Object);
+                    
                 }
                 catch (Exception ex)
                 {
                     Log.Error(ex.Message);
                 }
             }
+        }
+
+        private static void RunDeptFile(CommandLineParser param) {
+
+            //For Dept_tbl.txt
+            List<string> existingSchools = GetDeptList(param.Object);
+            CreateXml(param.Object, existingSchools);
+            LoadXml(param.Object);
+
+        }
+        private static void RunJobCodeFile(CommandLineParser param)
+        {
+
+            // For JobCode_tbl.txt
+            List<string> existingStaffId = GetStaffList(param.Object);
+            CreateXmlJob(param.Object, existingStaffId);
+            LoadXml(param.Object);
+
         }
         private static void LogConfiguration(Configuration configuration)
         {
