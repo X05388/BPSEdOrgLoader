@@ -154,14 +154,44 @@ namespace BPS.EdOrg.Loader
         }
 
 
-        private static void CreateXmlGeneric()
+        private static void CreateXmlGenericStart(XmlTextWriter writer)
         {
             try
             {
+                Log.Info("CreateXML started");               
+                writer.WriteStartDocument();
+                writer.Formatting = Formatting.Indented;
+                writer.Indentation = 2;
+                writer.WriteStartElement("InterchangeEducationOrganization");
+                writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
+                writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
+                writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
             }
             catch(Exception ex)
             {
-                Log.Error($"Error while creating XML , Exception: {ex.Message}");
+                Log.Error($"Error while creating Generic XML start, Exception: {ex.Message}");
+            }
+
+
+        }
+
+        private static void CreateXmlGenericEnd(XmlTextWriter writer,int numberOfRecordsCreatedInXml,int numberOfRecordsSkipped)
+        {
+            try
+            {
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
+                writer.Close();
+                if (numberOfRecordsSkipped > 0)
+                {
+                    Log.Info($"Number Of records created In Xml {numberOfRecordsCreatedInXml}");
+                    Log.Info($"Number of records skipped because crosswalk contains the PeopleSoftIds - {numberOfRecordsSkipped}");
+                }
+                Log.Info("CreateXML ended successfully");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error while creating Generic XML End, Exception: {ex.Message}");
             }
 
 
@@ -170,18 +200,10 @@ namespace BPS.EdOrg.Loader
         {
             try
             {
-
-                Log.Info("CreateXML started");
                 string xmlOutPutPath = ConfigurationManager.AppSettings["XMLOutputPath"];
                 string filePath = Path.Combine(xmlOutPutPath, $"EducationOrganization-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
                 XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
-                writer.WriteStartDocument();
-                writer.Formatting = Formatting.Indented;
-                writer.Indentation = 2;
-                writer.WriteStartElement("InterchangeEducationOrganization");
-                writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
-                writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
-                writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
+                CreateXmlGenericStart(writer);
                 string dataFilePath = configuration.DataFilePath;
                 string[] lines = File.ReadAllLines(dataFilePath);
                 int i = 0;
@@ -220,20 +242,13 @@ namespace BPS.EdOrg.Loader
                             numberOfRecordsSkipped++;
                         }
                     }
+                    CreateXmlGenericEnd(writer, numberOfRecordsCreatedInXml, numberOfRecordsSkipped);
                 }
-                writer.WriteEndElement();
-                writer.WriteEndDocument();
-                writer.Close();
-                if (numberOfRecordsSkipped > 0)
-                {
-                    Log.Info($"Number Of records created In Xml {numberOfRecordsCreatedInXml}");
-                    Log.Info($"Number of records skipped because crosswalk contains the PeopleSoftIds - {numberOfRecordsSkipped}");
-                }
-                Log.Info("CreateXML ended successfully");
+                
             }
             catch (Exception ex)
             {
-                Log.Error($"Error while creating XML , Exception: {ex.Message}");
+                Log.Error($"Error while creating Dept XML , Exception: {ex.Message}");
             }
         }
         private static void CreateXmlJob(Configuration configuration, List<string> existingStaffId)
@@ -242,16 +257,9 @@ namespace BPS.EdOrg.Loader
             {
                 Log.Info("CreateXML started");
                 string xmlOutPutPath = ConfigurationManager.AppSettings["XMLOutputPath"];
-                string filePath = Path.Combine(xmlOutPutPath, $"EducationOrganization-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
+                string filePath = Path.Combine(xmlOutPutPath, $"Jobcode-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
                 XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
-                writer.WriteStartDocument();
-                writer.Formatting = Formatting.Indented;
-                writer.Indentation = 2;
-                writer.WriteStartElement("InterchangeEducationOrganization");
-                writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
-                writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
-                writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
-
+                CreateXmlGenericStart(writer);
 
                 string dataFilePath = configuration.DataFilePath;
                 string[] lines = File.ReadAllLines(dataFilePath);
@@ -297,19 +305,11 @@ namespace BPS.EdOrg.Loader
                         }
                     }
                 }
-                writer.WriteEndElement();
-                writer.WriteEndDocument();
-                writer.Close();
-                if (numberOfRecordsSkipped > 0)
-                {
-                    Log.Info($"Number Of records created In Xml {numberOfRecordsCreatedInXml}");
-                    Log.Info($"Number of records skipped because crosswalk contains the PeopleSoftIds - {numberOfRecordsSkipped}");
-                }
-                Log.Info("CreateXML ended successfully");
+                CreateXmlGenericEnd(writer, numberOfRecordsCreatedInXml, numberOfRecordsSkipped);
             }
             catch (Exception ex)
             {
-                Log.Error($"Error while creating XML , Exception: {ex.Message}");
+                Log.Error($"Error while creating JobCode XML , Exception: {ex.Message}");
             }
         }
 
