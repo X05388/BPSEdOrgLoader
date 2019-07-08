@@ -90,6 +90,7 @@ namespace BPS.EdOrg.Loader
             Log.Info($"Metadata Url:    {configuration.MetadataUrl}");
             Log.Info($"Data Folder: {configuration.XMLOutputPath}");
             Log.Info($"Input Data Text File Path:   {configuration.DataFilePath}");
+            Log.Info($"Input Data Text File Path Job:   {configuration.DataFilePathJob}");
             Log.Info($"CrossWalk File Path: {configuration.CrossWalkFilePath}");
             Log.Info($"Working Folder: {configuration.WorkingFolder}");
             Log.Info($"Xsd Folder:  {configuration.XsdFolder}");
@@ -257,11 +258,12 @@ namespace BPS.EdOrg.Loader
             {
                 Log.Info("CreateXML started");
                 string xmlOutPutPath = ConfigurationManager.AppSettings["XMLOutputPath"];
-                string filePath = Path.Combine(xmlOutPutPath, $"Jobcode-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
+                string filePath = Path.Combine(xmlOutPutPath, $"Jo" +
+                    $"I bcode-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
                 XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
                 CreateXmlGenericStart(writer);
 
-                string dataFilePath = configuration.DataFilePath;
+                string dataFilePath = configuration.DataFilePathJob;
                 string[] lines = File.ReadAllLines(dataFilePath);
                 int i = 0;
                 int empIdIndex = 0;

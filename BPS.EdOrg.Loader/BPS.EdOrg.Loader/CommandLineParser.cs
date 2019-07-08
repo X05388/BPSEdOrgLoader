@@ -55,6 +55,12 @@ namespace BPS.EdOrg.Loader
                 ConfigurationManager.AppSettings["DataFilePath"],
                 Directory.GetCurrentDirectory()));
 
+            Setup(arg => arg.DataFilePathJob).As('j', "DataFilePathJob")
+            .WithDescription("Path to folder containing the input text data files to be loaded")
+            .SetDefault(GetFirstValue(
+                ConfigurationManager.AppSettings["DataFilePathJob"],
+                Directory.GetCurrentDirectory()));
+
             Setup(arg => arg.CrossWalkFilePath).As('c', "CrossWalkFilePath")
           .WithDescription("Path to folder containing the input text crosswalk files to be loaded")
           .SetDefault(GetFirstValue(
