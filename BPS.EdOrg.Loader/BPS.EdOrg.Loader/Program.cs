@@ -258,8 +258,7 @@ namespace BPS.EdOrg.Loader
             {
                 Log.Info("CreateXML started");
                 string xmlOutPutPath = ConfigurationManager.AppSettings["XMLOutputPath"];
-                string filePath = Path.Combine(xmlOutPutPath, $"Jo" +
-                    $"I bcode-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
+                string filePath = Path.Combine(xmlOutPutPath, $"JobCode-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
                 XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
                 CreateXmlGenericStart(writer);
 
