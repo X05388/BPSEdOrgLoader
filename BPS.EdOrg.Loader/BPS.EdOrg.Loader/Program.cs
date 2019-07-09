@@ -323,7 +323,7 @@ namespace BPS.EdOrg.Loader
                     Log.Info($"CreateNode started for jobcode:{deptID} and EndDate:{endDate}");
                     writer.WriteStartElement("StaffSchoolAssociation");
 
-                    writer.WriteStartElement("staffId");
+                    writer.WriteStartElement("StaffId");
                     writer.WriteString(staffId);
                     writer.WriteEndElement();
 
