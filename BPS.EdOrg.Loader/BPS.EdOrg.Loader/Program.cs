@@ -47,7 +47,7 @@ namespace BPS.EdOrg.Loader
                     LogConfiguration(param.Object);
 
                     // creating the xml and executing the file through command line parser
-                    RunDeptFile(param);
+                    //RunDeptFile(param);
                     RunJobCodeFile(param);
 
                     
@@ -163,7 +163,7 @@ namespace BPS.EdOrg.Loader
                 writer.WriteStartDocument();
                 writer.Formatting = Formatting.Indented;
                 writer.Indentation = 2;
-                writer.WriteStartElement("InterchangeEducationOrganization");
+                writer.WriteStartElement("InterchangeStaffAssociation");
                 writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
                 writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
                 writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
@@ -321,26 +321,45 @@ namespace BPS.EdOrg.Loader
                 if (action.Equals("TER"))
                 {
                     Log.Info($"CreateNode started for jobcode:{deptID} and EndDate:{endDate}");
-                    writer.WriteStartElement("StaffSchoolAssociation");
 
-                    writer.WriteStartElement("StaffId");
+                    writer.WriteStartElement("StaffEducationOrganizationEmploymentAssociation");
+
+                    writer.WriteStartElement("StaffReference");
+                    writer.WriteStartElement("StaffIdentity");
+                    writer.WriteStartElement("StaffUniqueId");
                     writer.WriteString(staffId);
+                    writer.WriteEndElement();
+                    writer.WriteEndElement();
                     writer.WriteEndElement();
 
                     //writer.WriteStartElement("Department");
                     //writer.WriteString(jobCode);
                     //writer.WriteEndElement();
 
-                    writer.WriteStartElement("EducationOrganizationID");
+                    writer.WriteStartElement("EducationOrganizationReference");
+
+                    writer.WriteStartElement("EducationOrganizationIdentity");
+                    writer.WriteStartElement("EducationOrganizationId");
                     writer.WriteString(deptID);
                     writer.WriteEndElement();
-
-                    writer.WriteStartElement("EducationOrganizationIDType");
-                    writer.WriteString("School");
                     writer.WriteEndElement();
 
+                    writer.WriteStartElement("EducationOrganizationLookup");
+                    writer.WriteStartElement("EducationOrganizationIdentificationCode");
+                    writer.WriteStartElement("EducationOrganizationIdentificationSystem");
+                    writer.WriteStartElement("CodeValue");
+                    writer.WriteString("School");
+                    writer.WriteEndElement();
+                    writer.WriteEndElement();
+                    writer.WriteEndElement();
+                    writer.WriteEndElement();
+
+                    writer.WriteEndElement();
+
+                    writer.WriteStartElement("EmploymentPeriod");
                     writer.WriteStartElement("EndDate");
                     writer.WriteString(endDate);
+                    writer.WriteEndElement();
                     writer.WriteEndElement();
 
                     writer.WriteEndElement();
