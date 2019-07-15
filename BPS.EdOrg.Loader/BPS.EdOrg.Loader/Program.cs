@@ -162,11 +162,8 @@ namespace BPS.EdOrg.Loader
                 Log.Info("CreateXML started");               
                 writer.WriteStartDocument();
                 writer.Formatting = Formatting.Indented;
-                writer.Indentation = 2;
-                writer.WriteStartElement("InterchangeStaffAssociation");
-                writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
-                writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
-                writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
+                writer.Indentation = 2;                
+                
             }
             catch(Exception ex)
             {
@@ -205,6 +202,11 @@ namespace BPS.EdOrg.Loader
                 string filePath = Path.Combine(xmlOutPutPath, $"EducationOrganization-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
                 XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
                 CreateXmlGenericStart(writer);
+                writer.WriteStartElement("InterchangeEducationAssociation");
+                writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
+                writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
+                writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
+
                 string dataFilePath = configuration.DataFilePath;
                 string[] lines = File.ReadAllLines(dataFilePath);
                 int i = 0;
@@ -261,6 +263,10 @@ namespace BPS.EdOrg.Loader
                 string filePath = Path.Combine(xmlOutPutPath, $"JobCode-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
                 XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
                 CreateXmlGenericStart(writer);
+                writer.WriteStartElement("InterchangeStaffAssociation");
+                writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
+                writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
+                writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
 
                 string dataFilePath = configuration.DataFilePathJob;
                 string[] lines = File.ReadAllLines(dataFilePath);
