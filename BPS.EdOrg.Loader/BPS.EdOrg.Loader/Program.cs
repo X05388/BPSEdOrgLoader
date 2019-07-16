@@ -47,7 +47,7 @@ namespace BPS.EdOrg.Loader
                     LogConfiguration(param.Object);
 
                     // creating the xml and executing the file through command line parser
-                    //RunDeptFile(param);
+                    RunDeptFile(param);
                     RunJobCodeFile(param);
 
                     
@@ -202,7 +202,7 @@ namespace BPS.EdOrg.Loader
                 string filePath = Path.Combine(xmlOutPutPath, $"EducationOrganization-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
                 XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
                 CreateXmlGenericStart(writer);
-                writer.WriteStartElement("InterchangeEducationAssociation");
+                writer.WriteStartElement("InterchangeEducationOrganization");
                 writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
                 writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
                 writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
@@ -260,13 +260,11 @@ namespace BPS.EdOrg.Loader
             {
                 Log.Info("CreateXML started");
                 string xmlOutPutPath = ConfigurationManager.AppSettings["XMLOutputPath"];
-                string filePath = Path.Combine(xmlOutPutPath, $"JobCode-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
+                string filePath = Path.Combine(xmlOutPutPath, $"StaffAssociation-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
                 XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
                 CreateXmlGenericStart(writer);
                 writer.WriteStartElement("InterchangeStaffAssociation");
-                writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
-                writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
-                writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
+
 
                 string dataFilePath = configuration.DataFilePathJob;
                 string[] lines = File.ReadAllLines(dataFilePath);
