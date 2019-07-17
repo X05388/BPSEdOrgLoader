@@ -1,21 +1,17 @@
 ﻿using System;
 using log4net;
-using System.Threading;
 using System.Collections.Generic;
 using System.Xml;
 using System.IO;
 using System.Configuration;
-using System.Data;
-using System.Data.OleDb;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Net.Http;
 using BPS.EdOrg.Loader.ApiClient;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
 using RestSharp;
-using System.Net;
+using EdFi.OdsApi.Sdk;
+using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace BPS.EdOrg.Loader
 {
@@ -47,7 +43,7 @@ namespace BPS.EdOrg.Loader
                     LogConfiguration(param.Object);
 
                     // creating the xml and executing the file through command line parser
-                    RunDeptFile(param);
+                   // RunDeptFile(param);
                     RunJobCodeFile(param);
 
                     
@@ -67,15 +63,197 @@ namespace BPS.EdOrg.Loader
             LoadXml(param.Object);
 
         }
+
+        /// <summary>
+        /// Token is needed for the Bearer value to Post data 
+        /// </summary>
+        /// <returns></returns>
+        private static string GetAuthToken()
+        {
+            var tokenRetriever = new TokenRetriever(ConfigurationManager.AppSettings["OAuthUrl"],ConfigurationManager.AppSettings["APP_Key"], ConfigurationManager.AppSettings["APP_Secret"]);
+            var token = tokenRetriever.ObtainNewBearerToken();
+            return token;
+        }
+
+        /// <summary>
+        /// POST the data from EdFi ODS
+        /// </summary>
+        /// <returns></returns>
+        private static IRestResponse PostData(string jsonData, RestClient client, string token)
+        {
+            var request = new RestRequest(Method.POST);
+            request.AddHeader("Authorization", "Bearer  " + token);
+            request.AddParameter("application/json; charset=utf-8", jsonData, ParameterType.RequestBody);
+            request.RequestFormat = DataFormat.Json;
+            return client.Execute(request);
+
+        }
+
+        /// <summary>
+        /// PUT the data from EdFi ODS
+        /// </summary>
+        /// <returns></returns>
+        private IRestResponse PutData(string jsonData, RestClient client, string token)
+        {
+            var request = new RestRequest(Method.PUT);
+            request.AddHeader("Authorization", "Bearer  " + token);
+            request.AddParameter("application/json; charset=utf-8", jsonData, ParameterType.RequestBody);
+            request.RequestFormat = DataFormat.Json;
+            return client.Execute(request);
+
+        }
+
+        /// <summary>
+        /// Get the Data from the ODS
+        /// </summary>
+        /// <returns></returns>
+        private static IRestResponse GetData(RestClient client, string token)
+        {
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("Authorization", "Bearer  " + token);
+            request.AddParameter("application/json; charset=utf-8", ParameterType.RequestBody);
+            request.RequestFormat = DataFormat.Json;
+            return client.Execute(request);
+        }
+
+        public static bool IsSuccessStatusCode(int statusCode)
+        {
+            return ((int)statusCode >= 200) && ((int)statusCode <= 204);
+        }
         private static void RunJobCodeFile(CommandLineParser param)
         {
 
             // For JobCode_tbl.txt
             List<string> existingStaffId = GetStaffList(param.Object);
-            CreateXmlJob(param.Object, existingStaffId);
-            LoadXml(param.Object);
+            CreateXmlJob(param.Object, existingStaffId);            
+            var token = GetAuthToken();
+            if (token != null) {
+
+                
+                UpdateStaffAssociationData(token);
+                //LoadXml(param.Object);
+
+            }
 
         }
+
+
+        private static string GetStaffAssociationId(string token,string staffUniqueIdValue, string hireDateValue)
+        {
+            IRestResponse response = null;
+            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + ConfigurationManager.AppSettings["StaffAssociationUrl"] + Constants.educationOrganizationId + Constants.employmentStatusDescriptor + Constants.hireDate+ hireDateValue + Constants.staffUniqueId+ staffUniqueIdValue);
+                
+            response = GetData(client, token);
+            if (IsSuccessStatusCode((int)response.StatusCode))
+            {
+                dynamic original = JObject.Parse(response.Content.ToString());
+                var id = original.id;
+                if (id != null)
+                    return id;
+                
+            }
+            return null;
+        }
+
+
+
+        private static void UpdateStaffAssociationData(string token)
+        {
+            string staffUniqueIdValue = null;
+            string educationOrganizationIdValue = null;
+            string endDateValue = null;
+            string hireDateValue = null;
+
+            XmlDocument xd = new XmlDocument();
+            xd.Load("C:/Workspace/BostonPublicSchool/Deployment/output/StaffAssociation-7-16-2019.xml");
+            XmlNodeList nodelist = xd.SelectNodes("/InterchangeStaffAssociation/StaffEducationOrganizationEmploymentAssociation");
+            foreach (XmlNode node in nodelist)
+            {
+
+                XmlNode staffNode = node.SelectSingleNode("StaffReference/StaffIdentity");
+
+                // get the values from the <Staff> node
+                if (staffNode != null)
+                {
+                    staffUniqueIdValue = staffNode.SelectSingleNode("StaffUniqueId").InnerText;
+
+                }
+                XmlNode EducationNode = node.SelectSingleNode("EducationOrganizationReference/EducationOrganizationIdentity");
+
+                // get the values from the <Staff> node
+                if (EducationNode != null)
+                {
+                    educationOrganizationIdValue = EducationNode.SelectSingleNode("EducationOrganizationId").InnerText;
+
+                }
+                XmlNode EmploymentNode = node.SelectSingleNode("EmploymentPeriod");
+
+                if (EmploymentNode != null)
+                {
+                    endDateValue = EmploymentNode.SelectSingleNode("EndDate").InnerText;
+                    hireDateValue = EmploymentNode.SelectSingleNode("HireDate").InnerText;
+
+                }
+                string id = GetStaffAssociationId(token, staffUniqueIdValue,hireDateValue);
+                if (id == null) throw new Exception("Cannot update the data in ODS, could not retrieve the id for StaffUniqueId : " + staffUniqueIdValue);
+                UpdateEndDate(token, id,endDateValue, staffUniqueIdValue,hireDateValue);
+
+                }
+        }
+
+        private static bool UpdateEndDate(string token, string id, string endDateValue, string hireDateValue, string staffUniqueIdValue)
+        {
+            try {
+
+                IRestResponse response = null;
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + ConfigurationManager.AppSettings["StaffAssociationUrl"]);
+                var rootObject = new StaffDescriptor
+                {
+                    educationOrganizationReference = new EdFiEducationReference
+                    {
+                        educationOrganizationId = "350000",
+                        Link = new Link()
+                        {
+                            Rel = string.Empty,
+                            Href = string.Empty
+                        }
+                    },
+                    staffReference = new EdFiStaffReference
+                    {
+                        staffUniqueId = staffUniqueIdValue,
+
+                        Link = new Link
+                        {
+                            Rel = string.Empty,
+                            Href = string.Empty
+                        }
+                    },
+                    employmentStatusDescriptor = Constants.employmentStatusDescriptorValue,
+                    hireDate = hireDateValue,
+                    endDate = endDateValue
+                };
+                bool isPosted = true;
+                string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                response = PostData(json, client, token);
+                if ((int)response.StatusCode > 204 || (int)response.StatusCode < 200)
+                {
+                    //Log the Error
+
+
+                    isPosted = false;
+                }
+                return isPosted;
+            }
+   
+            catch(Exception ex)
+            {
+                throw new Exception("Something went wrong while updating the data in ODS" + ex.Message);
+            }
+            
+        }
+
+
+        
         private static void LogConfiguration(Configuration configuration)
         {
             Log.Info($"Api Url: {configuration.ApiUrl}");
@@ -161,7 +339,7 @@ namespace BPS.EdOrg.Loader
             {
                 Log.Info("CreateXML started");               
                 writer.WriteStartDocument();
-                writer.Formatting = Formatting.Indented;
+                writer.Formatting = System.Xml.Formatting.Indented;
                 writer.Indentation = 2;                
                 
             }
@@ -236,7 +414,7 @@ namespace BPS.EdOrg.Loader
                         if (!existingDeptIds.Contains(deptId))
                         {
                             Log.Debug($"Creating node for {deptId}-{deptTitle}");
-                            CreateNode(deptId, deptTitle, writer);
+                            CreateNode(deptId, deptTitle, writer);                            
                             numberOfRecordsCreatedInXml++;
                         }
                         else
@@ -245,7 +423,15 @@ namespace BPS.EdOrg.Loader
                             numberOfRecordsSkipped++;
                         }
                     }
-                    CreateXmlGenericEnd(writer, numberOfRecordsCreatedInXml, numberOfRecordsSkipped);
+                    writer.WriteEndElement();
+                    writer.WriteEndDocument();
+                    writer.Close();
+                    if (numberOfRecordsSkipped > 0)
+                    {
+                        Log.Info($"Number Of records created In Xml {numberOfRecordsCreatedInXml}");
+                        Log.Info($"Number of records skipped because crosswalk contains the PeopleSoftIds - {numberOfRecordsSkipped}");
+                    }
+                    Log.Info("CreateXML ended successfully");
                 }
                 
             }
@@ -271,7 +457,7 @@ namespace BPS.EdOrg.Loader
                 int i = 0;
                 int empIdIndex = 0;
                 int deptIdIndex = 0;
-                int actionIndex=0; int  actionDateIndex = 0;
+                int actionIndex=0; int  actionDateIndex = 0; int hireDateIndex = 0;
                 int numberOfRecordsCreatedInXml = 0, numberOfRecordsSkipped = 0;
                 foreach (string line in lines)
                 {
@@ -283,7 +469,8 @@ namespace BPS.EdOrg.Loader
                         deptIdIndex = Array.IndexOf(header, "Deptid");
                         actionIndex = Array.IndexOf(header, "Action");
                         actionDateIndex = Array.IndexOf(header, "Action Dt");
-                        if (deptIdIndex < 0 || actionDateIndex < 0 || empIdIndex<0)
+                        hireDateIndex = Array.IndexOf(header, "Hire Date");
+                        if (deptIdIndex < 0 || actionDateIndex < 0 || empIdIndex<0 || hireDateIndex <0)
                         {
                             Log.Error($"Input data text file does not contains the ID or JobCode or ActionDt headers");
                         }
@@ -297,10 +484,12 @@ namespace BPS.EdOrg.Loader
                         string deptID = fields[deptIdIndex]?.Trim();
                         string action = fields[actionIndex]?.Trim();
                         string endDate = fields[actionDateIndex]?.Trim();
+                        string hireDate = fields[hireDateIndex]?.Trim();
                         if (existingStaffId.Contains(staffId))
                         {
                             Log.Debug($"Creating node for {staffId}-{deptID}-{endDate}");
-                            CreateNodeJob(staffId, deptID, action, endDate, writer);
+                            
+                            CreateNodeJob(staffId, deptID, action, endDate,hireDate, writer);                            
                             numberOfRecordsCreatedInXml++;
                         }
                         else
@@ -310,7 +499,15 @@ namespace BPS.EdOrg.Loader
                         }
                     }
                 }
-                CreateXmlGenericEnd(writer, numberOfRecordsCreatedInXml, numberOfRecordsSkipped);
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
+                writer.Close();
+                if (numberOfRecordsSkipped > 0)
+                {
+                    Log.Info($"Number Of records created In Xml {numberOfRecordsCreatedInXml}");
+                    Log.Info($"Number of records skipped because crosswalk contains the PeopleSoftIds - {numberOfRecordsSkipped}");
+                }
+                Log.Info("CreateXML ended successfully");
             }
             catch (Exception ex)
             {
@@ -318,7 +515,7 @@ namespace BPS.EdOrg.Loader
             }
         }
 
-        private static void CreateNodeJob(string staffId,string deptID, string action, string endDate, XmlTextWriter writer)
+        private static void CreateNodeJob(string staffId,string deptID, string action, string endDate, string hireDate, XmlTextWriter writer)
         {
             try
             {
@@ -361,6 +558,8 @@ namespace BPS.EdOrg.Loader
                     writer.WriteEndElement();
 
                     writer.WriteStartElement("EmploymentPeriod");
+                    writer.WriteStartElement("HireDate");
+                    writer.WriteString(endDate);
                     writer.WriteStartElement("EndDate");
                     writer.WriteString(endDate);
                     writer.WriteEndElement();
@@ -370,7 +569,7 @@ namespace BPS.EdOrg.Loader
 
                     Log.Info($"CreateNode Ended successfully for jobcode:{deptID} and EndDate:{endDate}");
                 }
-                
+               
                
                 
             }
@@ -520,7 +719,7 @@ namespace BPS.EdOrg.Loader
             List<string> existingDeptIds = new List<string>();
             try
             {
-                TokenRetriever tokenRetriever = new TokenRetriever(configuration);
+                TokenRetriever tokenRetriever = new TokenRetriever(ConfigurationManager.AppSettings["OAuthUrl"], ConfigurationManager.AppSettings["APP_Key"], ConfigurationManager.AppSettings["Constants.APP_Secret"]);
 
                 string token = tokenRetriever.ObtainNewBearerToken();
                 if (!string.IsNullOrEmpty(token))
@@ -548,7 +747,7 @@ namespace BPS.EdOrg.Loader
             List<string> existingStaffIds = new List<string>();
             try
             {
-                TokenRetriever tokenRetriever = new TokenRetriever(configuration);
+                TokenRetriever tokenRetriever = new TokenRetriever(ConfigurationManager.AppSettings["OAuthUrl"], ConfigurationManager.AppSettings["APP_Key"], ConfigurationManager.AppSettings["APP_Secret"]);
 
                 string token = tokenRetriever.ObtainNewBearerToken();
                 if (!string.IsNullOrEmpty(token))

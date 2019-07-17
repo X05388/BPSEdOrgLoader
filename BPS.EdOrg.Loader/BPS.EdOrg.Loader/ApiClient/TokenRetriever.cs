@@ -9,39 +9,46 @@ using System.Threading.Tasks;
 
 namespace BPS.EdOrg.Loader.ApiClient
 {
-    public class TokenRetriever
+    public interface ITokenRetriever
     {
-        private class AccessCodeResponse
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        string ObtainNewBearerToken();
+    }
+
+    public class TokenRetriever : ITokenRetriever
+    {
+        private string oauthUrl;
+        private string clientKey;
+        private string clientSecret;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="oauthUrl"></param>
+        /// <param name="clientKey"></param>
+        /// <param name="clientSecret"></param>
+        public TokenRetriever(string oauthUrl, string clientKey, string clientSecret)
         {
-            public string Code { get; set; }
-            public string Error { get; set; }
+            this.oauthUrl = oauthUrl;
+            this.clientKey = clientKey;
+            this.clientSecret = clientSecret;
         }
 
-        private class BearerTokenResponse
-        {
-            public string Access_token { get; set; }
-            public string Token_type { get; set; }
-            public string Error { get; set; }
-        }
-
-        private readonly Configuration _configuration;
-
-        public TokenRetriever(Configuration configuration)
-        {
-            _configuration = configuration;
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public string ObtainNewBearerToken()
         {
-            var oauthUrl = _configuration.CrossWalkOAuthUrl;
-            var oauthKey = _configuration.CrossWalkKey;
-            var oauthSecret = _configuration.CrossWalkSecret;
             var oauthClient = new RestClient(oauthUrl);
-            var accessCode = GetAccessCode(oauthClient, oauthKey);
-            return GetBearerToken(oauthClient, oauthKey, oauthSecret, accessCode);
+            var accessCode = GetAccessCode(oauthClient);
+            return GetBearerToken(oauthClient, accessCode);
         }
 
-        private static string GetAccessCode(IRestClient oauthClient, string clientKey)
+        private string GetAccessCode(IRestClient oauthClient)
         {
             var accessCodeRequest = new RestRequest("oauth/authorize", Method.POST);
             accessCodeRequest.AddParameter("Client_id", clientKey);
@@ -57,13 +64,13 @@ namespace BPS.EdOrg.Loader.ApiClient
             {
                 throw new AuthenticationException(
                     "Unable to retrieve an authorization code. Please verify that your application key is correct. Alternately, the service address may not be correct: " +
-                    oauthClient.BaseUrl);
+                    oauthUrl);
             }
 
             return accessCodeResponse.Data.Code;
         }
 
-        private static string GetBearerToken(IRestClient oauthClient, string clientKey, string clientSecret, string accessCode)
+        private string GetBearerToken(IRestClient oauthClient, string accessCode)
         {
             var bearerTokenRequest = new RestRequest("oauth/token", Method.POST);
             bearerTokenRequest.AddParameter("Client_id", clientKey);
@@ -87,4 +94,20 @@ namespace BPS.EdOrg.Loader.ApiClient
             return bearerTokenResponse.Data.Access_token;
         }
     }
+
+    internal class AccessCodeResponse
+    {
+        public string Code { get; set; }
+        public string State { get; set; }
+        public string Error { get; set; }
+    }
+
+    internal class BearerTokenResponse
+    {
+        public string Access_token { get; set; }
+        public string Expires_in { get; set; }
+        public string Token_type { get; set; }
+        public string Error { get; set; }
+    }
+
 }
