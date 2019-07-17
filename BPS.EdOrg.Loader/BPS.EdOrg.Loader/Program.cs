@@ -43,7 +43,7 @@ namespace BPS.EdOrg.Loader
                     LogConfiguration(param.Object);
 
                     // creating the xml and executing the file through command line parser
-                    RunDeptFile(param);
+                    //RunDeptFile(param);
                     RunJobCodeFile(param);
                     
                 }
@@ -290,8 +290,8 @@ namespace BPS.EdOrg.Loader
                         deptIdIndex = Array.IndexOf(header, "Deptid");
                         actionIndex = Array.IndexOf(header, "Action");
                         actionDateIndex = Array.IndexOf(header, "Action Dt");
-                       // hireDateIndex = Array.IndexOf(header, "Hire Date");
-                        if (deptIdIndex < 0 || actionDateIndex < 0 || empIdIndex<0)
+                        hireDateIndex = Array.IndexOf(header, "Orig Hire Date");
+                        if (deptIdIndex < 0 || actionDateIndex < 0 || empIdIndex<0 || hireDateIndex <0)
                         {
                             Log.Error($"Input data text file does not contains the ID or JobCode or ActionDt headers");
                         }
@@ -305,12 +305,12 @@ namespace BPS.EdOrg.Loader
                         string deptID = fields[deptIdIndex]?.Trim();
                         string action = fields[actionIndex]?.Trim();
                         string endDate = fields[actionDateIndex]?.Trim();
-                        //string hireDate = fields[hireDateIndex]?.Trim();
+                        string hireDate = fields[hireDateIndex]?.Trim();
                         if (existingStaffId.Contains(staffId))
                         {
                             Log.Debug($"Creating node for {staffId}-{deptID}-{endDate}");
                             
-                            CreateNodeJob(staffId, deptID, action, endDate, writer);                            
+                            CreateNodeJob(staffId, deptID, action, endDate, hireDate, writer);                            
                             numberOfRecordsCreatedInXml++;
                         }
                         else
@@ -336,7 +336,7 @@ namespace BPS.EdOrg.Loader
             }
         }
 
-        private static void CreateNodeJob(string staffId,string deptID, string action, string endDate, XmlTextWriter writer)
+        private static void CreateNodeJob(string staffId,string deptID, string action, string endDate, string hireDate, XmlTextWriter writer)
         {
             try
             {
@@ -380,9 +380,10 @@ namespace BPS.EdOrg.Loader
 
                     writer.WriteStartElement("EmploymentPeriod");
                     writer.WriteStartElement("HireDate");
-                    writer.WriteString(endDate);
+                    writer.WriteString(hireDate);
+                    writer.WriteEndElement();
                     writer.WriteStartElement("EndDate");
-                    writer.WriteString(endDate);
+                    writer.WriteString(endDate);                    
                     writer.WriteEndElement();
                     writer.WriteEndElement();
 
