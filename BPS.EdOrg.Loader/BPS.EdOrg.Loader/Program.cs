@@ -72,6 +72,7 @@ namespace BPS.EdOrg.Loader
             var token = GetAuthToken();
             if (token != null)
                 UpdateStaffAssociationData(token);
+            else throw new Exception("Token is not generated, ODS not updated");
             //LoadXml(param.Object);
         }
 
@@ -633,7 +634,7 @@ namespace BPS.EdOrg.Loader
                 // get the values from the <Staff> node
                 if (staffNode != null)
                 {
-                    staffUniqueIdValue = staffNode.SelectSingleNode("StaffUniqueId").InnerText;
+                    staffUniqueIdValue = staffNode.SelectSingleNode("StaffUniqueId").InnerText ?? null;
 
                 }
                 XmlNode EducationNode = node.SelectSingleNode("EducationOrganizationReference/EducationOrganizationIdentity");
@@ -641,20 +642,25 @@ namespace BPS.EdOrg.Loader
                 // get the values from the <Staff> node
                 if (EducationNode != null)
                 {
-                    educationOrganizationIdValue = EducationNode.SelectSingleNode("EducationOrganizationId").InnerText;
+                    educationOrganizationIdValue = EducationNode.SelectSingleNode("EducationOrganizationId").InnerText ?? null;
 
                 }
                 XmlNode EmploymentNode = node.SelectSingleNode("EmploymentPeriod");
 
                 if (EmploymentNode != null)
                 {
-                    endDateValue = EmploymentNode.SelectSingleNode("EndDate").InnerText;
-                    hireDateValue = EmploymentNode.SelectSingleNode("HireDate").InnerText;
+                    endDateValue = EmploymentNode.SelectSingleNode("EndDate").InnerText ?? null;
+                    hireDateValue = EmploymentNode.SelectSingleNode("HireDate").InnerText ?? null;
 
                 }
-                string id = GetStaffAssociationId(token, staffUniqueIdValue, hireDateValue);
-                if (id == null) throw new Exception("Cannot update the data in ODS, could not retrieve the id for StaffUniqueId : " + staffUniqueIdValue);
-                UpdateEndDate(token, id, endDateValue, hireDateValue,staffUniqueIdValue);
+                if (staffUniqueIdValue != null && hireDateValue != null)
+                {
+                    string id = GetStaffAssociationId(token, staffUniqueIdValue, hireDateValue);
+                    if (id != null && endDateValue != null)
+                        UpdateEndDate(token, id, endDateValue, hireDateValue, staffUniqueIdValue);
+
+                }
+                
 
             }
         }
@@ -696,65 +702,6 @@ namespace BPS.EdOrg.Loader
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
                 response = PutData(json, client, token);
                 if ((int)response.StatusCode > 204 || (int)response.StatusCode < 200)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 {
                     //Log the Error
 
@@ -766,7 +713,7 @@ namespace BPS.EdOrg.Loader
 
             catch (Exception ex)
             {
-                throw new Exception("Something went wrong while updating the data in ODS" + ex.Message);
+                throw new Exception("Something went wrong while updating the data in ODS, check the XML values" + ex.Message);
             }
 
         }
