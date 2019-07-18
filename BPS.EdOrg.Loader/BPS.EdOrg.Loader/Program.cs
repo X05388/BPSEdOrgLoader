@@ -680,7 +680,7 @@ namespace BPS.EdOrg.Loader
                     id = id,
                     educationOrganizationReference = new EdFiEducationReference
                     {
-                        educationOrganizationId = "350000",
+                        educationOrganizationId = Constants.educationOrganizationIdValue,
                         Link = new Link()
                         {
                             Rel = string.Empty,
