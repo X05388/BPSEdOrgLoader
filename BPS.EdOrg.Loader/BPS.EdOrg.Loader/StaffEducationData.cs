@@ -37,5 +37,13 @@ namespace BPS.EdOrg.Loader
             public string Href { get; set; }
         }
 
+    public class ErrorLog
+    {
+        public string staffUniqueId { get; set; }
+        public string endDate { get; set; }
+        public string ErrorMessage { get; set; }
+
     }
+
+}
 

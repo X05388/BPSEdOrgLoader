@@ -269,9 +269,10 @@ namespace BPS.EdOrg.Loader
                 XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
                 CreateXmlGenericStart(writer);
                 writer.WriteStartElement("InterchangeStaffAssociation");
-                //writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
-                //writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
-                //writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
+                writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
+                writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
+                writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
+                
 
 
                 string dataFilePath = configuration.DataFilePathJob;
@@ -623,10 +624,12 @@ namespace BPS.EdOrg.Loader
             string endDateValue = null;
             string hireDateValue = null;
 
-            XmlDocument xd = new XmlDocument();
-            xd.Load("C:/Workspace/BostonPublicSchool/Deployment/output/StaffAssociation-7-18-2019.xml");
-            XmlNodeList nodelist = xd.SelectNodes("/InterchangeStaffAssociation/StaffEducationOrganizationEmploymentAssociation");
-            foreach (XmlNode node in nodelist)
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(ConfigurationManager.AppSettings["XMLOutputPath"]+"/StaffAssociation-7-18-2019.xml");
+            var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
+            nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
+            XmlNodeList nodeList = xmlDoc.SelectNodes("//a:InterchangeStaffAssociation/a:StaffEducationOrganizationEmploymentAssociation", nsmgr);
+            foreach (XmlNode node in nodeList)
             {
 
                 XmlNode staffNode = node.SelectSingleNode("StaffReference/StaffIdentity");
@@ -704,8 +707,10 @@ namespace BPS.EdOrg.Loader
                 if ((int)response.StatusCode > 204 || (int)response.StatusCode < 200)
                 {
                     //Log the Error
-
-
+                    ErrorLog errorLog = new ErrorLog();
+                    errorLog.staffUniqueId = staffUniqueIdValue;
+                    errorLog.endDate = endDateValue;
+                    errorLog.ErrorMessage = response.Content.ToString().Replace(System.Environment.NewLine, string.Empty) ?? null;
                     isPosted = false;
                 }
                 return isPosted;
