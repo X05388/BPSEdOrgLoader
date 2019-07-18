@@ -69,10 +69,10 @@ namespace BPS.EdOrg.Loader
             // For JobCode_tbl.txt
             List<string> existingStaffId = GetStaffList(param.Object);
             CreateXmlJob(param.Object, existingStaffId);
-            // var token = GetAuthToken();
-            // if (token != null)
-            //      UpdateStaffAssociationData(token);
-            LoadXml(param.Object);
+            var token = GetAuthToken();
+            if (token != null)
+                UpdateStaffAssociationData(token);
+            //LoadXml(param.Object);
         }
 
         private static void LogConfiguration(Configuration configuration)
@@ -268,9 +268,9 @@ namespace BPS.EdOrg.Loader
                 XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
                 CreateXmlGenericStart(writer);
                 writer.WriteStartElement("InterchangeStaffAssociation");
-                writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
-                writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
-                writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
+                //writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
+                //writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
+                //writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
 
 
                 string dataFilePath = configuration.DataFilePathJob;
@@ -566,7 +566,7 @@ namespace BPS.EdOrg.Loader
         /// PUT the data from EdFi ODS
         /// </summary>
         /// <returns></returns>
-        private IRestResponse PutData(string jsonData, RestClient client, string token)
+        private static IRestResponse PutData(string jsonData, RestClient client, string token)
         {
             var request = new RestRequest(Method.PUT);
             request.AddHeader("Authorization", "Bearer  " + token);
@@ -599,7 +599,7 @@ namespace BPS.EdOrg.Loader
         private static string GetStaffAssociationId(string token, string staffUniqueIdValue, string hireDateValue)
         {
             IRestResponse response = null;
-            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + ConfigurationManager.AppSettings["StaffAssociationUrl"] + Constants.educationOrganizationId + Constants.employmentStatusDescriptor + Constants.hireDate + hireDateValue + Constants.staffUniqueId + staffUniqueIdValue);
+            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + ConfigurationManager.AppSettings["StaffAssociationUrl"] + Constants.educationOrganizationId + Constants.employmentStatusDescriptor+Constants.employmentStatusDescriptorValue + Constants.hireDate + hireDateValue + Constants.staffUniqueId + staffUniqueIdValue);
 
             response = GetData(client, token);
             if (IsSuccessStatusCode((int)response.StatusCode))
@@ -623,7 +623,7 @@ namespace BPS.EdOrg.Loader
             string hireDateValue = null;
 
             XmlDocument xd = new XmlDocument();
-            xd.Load("C:/Workspace/BostonPublicSchool/Deployment/output/StaffAssociation-7-16-2019.xml");
+            xd.Load("C:/Workspace/BostonPublicSchool/Deployment/output/StaffAssociation-7-18-2019.xml");
             XmlNodeList nodelist = xd.SelectNodes("/InterchangeStaffAssociation/StaffEducationOrganizationEmploymentAssociation");
             foreach (XmlNode node in nodelist)
             {
@@ -654,7 +654,7 @@ namespace BPS.EdOrg.Loader
                 }
                 string id = GetStaffAssociationId(token, staffUniqueIdValue, hireDateValue);
                 if (id == null) throw new Exception("Cannot update the data in ODS, could not retrieve the id for StaffUniqueId : " + staffUniqueIdValue);
-                UpdateEndDate(token, id, endDateValue, staffUniqueIdValue, hireDateValue);
+                UpdateEndDate(token, id, endDateValue, hireDateValue,staffUniqueIdValue);
 
             }
         }
@@ -665,9 +665,10 @@ namespace BPS.EdOrg.Loader
             {
 
                 IRestResponse response = null;
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + ConfigurationManager.AppSettings["StaffAssociationUrl"]);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + ConfigurationManager.AppSettings["StaffAssociationUrl"]+"/"+id);
                 var rootObject = new StaffDescriptor
                 {
+                    id = id,
                     educationOrganizationReference = new EdFiEducationReference
                     {
                         educationOrganizationId = "350000",
@@ -693,8 +694,67 @@ namespace BPS.EdOrg.Loader
                 };
                 bool isPosted = true;
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
-                response = PostData(json, client, token);
+                response = PutData(json, client, token);
                 if ((int)response.StatusCode > 204 || (int)response.StatusCode < 200)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 {
                     //Log the Error
 

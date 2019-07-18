@@ -9,15 +9,15 @@ namespace BPS.EdOrg.Loader
     
         public class StaffDescriptor
         {
-            public EdFiEducationReference educationOrganizationReference { get; set; }
-            
-            public EdFiStaffReference staffReference { get; set; }
 
+            public string id { get; set; }
+            public EdFiEducationReference educationOrganizationReference { get; set; }            
+            public EdFiStaffReference staffReference { get; set; }            
             public string hireDate { get; set; }
             public string  endDate { get; set; }
             public string employmentStatusDescriptor { get; set; }
         
-    }
+        }
 
         public class EdFiEducationReference
         {
