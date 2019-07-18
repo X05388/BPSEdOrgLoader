@@ -71,7 +71,7 @@ namespace BPS.EdOrg.Loader
             CreateXmlJob(param.Object, existingStaffId);
             var token = GetAuthToken();
             if (token != null)
-                UpdateStaffAssociationData(token);
+                 UpdateStaffAssociationData(token);
             else throw new Exception("Token is not generated, ODS not updated");
             //LoadXml(param.Object);
         }
@@ -269,9 +269,9 @@ namespace BPS.EdOrg.Loader
                 XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
                 CreateXmlGenericStart(writer);
                 writer.WriteStartElement("InterchangeStaffAssociation");
-                writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
-                writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
-                writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
+                //writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
+                //writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
+                //writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
                 
 
 
@@ -601,7 +601,7 @@ namespace BPS.EdOrg.Loader
         private static string GetStaffAssociationId(string token, string staffUniqueIdValue, string hireDateValue)
         {
             IRestResponse response = null;
-            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + ConfigurationManager.AppSettings["StaffAssociationUrl"] + Constants.educationOrganizationId + Constants.employmentStatusDescriptor+Constants.employmentStatusDescriptorValue + Constants.hireDate + hireDateValue + Constants.staffUniqueId + staffUniqueIdValue);
+            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + ConfigurationManager.AppSettings["StaffAssociationUrl"] + Constants.educationOrganizationId+Constants.educationOrganizationIdValue + Constants.employmentStatusDescriptor+Constants.employmentStatusDescriptorValue + Constants.hireDate + hireDateValue + Constants.staffUniqueId + staffUniqueIdValue);
 
             response = GetData(client, token);
             if (IsSuccessStatusCode((int)response.StatusCode))
@@ -626,9 +626,9 @@ namespace BPS.EdOrg.Loader
 
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(ConfigurationManager.AppSettings["XMLOutputPath"]+"/StaffAssociation-7-18-2019.xml");
-            var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
-            nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
-            XmlNodeList nodeList = xmlDoc.SelectNodes("//a:InterchangeStaffAssociation/a:StaffEducationOrganizationEmploymentAssociation", nsmgr);
+            //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
+            //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
+            XmlNodeList nodeList = xmlDoc.SelectNodes("//InterchangeStaffAssociation/StaffEducationOrganizationEmploymentAssociation");
             foreach (XmlNode node in nodeList)
             {
 
