@@ -12,6 +12,8 @@ using RestSharp;
 using EdFi.OdsApi.Sdk;
 using System.Xml.Linq;
 using Newtonsoft.Json.Linq;
+using System.Net.Mail;
+using System.Net.Mime;
 
 namespace BPS.EdOrg.Loader
 {
@@ -19,6 +21,8 @@ namespace BPS.EdOrg.Loader
     {
         private static readonly Process Process = new Process();
         private static readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        
+
         static void Main(string[] args)
         {
             var param = new CommandLineParser();
@@ -43,7 +47,7 @@ namespace BPS.EdOrg.Loader
                     LogConfiguration(param.Object);
 
                     // creating the xml and executing the file through command line parser
-                    //RunDeptFile(param);
+                    RunDeptFile(param);
                     RunJobCodeFile(param);
                     
                 }
@@ -265,7 +269,7 @@ namespace BPS.EdOrg.Loader
             try
             {
                 string xmlOutPutPath = ConfigurationManager.AppSettings["XMLOutputPath"];
-                string filePath = Path.Combine(xmlOutPutPath, $"StaffAssociation-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
+                string filePath = Path.Combine(xmlOutPutPath, $"StaffAssociation.xml");
                 XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
                 CreateXmlGenericStart(writer);
                 writer.WriteStartElement("InterchangeStaffAssociation");
@@ -623,9 +627,10 @@ namespace BPS.EdOrg.Loader
             string educationOrganizationIdValue = null;
             string endDateValue = null;
             string hireDateValue = null;
+            bool isUpdated = false;
 
             XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(ConfigurationManager.AppSettings["XMLOutputPath"]+"/StaffAssociation-7-18-2019.xml");
+            xmlDoc.Load(ConfigurationManager.AppSettings["XMLOutputPath"]+ "/StaffAssociation.xml");
             //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
             //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
             XmlNodeList nodeList = xmlDoc.SelectNodes("//InterchangeStaffAssociation/StaffEducationOrganizationEmploymentAssociation");
@@ -660,12 +665,12 @@ namespace BPS.EdOrg.Loader
                 {
                     string id = GetStaffAssociationId(token, staffUniqueIdValue, hireDateValue);
                     if (id != null && endDateValue != null)
-                        UpdateEndDate(token, id, endDateValue, hireDateValue, staffUniqueIdValue);
-
+                        isUpdated= UpdateEndDate(token, id, endDateValue, hireDateValue, staffUniqueIdValue);
                 }
                 
-
             }
+            
+                SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
         }
 
         private static bool UpdateEndDate(string token, string id, string endDateValue, string hireDateValue, string staffUniqueIdValue)
@@ -711,8 +716,10 @@ namespace BPS.EdOrg.Loader
                     errorLog.staffUniqueId = staffUniqueIdValue;
                     errorLog.endDate = endDateValue;
                     errorLog.ErrorMessage = response.Content.ToString().Replace(System.Environment.NewLine, string.Empty) ?? null;
+                    ErrorLogging(errorLog);
                     isPosted = false;
                 }
+                       
                 return isPosted;
             }
 
@@ -723,6 +730,106 @@ namespace BPS.EdOrg.Loader
 
         }
 
+
+        private static void ErrorLogging(ErrorLog errorLog)
+        {
+            string strPath = Constants.LOG_FILE;
+            bool isFirst = false;
+            if (!File.Exists(strPath))
+            {
+                File.Create(strPath).Dispose();
+                isFirst = true;
+            }
+            using (StreamWriter sw = File.AppendText(strPath))
+            {
+                if (isFirst)
+                    sw.WriteLine("StudentId,EducationOrganizationId,ProgramTypeID,ProgramName,ErrorMessage");
+                sw.WriteLine("{0},{1},{2},{3},{4}", errorLog.staffUniqueId, errorLog.endDate, errorLog.ErrorMessage);
+                sw.Close();
+            }
+
+
+        }
+
+        /// <summary>
+        /// Sending the log in the email
+        /// </summary>
+        /// <returns></returns>
+        public static  bool SendMail(string recipient, string subject, string body, string attachmentFilename)
+        {
+            try
+            {
+                SendEmail emailObj = new SendEmail();
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    stream.Seek(0, SeekOrigin.Begin);
+
+                    Attachment att = null;
+                    if (File.Exists(Constants.LOG_FILE))
+                    {
+                        att = new Attachment(Constants.LOG_FILE);
+                        emailObj.AttachmentList = new List<Attachment> { att };
+                    }
+                    emailObj.ToAddr = new System.Collections.ArrayList();
+                    emailObj.ToAddr.Add(recipient);
+                    emailObj.FromAddr = Constants.EmailFromAddress;
+                    emailObj.EmailSubject = subject;
+                    emailObj.EmailContent = body;
+                    SendEmailNotification(emailObj);
+                }
+                return true;
+            }
+
+            catch (Exception ex)
+            {
+                string message = $"Exception while sending email ";
+                return false;
+            }
+
+        }
+
+
+
+        /// <summary>
+        /// Send & Save email notification - general 
+        /// </summary>
+        /// <param name="emailObj"></param>
+        /// <returns></returns>
+        public static bool SendEmailNotification(SendEmail emailObj)
+        {
+
+            MailMessage message = new MailMessage();
+            message.From = new MailAddress(emailObj.FromAddr);
+            foreach (string toString in emailObj.ToAddr)
+            {
+                message.To.Add(toString);
+            }
+
+            //send if there are attachments
+            if (emailObj.AttachmentList != null && emailObj.AttachmentList.Count > 0)
+            {
+                foreach (Attachment att in emailObj.AttachmentList)
+                {
+                    message.Attachments.Add(att);
+                }
+            }
+
+            if (!String.IsNullOrEmpty(emailObj.BccToAdr))
+            {
+                message.Bcc.Add(new MailAddress(emailObj.BccToAdr));
+            }
+
+            message.Subject = emailObj.EmailSubject;
+            message.IsBodyHtml = true;
+            AlternateView av = AlternateView.CreateAlternateViewFromString(emailObj.EmailContent, null, MediaTypeNames.Text.Html);
+            message.AlternateViews.Add(av);
+            using (SmtpClient smtp = new SmtpClient())
+            {
+                smtp.Host = Constants.SmtpServerHost;
+                smtp.Send(message);
+                return true;
+            }
+        }
 
         private static List<string> GetDeptList(Configuration configuration)
         {

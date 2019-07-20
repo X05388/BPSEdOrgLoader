@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Net.Mail;
+
 
 namespace BPS.EdOrg.Loader
 {
@@ -43,6 +43,20 @@ namespace BPS.EdOrg.Loader
         public string endDate { get; set; }
         public string ErrorMessage { get; set; }
 
+    }
+
+    public class SendEmail
+    {
+        public string FromAddr { get; set; }
+
+        public ArrayList ToAddr { get; set; }
+
+        public string EmailSubject { get; set; }
+
+        public string EmailContent { get; set; }
+
+        public string BccToAdr { get; set; }
+        public List<Attachment> AttachmentList { get; set; }
     }
 
 }
