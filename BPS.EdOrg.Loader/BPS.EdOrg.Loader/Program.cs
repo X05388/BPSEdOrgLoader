@@ -783,6 +783,7 @@ namespace BPS.EdOrg.Loader
             catch (Exception ex)
             {
                 string message = $"Exception while sending email ";
+                new EmailException(message, ex);
                 return false;
             }
 
