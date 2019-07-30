@@ -7,19 +7,31 @@ using System.Net.Mail;
 namespace BPS.EdOrg.Loader
 {
     
-        public class StaffDescriptor
+        public class StaffEmploymentDescriptor
         {
 
             public string id { get; set; }
             public EdFiEducationReference educationOrganizationReference { get; set; }            
-            public EdFiStaffReference staffReference { get; set; }            
+            public EdFiStaffReference staffReference { get; set; } 
             public string hireDate { get; set; }
             public string  endDate { get; set; }
             public string employmentStatusDescriptor { get; set; }
         
         }
+        public class StaffAssignmentDescriptor
+        {
 
-        public class EdFiEducationReference
+            public string id { get; set; }
+            public EdFiEducationReference educationOrganizationReference { get; set; }
+            public EdFiStaffReference staffReference { get; set; }
+            public string positionTitle { get; set; }
+            public string beginDate { get; set; }
+            public string endDate { get; set; }
+            public string employmentStatusDescriptor { get; set; }
+
+        }
+
+    public class EdFiEducationReference
         {
             public string educationOrganizationId { get; set; }
             public Link Link { get; set; }
@@ -42,6 +54,7 @@ namespace BPS.EdOrg.Loader
         public string staffUniqueId { get; set; }
         public string endDate { get; set; }
         public string ErrorMessage { get; set; }
+        public string PositionTitle { get; set; }
 
     }
 

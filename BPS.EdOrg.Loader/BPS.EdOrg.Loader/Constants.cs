@@ -14,7 +14,9 @@ namespace BPS.EdOrg.Loader
         public static string employmentStatusDescriptor = @"&employmentStatusDescriptor="+Constants.employmentStatusDescriptorValue;
         public static string employmentStatusDescriptorValue = @"Tenured%20or%20permanent";
         public static string hireDate = @"&hireDate=";
+        public static string beginDate = @"&beginDate=2017-07-01";
         public static string staffUniqueId = @"&staffUniqueId=";
+        
 
         public static string LOG_FILE { get; set; } = ConfigurationManager.AppSettings["LogFileDrive"] + DateTime.Today.ToString("yyyyMMdd") + ".csv";
         public static string LOG_FILE_ATT { get; set; } = @"Log File";
@@ -24,5 +26,8 @@ namespace BPS.EdOrg.Loader
         public static string LOG_FILE_BODY { get; set; } = @"EndDateDataReview Log File";
 
         public static string SmtpServerHost = ConfigurationManager.AppSettings["SmtpServerHost"];
+
+        public static string StaffEmploymentUrl { get; set; } = @"2019/staffEducationOrganizationEmploymentAssociations";
+        public static string StaffAssociationUrl { get; set; } = @"2019/staffEducationOrganizationAssignmentAssociations";
     }
 }
