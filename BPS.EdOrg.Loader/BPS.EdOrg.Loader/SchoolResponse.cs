@@ -5,6 +5,7 @@ namespace BPS.EdOrg.Loader
     public class SchoolResponse
     {
         public List<EducationOrganizationIdentificationSystem> IdentificationCodes { get; set; }
+        public string schoolId { get; set; }
     }
 
     public class EducationOrganizationIdentificationSystem

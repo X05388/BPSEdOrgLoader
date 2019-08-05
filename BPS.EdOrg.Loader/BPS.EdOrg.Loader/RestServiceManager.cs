@@ -21,9 +21,10 @@ namespace BPS.EdOrg.Loader
             _log = logger;
         }
 
-        public List<string> GetSchoolList()
+        public List<SchoolDept> GetSchoolList()
         {
             List<string> existingDeptIds = new List<string>();
+            List<SchoolDept> schoolDepts = new List<SchoolDept>();
             try
             {
                 if (!string.IsNullOrEmpty(_accessToken))
@@ -47,9 +48,11 @@ namespace BPS.EdOrg.Loader
                                 string deptId = school.IdentificationCodes?
                                     .Where(x => string.Equals(x.EducationOrganizationIdentificationSystemDescriptor, "school", StringComparison.OrdinalIgnoreCase))
                                     .FirstOrDefault()?.IdentificationCode;
+                                
                                 if (!string.IsNullOrEmpty(deptId) && !string.Equals(deptId, "N/A", StringComparison.OrdinalIgnoreCase))
                                 {
                                     existingDeptIds.Add(deptId);
+                                    schoolDepts.Add(new SchoolDept { schoolId = school.schoolId, DeptId = deptId });
                                 }
                             }
                         }
@@ -70,7 +73,7 @@ namespace BPS.EdOrg.Loader
             {
                 _log.Error($"Exception while retrieve school list : {ex.Message}");
             }
-            return existingDeptIds;
+            return schoolDepts;
         }
 
 
@@ -124,6 +127,8 @@ namespace BPS.EdOrg.Loader
             }
             return existingStaffIds;
         }
+
+
 
         private IRestResponse<List<SchoolResponse>> GetRestResponse(RestClient httpClient, int offset , int limit)
         {

@@ -14,6 +14,7 @@ using System.Xml.Linq;
 using Newtonsoft.Json.Linq;
 using System.Net.Mail;
 using System.Net.Mime;
+using System.Linq;
 
 namespace BPS.EdOrg.Loader
 {
@@ -46,38 +47,15 @@ namespace BPS.EdOrg.Loader
                     Archive(param.Object);
                     LogConfiguration(param.Object);
 
-                    // creating the xml and executing the file through command line parser
-                    RunDeptFile(param);
+                    // creating the xml and executing the file through command line parser                    
                     RunJobCodeFile(param);
-                    
+                    RunDeptFile(param);
                 }
                 catch (Exception ex)
                 {
                     Log.Error(ex.Message);
                 }
             }
-        }
-
-        private static void RunDeptFile(CommandLineParser param) {
-
-            //For Dept_tbl.txt
-            List<string> existingSchools = GetDeptList(param.Object);
-            CreateXml(param.Object, existingSchools);
-            LoadXml(param.Object);
-
-        }
-
-        private static void RunJobCodeFile(CommandLineParser param)
-        {
-
-            // For JobCode_tbl.txt
-            List<string> existingStaffId = GetStaffList(param.Object);
-            CreateXmlJob(param.Object, existingStaffId);
-            var token = GetAuthToken();
-            if (token != null)
-                 UpdateStaffAssociationData(token);
-            else throw new Exception("Token is not generated, ODS not updated");
-            //LoadXml(param.Object);
         }
 
         private static void LogConfiguration(Configuration configuration)
@@ -158,45 +136,34 @@ namespace BPS.EdOrg.Loader
             Log.Info(e.Data);
         }
 
-
-        private static void CreateXmlGenericStart(XmlTextWriter writer)
+        private static void RunDeptFile(CommandLineParser param)
         {
-            try
+
+            //For Dept_tbl.txt
+            List<SchoolDept> existingSchools = GetDeptList(param.Object);
+            CreateXml(param.Object, existingSchools);
+            LoadXml(param.Object);
+
+        }
+
+        private static void RunJobCodeFile(CommandLineParser param)
+        {
+
+            // For JobCode_tbl.txt
+            List<string> existingStaffId = GetStaffList(param.Object);
+            CreateXmlJob(param.Object, existingStaffId);
+            var token = GetAuthToken();
+            if (token != null)
             {
-                Log.Info("CreateXML started");               
-                writer.WriteStartDocument();
-                writer.Formatting = System.Xml.Formatting.Indented;
-                writer.Indentation = 2;                
+                UpdateStaffEmploymentAssociationData(token);
+                UpdateStaffAssignmentAssociationData(token, param.Object);
+            }
                 
-            }
-            catch(Exception ex)
-            {
-                Log.Error($"Error while creating Generic XML start, Exception: {ex.Message}");
-            }
+            else throw new Exception("Token is not generated, ODS not updated");
+            //LoadXml(param.Object);
         }
-
-        private static void CreateXmlGenericEnd(XmlTextWriter writer,int numberOfRecordsCreatedInXml,int numberOfRecordsSkipped)
-        {
-            try
-            {
-                writer.WriteEndElement();
-                writer.WriteEndDocument();
-                writer.Close();
-                if (numberOfRecordsSkipped > 0)
-                {
-                    Log.Info($"Number Of records created In Xml {numberOfRecordsCreatedInXml}");
-                    Log.Info($"Number of records skipped because crosswalk contains the PeopleSoftIds - {numberOfRecordsSkipped}");
-                }
-                Log.Info("CreateXML ended successfully");
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Error while creating Generic XML End, Exception: {ex.Message}");
-            }
-
-
-        }
-        private static void CreateXml(Configuration configuration, List<string> existingDeptIds)
+        
+        private static void CreateXml(Configuration configuration, List<SchoolDept> existingDeptIds)
         {
             try
             {
@@ -235,7 +202,7 @@ namespace BPS.EdOrg.Loader
                     {
                         string deptId = fields[deptIdIndex]?.Trim();
                         string deptTitle = fields[deptTitleIndex]?.Trim();
-                        if (!existingDeptIds.Contains(deptId))
+                        if (!existingDeptIds.Any(p => p.DeptId == deptId))
                         {
                             Log.Debug($"Creating node for {deptId}-{deptTitle}");
                             CreateNode(deptId, deptTitle, writer);                            
@@ -269,7 +236,7 @@ namespace BPS.EdOrg.Loader
             try
             {
                 string xmlOutPutPath = ConfigurationManager.AppSettings["XMLOutputPath"];
-                string filePath = Path.Combine(xmlOutPutPath, $"StaffAssociation.xml");
+                string filePath = Path.Combine(xmlOutPutPath, $"StaffAssociation-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
                 XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
                 CreateXmlGenericStart(writer);
                 writer.WriteStartElement("InterchangeStaffAssociation");
@@ -283,8 +250,9 @@ namespace BPS.EdOrg.Loader
                 string[] lines = File.ReadAllLines(dataFilePath);
                 int i = 0;
                 int empIdIndex = 0;
-                int deptIdIndex = 0;
+                int deptIdIndex = 0; int unionCodeIndex = 0;
                 int actionIndex=0; int  actionDateIndex = 0; int hireDateIndex = 0; int jobCodeIndex = 0; int jobTitleIndex = 0;
+                int entryDateIndex = 0;
                 int numberOfRecordsCreatedInXml = 0, numberOfRecordsSkipped = 0;
                 foreach (string line in lines)
                 {
@@ -295,11 +263,14 @@ namespace BPS.EdOrg.Loader
                         empIdIndex = Array.IndexOf(header, "ID");
                         deptIdIndex = Array.IndexOf(header, "Deptid");
                         actionIndex = Array.IndexOf(header, "Action");
-                        actionDateIndex = Array.IndexOf(header, "Action Dt");
+                        actionDateIndex = Array.IndexOf(header, "Eff Date");
                         hireDateIndex = Array.IndexOf(header, "Orig Hire Date");
                         jobCodeIndex = Array.IndexOf(header, "Job Code");
                         jobTitleIndex = Array.IndexOf(header, "Job Title");
-                        if (deptIdIndex < 0 || actionDateIndex < 0 || empIdIndex<0 || hireDateIndex <0)
+                        entryDateIndex = Array.IndexOf(header, "Entry Date");
+                        unionCodeIndex = Array.IndexOf(header, "Union Code");
+
+                        if (deptIdIndex < 0 || actionIndex < 0 || empIdIndex<0 || hireDateIndex <0 || entryDateIndex<0)
                         {
                             Log.Error($"Input data text file does not contains the ID or JobCode or ActionDt headers");
                         }
@@ -316,11 +287,13 @@ namespace BPS.EdOrg.Loader
                         string hireDate = fields[hireDateIndex]?.Trim();
                         string jobCode = fields[jobCodeIndex]?.Trim();
                         string jobTitle = fields[jobTitleIndex]?.Trim();
+                        string entryDate = fields[entryDateIndex]?.Trim();
+                        string unionCode = fields[unionCodeIndex]?.Trim();
                         if (existingStaffId.Contains(staffId))
                         {
-                            Log.Debug($"Creating node for {staffId}-{deptID}-{endDate}");
-                            
-                            CreateNodeJob(staffId, deptID, action, endDate, hireDate, jobCode, jobTitle, writer);                            
+                            string descCode = Constants.StaffClassificationDescriptorCode(jobCode, int.Parse(deptID), unionCode).ToString().Trim();
+                            Log.Debug($"Creating node for {staffId}-{deptID}-{endDate}");                            
+                            CreateNodeJob(staffId, deptID, action, endDate, hireDate, jobCode, jobTitle, entryDate, descCode, writer);                            
                             numberOfRecordsCreatedInXml++;
                         }
                         else
@@ -346,7 +319,7 @@ namespace BPS.EdOrg.Loader
             }
         }
 
-        private static void CreateNodeJob(string staffId,string deptID, string action, string endDate, string hireDate,string jobCode,string jobTitle, XmlTextWriter writer)
+        private static void CreateNodeJob(string staffId,string deptID, string action, string endDate, string hireDate,string jobCode,string jobTitle,string entryDate,string descCode, XmlTextWriter writer)
         {
             try
             {
@@ -399,16 +372,58 @@ namespace BPS.EdOrg.Loader
 
                     writer.WriteEndElement();
 
+                    Log.Info($"CreateNode Ended successfully for jobcode:{deptID} and EndDate:{endDate}");
+                }
+                else
+                {
+                    Log.Info($"CreateNode started for jobcode:{deptID} and EntryDate:{entryDate}");
+
                     writer.WriteStartElement("StaffEducationOrganizationAssignmentAssociation");
+
+                    writer.WriteStartElement("StaffReference");
+                    writer.WriteStartElement("StaffIdentity");
+                    writer.WriteStartElement("StaffUniqueId");
+                    writer.WriteString(staffId);
+                    writer.WriteEndElement();
+                    writer.WriteEndElement();
+                    writer.WriteEndElement();
+
+                    //writer.WriteStartElement("Department");
+                    //writer.WriteString(jobCode);
+                    //writer.WriteEndElement();
+
+                    writer.WriteStartElement("EducationOrganizationReference");
+
+                    writer.WriteStartElement("EducationOrganizationIdentity");
+                    writer.WriteStartElement("EducationOrganizationId");
+                    writer.WriteString(deptID);
+                    writer.WriteEndElement();
+                    writer.WriteEndElement();
+
+                    writer.WriteStartElement("StaffClassification");
+                    writer.WriteStartElement("CodeValue");
+                    writer.WriteString(descCode);
+                    writer.WriteEndElement();
+                    writer.WriteEndElement();                    
+
+                    
+                    writer.WriteStartElement("BeginDate");
+                    writer.WriteString(entryDate);
+                    writer.WriteEndElement();
+                    writer.WriteStartElement("EndDate");
+                    writer.WriteString(endDate);
+                    writer.WriteEndElement();
+                   
                     writer.WriteStartElement("PostionTitle");
                     writer.WriteString(jobCode + "-" + jobTitle);
-                    writer.WriteEndElement();
+                    writer.WriteEndElement();                    
 
                     writer.WriteEndElement();
+                    writer.WriteEndElement();
+
+                    Log.Info($"CreateNode Ended successfully for jobcode:{deptID} and EntryDate:{entryDate}");
 
 
-
-                    Log.Info($"CreateNode Ended successfully for jobcode:{deptID} and EndDate:{endDate}");
                 }
                
                
@@ -502,13 +517,51 @@ namespace BPS.EdOrg.Loader
             }
 
         }
+
+        private static void CreateXmlGenericStart(XmlTextWriter writer)
+        {
+            try
+            {
+                Log.Info("CreateXML started");
+                writer.WriteStartDocument();
+                writer.Formatting = System.Xml.Formatting.Indented;
+                writer.Indentation = 2;
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error while creating Generic XML start, Exception: {ex.Message}");
+            }
+        }
+
+        private static void CreateXmlGenericEnd(XmlTextWriter writer, int numberOfRecordsCreatedInXml, int numberOfRecordsSkipped)
+        {
+            try
+            {
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
+                writer.Close();
+                if (numberOfRecordsSkipped > 0)
+                {
+                    Log.Info($"Number Of records created In Xml {numberOfRecordsCreatedInXml}");
+                    Log.Info($"Number of records skipped because crosswalk contains the PeopleSoftIds - {numberOfRecordsSkipped}");
+                }
+                Log.Info("CreateXML ended successfully");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error while creating Generic XML End, Exception: {ex.Message}");
+            }
+
+
+        }
         private static void MoveFiles(Configuration configuration)
         {
             try
             {
                 string rootFolderPath = configuration.XMLOutputPath;
                 string backupPath = Path.Combine(rootFolderPath, "Backup");
-                string filesToDelete = @"EducationOrganization*.xml";   // Only delete WAV files ending by "_DONE" in their filenames
+                string filesToDelete = @"*.xml";   // Only delete WAV files ending by "_DONE" in their filenames
                 string[] fileList = System.IO.Directory.GetFiles(rootFolderPath, filesToDelete);
                 if (!Directory.Exists(backupPath))
                 {
@@ -619,13 +672,164 @@ namespace BPS.EdOrg.Loader
 
 
         /// <summary>
+        /// Loading the generated Xml to get required values
+        /// </summary>
+        /// <returns></returns>
+
+        private static XmlDocument LoadXml()
+        {
+            try
+            {
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(ConfigurationManager.AppSettings["XMLOutputPath"] + $"/StaffAssociation-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
+                return xmlDoc;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(" Error occured while fetching the generated xml, please check if xml file exists" + ex.Message);
+            }
+
+        }
+        /// <summary>
+        /// Gets the data from the xml and updates the table.
+        /// </summary>
+        /// <returns></returns>
+        private static void UpdateStaffEmploymentAssociationData(string token)
+        {
+            try
+            {
+                string staffUniqueIdValue = null;
+                string educationOrganizationIdValue = null;
+                string endDateValue = null;
+                string hireDateValue = null;
+                string beginDateValue = Constants.beginDate;
+
+                XmlDocument xmlDoc = LoadXml();
+                //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
+                //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
+                XmlNodeList nodeList = xmlDoc.SelectNodes("//InterchangeStaffAssociation/StaffEducationOrganizationEmploymentAssociation");
+
+                foreach (XmlNode node in nodeList)
+                {
+
+                    XmlNode staffNode = node.SelectSingleNode("StaffReference/StaffIdentity");
+                    // get the values from the <Staff> node
+                    if (staffNode != null)
+                    {
+                        staffUniqueIdValue = staffNode.SelectSingleNode("StaffUniqueId").InnerText ?? null;
+
+                    }
+                    XmlNode EducationNode = node.SelectSingleNode("EducationOrganizationReference/EducationOrganizationIdentity");
+
+                    // get the values from the <Staff> node
+                    if (EducationNode != null)
+                    {
+                        educationOrganizationIdValue = EducationNode.SelectSingleNode("EducationOrganizationId").InnerText ?? null;
+
+                    }
+                    XmlNode EmploymentNode = node.SelectSingleNode("EmploymentPeriod");
+
+                    if (EmploymentNode != null)
+                    {
+                        endDateValue = EmploymentNode.SelectSingleNode("EndDate").InnerText ?? null;
+                        hireDateValue = EmploymentNode.SelectSingleNode("HireDate").InnerText ?? null;
+
+                    }
+                    if (staffUniqueIdValue != null && hireDateValue != null)
+                    {
+                        string id = GetEmploymentAssociationId(token, staffUniqueIdValue, hireDateValue);
+                        if (id != null && endDateValue != null)
+                            UpdateEndDate(token, id, endDateValue, hireDateValue, staffUniqueIdValue);
+                    }
+                }
+                if (File.Exists(Constants.LOG_FILE))
+                    SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+            }
+        }
+
+        private static void UpdateStaffAssignmentAssociationData(string token, Configuration configuration)
+        {
+            try
+            {
+                string staffUniqueIdValue = null;
+                string positionCodeDescription = null;
+                string educationOrganizationIdValue = null;
+                string endDateValue = null;
+                string beginDateValue = null;
+                string staffClassification = null;
+
+                XmlDocument xmlDoc = LoadXml();
+                //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
+                //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
+                XmlNodeList nodeList = xmlDoc.SelectNodes("//InterchangeStaffAssociation/StaffEducationOrganizationAssignmentAssociation");
+
+                foreach (XmlNode node in nodeList)
+                {
+
+                    XmlNode staffNode = node.SelectSingleNode("StaffReference/StaffIdentity");
+
+                    // get the values from the <Staff> node
+                    if (staffNode != null)
+                    {
+                        staffUniqueIdValue = staffNode.SelectSingleNode("StaffUniqueId").InnerText ?? null;
+
+                    }
+                    XmlNode EducationNode = node.SelectSingleNode("EducationOrganizationReference");
+
+                    // get the values from the <Staff> node
+                    if (EducationNode != null)
+                    {
+                        XmlNode EducationOrgNode = EducationNode.SelectSingleNode("EducationOrganizationIdentity");
+                        XmlNode staffClassificationNode = EducationNode.SelectSingleNode("StaffClassification");
+                        if (EducationOrgNode != null)
+                            educationOrganizationIdValue = EducationOrgNode.SelectSingleNode("EducationOrganizationId").InnerText ?? null;
+                        endDateValue = EducationNode.SelectSingleNode("EndDate").InnerText ?? null;
+                        beginDateValue = EducationNode.SelectSingleNode("BeginDate").InnerText ?? null;
+                        positionCodeDescription = EducationNode.SelectSingleNode("PostionTitle").InnerText ?? null;
+                        staffClassification = staffClassificationNode.SelectSingleNode("CodeValue").InnerText ?? null;
+                    }
+
+                    if (educationOrganizationIdValue!= null)
+                    {
+                        var schoolDeptids = GetDeptList(configuration);
+                        if (schoolDeptids.Count > 0)
+                        {
+                            var educationOrganizationId = schoolDeptids.Where(x => x.DeptId == educationOrganizationIdValue).FirstOrDefault().schoolId;
+                            if (educationOrganizationId != null && staffUniqueIdValue != null && beginDateValue != null && staffClassification != null)
+                            {
+                                string id = GetAssignmentAssociationId(token, educationOrganizationId, staffClassification, staffUniqueIdValue, beginDateValue);
+                                if (id != null && positionCodeDescription != null)
+                                    UpdatePostionTitle(token, id, educationOrganizationId, staffClassification, endDateValue, beginDateValue, staffUniqueIdValue, positionCodeDescription);
+                            }
+                        }
+
+                    }
+
+                }
+
+                if (File.Exists(Constants.LOG_FILE))
+                    SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
+            }
+            catch(Exception ex)
+            {
+                Log.Error(ex.Message);
+            }       
+            
+        }
+
+        /// <summary>
         /// Get the Id from the [StaffEducationOrganizationEmploymentAssociation] table.
         /// </summary>
         /// <returns></returns>
         private static string GetEmploymentAssociationId(string token, string staffUniqueIdValue, string hireDateValue)
         {
-            IRestResponse response = null;            
-            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffEmploymentUrl + Constants.educationOrganizationId+Constants.educationOrganizationIdValue + Constants.employmentStatusDescriptor+Constants.employmentStatusDescriptorValue + Constants.hireDate + hireDateValue + Constants.staffUniqueId + staffUniqueIdValue);
+            IRestResponse response = null;
+            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffEmploymentUrl + Constants.educationOrganizationId + Constants.educationOrganizationIdValue + Constants.employmentStatusDescriptor + Constants.employmentStatusDescriptorValue + Constants.hireDate + hireDateValue + Constants.staffUniqueId + staffUniqueIdValue);
 
             response = GetData(client, token);
             if (IsSuccessStatusCode((int)response.StatusCode))
@@ -643,120 +847,28 @@ namespace BPS.EdOrg.Loader
         /// Get the Id from the [StaffEducationOrganizationAssignmentAssociation] table.
         /// </summary>
         /// <returns></returns>
-        private static string GetAssignmentAssociationId(string token, string staffUniqueIdValue, string beginDateValue)
+        private static string GetAssignmentAssociationId(string token,string educationOrganizationIdValue,string staffClassification, string staffUniqueIdValue, string beginDateValue)
         {
             IRestResponse response = null;
-            
-            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssociationUrl + Constants.educationOrganizationId + Constants.educationOrganizationIdValue + Constants.employmentStatusDescriptor + Constants.employmentStatusDescriptorValue + beginDateValue + Constants.staffUniqueId + staffUniqueIdValue);
 
+            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssociationUrl+Constants.educationOrganizationId + educationOrganizationIdValue+ Constants.beginDate + beginDateValue+ Constants.staffClassificationDescriptorId + staffClassification + Constants.staffUniqueId + staffUniqueIdValue);
             response = GetData(client, token);
             if (IsSuccessStatusCode((int)response.StatusCode))
             {
-                dynamic original = JObject.Parse(response.Content.ToString());
+                dynamic original = JObject.Parse(response.Content.TrimStart(new char[] { '[' }).TrimEnd(new char[] { ']' }).ToString());
                 var id = original.id;
                 if (id != null)
-                    return id;
+                    return id.ToString();
 
             }
             return null;
         }
 
-
-        /// <summary>
-        /// Gets the data from the xml and updates the table.
-        /// </summary>
-        /// <returns></returns>
-        private static void UpdateStaffAssociationData(string token)
-        {
-            string staffUniqueIdValue = null;
-            string educationOrganizationIdValue = null;
-            string endDateValue = null;
-            string jobCodeDescription = null;
-            string hireDateValue = null;
-            string beginDateValue = Constants.beginDate;
-
-            XmlDocument xmlDoc = LoadXml();            
-            //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
-            //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
-            XmlNodeList nodeList = xmlDoc.SelectNodes("//InterchangeStaffAssociation/StaffEducationOrganizationEmploymentAssociation");
-            
-            foreach (XmlNode node in nodeList)
-            {
-
-                XmlNode staffNode = node.SelectSingleNode("StaffReference/StaffIdentity");
-
-                // get the values from the <Staff> node
-                if (staffNode != null)
-                {
-                    staffUniqueIdValue = staffNode.SelectSingleNode("StaffUniqueId").InnerText ?? null;
-
-                }
-                XmlNode EducationNode = node.SelectSingleNode("EducationOrganizationReference/EducationOrganizationIdentity");
-
-                // get the values from the <Staff> node
-                if (EducationNode != null)
-                {
-                    educationOrganizationIdValue = EducationNode.SelectSingleNode("EducationOrganizationId").InnerText ?? null;
-
-                }
-                XmlNode EmploymentNode = node.SelectSingleNode("EmploymentPeriod");
-
-                if (EmploymentNode != null)
-                {
-                    endDateValue = EmploymentNode.SelectSingleNode("EndDate").InnerText ?? null;
-                    hireDateValue = EmploymentNode.SelectSingleNode("HireDate").InnerText ?? null;
-
-                }    
-               
-                
-                              
-
-                if (staffUniqueIdValue != null && hireDateValue != null)
-                {
-                    string id = GetEmploymentAssociationId(token, staffUniqueIdValue, hireDateValue);
-                    if (id != null && endDateValue != null)                    
-                        UpdateEndDate(token, id, endDateValue, hireDateValue, staffUniqueIdValue);                      
-                    
-                }
-
-                //if (staffUniqueIdValue != null && beginDateValue != null)
-                //{
-                //    jobCodeDescription = GetPostionTitle(xmlDoc);
-                //    string id = GetAssignmentAssociationId(token, staffUniqueIdValue, beginDateValue);
-                //    if (id != null && jobCodeDescription != null)                       
-                //        UpdatePostionTitle(token, id, endDateValue, beginDateValue, staffUniqueIdValue, jobCodeDescription);
-                    
-                //}
-
-            }
-
-           
-            if (File.Exists(Constants.LOG_FILE))
-                SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
-        }
-
-        /// <summary>
-        /// Gets the JobCode and Job description from the xml file
-        /// </summary>
-        /// <returns></returns>
-        private static string GetPostionTitle(XmlDocument xmlDoc)
-        {
-            string positionCodeDescription = null;           
-            XmlNodeList nodeListTitle = xmlDoc.SelectNodes("//InterchangeStaffAssociation/StaffEducationOrganizationAssignmentAssociation");
-
-            foreach (XmlNode node in nodeListTitle)
-            { 
-               positionCodeDescription = node.SelectSingleNode("PostionTitle").InnerText ?? null;
-            }
-            return positionCodeDescription;
-        }
-
-
         /// <summary>
         /// Updates the Position title in  [StaffEducationOrganizationAssignmentAssociation] table.
         /// </summary>
         /// <returns></returns>
-        private static void UpdatePostionTitle(string token,string id,string endDateValue,string beginDateValue, string staffUniqueIdValue, string jobCodeDescription)
+        private static void UpdatePostionTitle(string token,string id,string educationOrganizationId, string staffClassification,string endDateValue,string beginDateValue, string staffUniqueIdValue, string jobCodeDescription)
         {
             try
             {
@@ -768,7 +880,7 @@ namespace BPS.EdOrg.Loader
                     id = id,
                     educationOrganizationReference = new EdFiEducationReference
                     {
-                        educationOrganizationId = Constants.educationOrganizationIdValue,
+                        educationOrganizationId = educationOrganizationId,
                         Link = new Link()
                         {
                             Rel = string.Empty,
@@ -785,7 +897,7 @@ namespace BPS.EdOrg.Loader
                             Href = string.Empty
                         }
                     },
-                    employmentStatusDescriptor = Constants.employmentStatusDescriptorValue,
+                    employmentStatusDescriptor = staffClassification,
                     beginDate = beginDateValue,
                     positionTitle = jobCodeDescription
                 };                
@@ -809,39 +921,16 @@ namespace BPS.EdOrg.Loader
             }
 
         }
-
-
-
-        /// <summary>
-        /// Loading the generated Xml to get required values
-        /// </summary>
-        /// <returns></returns>
-
-        private static XmlDocument LoadXml()
-        {
-            try
-            {
-                XmlDocument xmlDoc = new XmlDocument();
-                xmlDoc.Load(ConfigurationManager.AppSettings["XMLOutputPath"] + "/StaffAssociation.xml");
-                return xmlDoc;
-
-            }
-            catch(Exception ex)
-            {
-                throw new Exception(" Error occured while fetching the generated xml, please check if xml file exists" + ex.Message);
-            }
-            
-        }
-
+                             
         /// <summary>
         /// Updates the enddate to [StaffEducationOrganizationAssignmentAssociation] table.
         /// </summary>
         /// <returns></returns>
         private static bool UpdateEndDate(string token, string id, string endDateValue, string hireDateValue, string staffUniqueIdValue)
         {
+            bool isPosted = true;
             try
-            {
-
+            {                
                 IRestResponse response = null;
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffEmploymentUrl + "/"+id);
                 var rootObject = new StaffEmploymentDescriptor
@@ -870,7 +959,7 @@ namespace BPS.EdOrg.Loader
                     hireDate = hireDateValue,
                     endDate = endDateValue
                 };
-                bool isPosted = true;
+                
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
                 response = PutData(json, client, token);
                 if ((int)response.StatusCode > 204 || (int)response.StatusCode < 200)
@@ -882,16 +971,15 @@ namespace BPS.EdOrg.Loader
                     errorLog.ErrorMessage = response.Content.ToString().Replace(System.Environment.NewLine, string.Empty) ?? null;
                     ErrorLogging(errorLog);
                     isPosted = false;
-                }
-                       
-                return isPosted;
+                }                      
+                
             }
 
             catch (Exception ex)
             {
-                throw new Exception("Something went wrong while updating the data in ODS, check the XML values" + ex.Message);
+                Log.Error("Something went wrong while updating the data in ODS, check the XML values" + ex.Message);
             }
-
+            return isPosted;
         }
 
 
@@ -915,11 +1003,69 @@ namespace BPS.EdOrg.Loader
 
         }
 
+       
+        private static List<SchoolDept> GetDeptList(Configuration configuration)
+        {
+            
+            List<SchoolDept> existingDeptIds = new List<SchoolDept>();
+            try
+            {
+                TokenRetriever tokenRetriever = new TokenRetriever(ConfigurationManager.AppSettings["OAuthUrl"], ConfigurationManager.AppSettings["APP_Key"], ConfigurationManager.AppSettings["APP_Secret"]);
+
+                string token = tokenRetriever.ObtainNewBearerToken();
+                if (!string.IsNullOrEmpty(token))
+                {
+                    Log.Info($"Crosswalk API token retrieved successfully");
+                    RestServiceManager restManager = new RestServiceManager(configuration, token, Log);
+                    existingDeptIds = restManager.GetSchoolList();
+                }
+                else
+                {
+                    Log.Error($"Error while retrieving access token for Crosswalk API");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error while getting school list:{ex.Message}");
+            }
+
+            return existingDeptIds;
+        }
+
+        private static List<string> GetStaffList(Configuration configuration)
+        {
+
+            List<string> existingStaffIds = new List<string>();
+            try
+            {
+                TokenRetriever tokenRetriever = new TokenRetriever(ConfigurationManager.AppSettings["OAuthUrl"], ConfigurationManager.AppSettings["APP_Key"], ConfigurationManager.AppSettings["APP_Secret"]);
+
+                string token = tokenRetriever.ObtainNewBearerToken();
+                if (!string.IsNullOrEmpty(token))
+                {
+                    Log.Info($"Crosswalk API token retrieved successfully");
+                    RestServiceManager restManager = new RestServiceManager(configuration, token, Log);
+                    existingStaffIds = restManager.GetStaffList();
+                }
+                else
+                {
+                    Log.Error($"Error while retrieving access token for Crosswalk API");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error while getting school list:{ex.Message}");
+            }
+
+            return existingStaffIds;
+        }
+
+
         /// <summary>
         /// Sending the log in the email
         /// </summary>
         /// <returns></returns>
-        public static  bool SendMail(string recipient, string subject, string body, string attachmentFilename)
+        public static bool SendMail(string recipient, string subject, string body, string attachmentFilename)
         {
             try
             {
@@ -996,60 +1142,5 @@ namespace BPS.EdOrg.Loader
             }
         }
 
-        private static List<string> GetDeptList(Configuration configuration)
-        {
-            
-            List<string> existingDeptIds = new List<string>();
-            try
-            {
-                TokenRetriever tokenRetriever = new TokenRetriever(ConfigurationManager.AppSettings["OAuthUrl"], ConfigurationManager.AppSettings["APP_Key"], ConfigurationManager.AppSettings["Constants.APP_Secret"]);
-
-                string token = tokenRetriever.ObtainNewBearerToken();
-                if (!string.IsNullOrEmpty(token))
-                {
-                    Log.Info($"Crosswalk API token retrieved successfully");
-                    RestServiceManager restManager = new RestServiceManager(configuration, token, Log);
-                    existingDeptIds = restManager.GetSchoolList();
-                }
-                else
-                {
-                    Log.Error($"Error while retrieving access token for Crosswalk API");
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Error while getting school list:{ex.Message}");
-            }
-
-            return existingDeptIds;
-        }
-
-        private static List<string> GetStaffList(Configuration configuration)
-        {
-
-            List<string> existingStaffIds = new List<string>();
-            try
-            {
-                TokenRetriever tokenRetriever = new TokenRetriever(ConfigurationManager.AppSettings["OAuthUrl"], ConfigurationManager.AppSettings["APP_Key"], ConfigurationManager.AppSettings["APP_Secret"]);
-
-                string token = tokenRetriever.ObtainNewBearerToken();
-                if (!string.IsNullOrEmpty(token))
-                {
-                    Log.Info($"Crosswalk API token retrieved successfully");
-                    RestServiceManager restManager = new RestServiceManager(configuration, token, Log);
-                    existingStaffIds = restManager.GetStaffList();
-                }
-                else
-                {
-                    Log.Error($"Error while retrieving access token for Crosswalk API");
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Error while getting school list:{ex.Message}");
-            }
-
-            return existingStaffIds;
-        }
     }
 }

@@ -9,14 +9,16 @@ namespace BPS.EdOrg.Loader
 {
     class Constants
     {
-        public static string educationOrganizationId = @"?educationOrganizationId="+Constants.educationOrganizationIdValue;
+        public static string educationOrganizationId = @"?educationOrganizationId=";
         public static string educationOrganizationIdValue = @"350000";
-        public static string employmentStatusDescriptor = @"&employmentStatusDescriptor="+Constants.employmentStatusDescriptorValue;
+        public static string employmentStatusDescriptor = @"&employmentStatusDescriptor=";
         public static string employmentStatusDescriptorValue = @"Tenured%20or%20permanent";
+        public static string staffClassificationDescriptorId = @"&StaffClassificationDescriptorId=";
         public static string hireDate = @"&hireDate=";
-        public static string beginDate = @"&beginDate=2017-07-01";
-        public static string staffUniqueId = @"&staffUniqueId=";
-        
+        public static string beginDate = @"&beginDate=";
+        public static string beginDateDefaultValue = @"2017-07-01";
+        public static string staffUniqueId = @"&staffUniqueId="; 
+
 
         public static string LOG_FILE { get; set; } = ConfigurationManager.AppSettings["LogFileDrive"] + DateTime.Today.ToString("yyyyMMdd") + ".csv";
         public static string LOG_FILE_ATT { get; set; } = @"Log File";
@@ -29,5 +31,93 @@ namespace BPS.EdOrg.Loader
 
         public static string StaffEmploymentUrl { get; set; } = @"2019/staffEducationOrganizationEmploymentAssociations";
         public static string StaffAssociationUrl { get; set; } = @"2019/staffEducationOrganizationAssignmentAssociations";
+
+       
+
+        public static string StaffClassificationDescriptorCode(string jobCode, int deptID, string unionCode)
+        {
+            if (jobCode.Equals("S00022") || jobCode.Equals("S00023") || jobCode.Equals("S00170") ||
+                jobCode.Equals("S00167") || jobCode.Equals("S00200") || jobCode.Equals("S00218") ||
+                jobCode.Equals("S00340") || jobCode.Equals("S00445") || jobCode.Equals("S20324") || 
+                jobCode.Equals("S01077") && (deptID >= 101200 && 101699 <= deptID))
+                return "School Leader";
+
+            if (jobCode.Equals("S00065") || jobCode.Equals("S00169") || jobCode.Equals("S00183") ||
+                jobCode.Equals("S00257") || jobCode.Equals("S00281") || jobCode.Equals("S00354") ||
+                jobCode.Equals("S00406") || jobCode.Equals("S00407") || jobCode.Equals("S00413") ||
+                jobCode.Equals("S01070") || jobCode.Equals("S20113") || jobCode.Equals("S20201") ||
+                jobCode.Equals("S20267") || jobCode.Equals("S20302") && (deptID >= 101200 && 101699 <= deptID))
+                return "School Specialist";
+
+            if (jobCode.Equals("S00116") || jobCode.Equals("S00118") || jobCode.Equals("S00220") ||
+                jobCode.Equals("S00245") || jobCode.Equals("S00465") || jobCode.Equals("S01079") ||
+                jobCode.Equals("S11100") || jobCode.Equals("S85026") && (unionCode.Equals("BAS") || unionCode.Equals("BPS")) &&
+                (deptID >= 101200 && 101699 <= deptID))
+                return "School Administrator";
+
+            if (jobCode.Equals("S00116") || jobCode.Equals("S00118") || jobCode.Equals("S00220") ||
+                jobCode.Equals("S00245") || jobCode.Equals("S00465") || jobCode.Equals("S01079") ||
+                jobCode.Equals("S11100") || jobCode.Equals("S85026") &&
+                (deptID >= 101000 && deptID <= 101199 || deptID >= 101000 && deptID <= 101199))
+                return "LEA Administrator";
+
+            if (jobCode.Equals("S00065") || jobCode.Equals("S00169") || jobCode.Equals("S00183") ||
+                jobCode.Equals("S00257") || jobCode.Equals("S00281") || jobCode.Equals("S00354") ||
+                jobCode.Equals("S00406") || jobCode.Equals("S00407") || jobCode.Equals("S00413") ||
+                jobCode.Equals("S01070") || jobCode.Equals("S20113") || jobCode.Equals("S20201") ||
+                jobCode.Equals("S20267") || jobCode.Equals("S20302") &&
+                (deptID >= 101000 && deptID <= 101199 || deptID >= 101000 && deptID <= 101199))
+                return "LEA Specialist";
+            
+            if (!jobCode.Equals("S20113") || !jobCode.Equals("S20100") || !jobCode.Equals("S20112") ||
+                !jobCode.Equals("S20315") || !jobCode.Equals("S20310") || !jobCode.Equals("S01080") && unionCode.Equals("BT1"))
+                return "Instructional Aide";
+
+            if (jobCode.Equals("S01071") || jobCode.Equals("S01080") || jobCode.Equals("S20207") ||
+                jobCode.Equals("S20301") || jobCode.Equals("S20304") || jobCode.Equals("S21000") && unionCode.Equals("BT3"))
+                return "Instructional Coordinator";
+
+            if (jobCode.Equals("S10120")|| jobCode.Equals("S10121") || jobCode.Equals("S10110"))
+                return "Assistant Principal";
+
+            if (jobCode.Equals("S00156") || jobCode.Equals("S00230") || jobCode.Equals("S00251")||
+                jobCode.Equals("S00252") || jobCode.Equals("S01089") || jobCode.Equals("S00250") ||
+                jobCode.Equals("S00254") || jobCode.Equals("S00237") || jobCode.Equals("S01075") ||
+                jobCode.Equals("S01077") || jobCode.Equals("S01078") || jobCode.Equals("S01092"))
+                return "Assistant Superintendent";
+
+            if (jobCode.Equals("S20226") || jobCode.Equals("S20230") || jobCode.Equals("S20233") ||
+                jobCode.Equals("S20213") || jobCode.Equals("S20252") || jobCode.Equals("S20304")) 
+                return "Counselor";
+
+            if (unionCode.Equals("HMP"))
+                return "Principal";
+
+            if (unionCode.Equals("BT2"))
+                return "Substitute Teacher";
+
+            if (unionCode.Equals("AGU"))
+                return "Support Services Staff";   
+                       
+            if (jobCode.Equals("S20264") || jobCode.Equals("S20267"))
+                     return "Librarians/Media Specialists";
+
+            if (jobCode.Equals("S00023") || jobCode.Equals("S00191") || jobCode.Equals("S00204") ||
+                jobCode.Equals("S00239") || jobCode.Equals("S00352") || jobCode.Equals("S01079") ||
+                jobCode.Equals("S01091") || jobCode.Equals("S20275") || jobCode.Equals("S20321") ||
+                jobCode.Equals("S30120") || jobCode.Equals("S30145") || jobCode.Equals("S30170") ||
+                jobCode.Equals("S30327") || jobCode.Equals("S30329") || jobCode.Equals("S30350") || jobCode.Equals("S30365"))
+                    return "Operational Support";
+            
+            if (jobCode.Equals("S00420"))
+                    return "Superintendent";
+
+            if (jobCode.Equals("S01080") || jobCode.Equals("S20315") || jobCode.Equals("S20310"))
+                    return "Teacher";
+
+            else
+                    return "Other";
+            }
+        
     }
 }

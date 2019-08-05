@@ -49,6 +49,12 @@ namespace BPS.EdOrg.Loader
             public string Href { get; set; }
         }
 
+        public class SchoolDept
+        {
+            public string schoolId { get; set; }
+            public string DeptId { get; set; }
+        }
+
     public class ErrorLog
     {
         public string staffUniqueId { get; set; }
