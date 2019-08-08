@@ -32,10 +32,20 @@ namespace BPS.EdOrg.Loader
         public static string StaffEmploymentUrl { get; set; } = @"2019/staffEducationOrganizationEmploymentAssociations";
         public static string StaffAssociationUrl { get; set; } = @"2019/staffEducationOrganizationAssignmentAssociations";
 
-       
+       public static string EmpClassCode(string empCode)
+       {
+            if (empCode.Equals("4") || empCode.Equals("P"))
+                return "Tenured or permanent";
+            if (empCode.Equals("Q") || empCode.Equals("2") || empCode.Equals("3"))
+                return "Substitute/temporary";
+            else
+                return "Other";
 
-        public static string StaffClassificationDescriptorCode(string jobCode, int deptID, string unionCode)
-        {
+
+        }
+
+       public static string StaffClassificationDescriptorCode(string jobCode, int deptID, string unionCode)
+       {
             if (jobCode.Equals("S00022") || jobCode.Equals("S00023") || jobCode.Equals("S00170") ||
                 jobCode.Equals("S00167") || jobCode.Equals("S00200") || jobCode.Equals("S00218") ||
                 jobCode.Equals("S00340") || jobCode.Equals("S00445") || jobCode.Equals("S20324") || 
@@ -68,9 +78,11 @@ namespace BPS.EdOrg.Loader
                 jobCode.Equals("S20267") || jobCode.Equals("S20302") &&
                 (deptID >= 101000 && deptID <= 101199 || deptID >= 101000 && deptID <= 101199))
                 return "LEA Specialist";
-            
-            if (!jobCode.Equals("S20113") || !jobCode.Equals("S20100") || !jobCode.Equals("S20112") ||
-                !jobCode.Equals("S20315") || !jobCode.Equals("S20310") || !jobCode.Equals("S01080") && unionCode.Equals("BT1"))
+
+            var strings = new List<string> { "S20113", "S20100", "S20100", "S20315", "S20310", "S01080" };
+            string x = jobCode;
+            bool contains = !strings.Contains(x, StringComparer.OrdinalIgnoreCase) && unionCode.Equals("BT1");
+            if (contains)
                 return "Instructional Aide";
 
             if (jobCode.Equals("S01071") || jobCode.Equals("S01080") || jobCode.Equals("S20207") ||
