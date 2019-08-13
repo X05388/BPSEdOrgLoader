@@ -156,7 +156,7 @@ namespace BPS.EdOrg.Loader
             var token = GetAuthToken();
             if (token != null)
             {
-                //UpdateStaffEmploymentAssociationData(token);
+                UpdateStaffEmploymentAssociationData(token);
                 UpdateStaffAssignmentAssociationData(token, param.Object);
             }
                 
