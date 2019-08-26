@@ -30,16 +30,65 @@ namespace BPS.EdOrg.Loader
             public string employmentStatusDescriptor { get; set; }
 
         }
+        public class EdFiProgram
+        {
+            public EdFiEducationReference educationOrganizationReference { get; set; }
+            public int? programId { get; set; }
+            public string type { get; set; }
+            public string sponsorType { get; set; }
+            public string name { get; set; }
+            public string ProgramEducationOrganizationId { get; set; }
 
-    public class EdFiEducationReference
+        }
+        public class SpecialEducationReference
+        {
+             public string id { get; set; }
+             public EdFiEducationReference educationOrganizationReference { get; set; }
+             public ProgramReference programReference { get; set; }
+             public StudentReference studentReference { get; set; }
+             public string beginDate { get; set; }
+             public string endDate{ get; set; }
+             public bool ideaEligibility { get; set; }
+             public string iepBeginDate { get; set; }
+             public string iepEndDate { get; set; }
+             public string iepParentResponse { get; set; }
+             public string iepSignatureDate { get; set; }
+             public string Eligibility504 { get; set; }
+             public string iepReviewDate { get; set; }
+             public string lastEvaluationDate { get; set; }
+             public bool medicallyFragile { get; set; }
+             public bool multiplyDisabled { get; set; }
+             public string reasonExitedDescriptor { get; set; }
+             public int schoolHoursPerWeek { get; set; }
+             public bool servedOutsideOfRegularSession{ get; set; }
+             public int specialEducationHoursPerWeek{ get; set; }
+             public string specialEducationSettingDescriptor{ get; set; }
+
+            
+        }   
+        
+        public class EdFiEducationReference
         {
             public string educationOrganizationId { get; set; }
             public Link Link { get; set; }
         }
 
-        public class EdFiStaffReference
+         public class ProgramReference
+         {
+            public string educationOrganizationId { get; set; }
+            public string type { get; set; }
+            public string name { get; set; }
+            public Link Link { get; set; }
+         }
+         public class EdFiStaffReference
+         {
+            public string staffUniqueId { get; set; }
+            public Link Link { get; set; }
+         }
+
+        public class StudentReference
         {
-           public string staffUniqueId { get; set; }
+           public string studentUniqueId  { get; set; }
            public Link Link { get; set; }
         }
 

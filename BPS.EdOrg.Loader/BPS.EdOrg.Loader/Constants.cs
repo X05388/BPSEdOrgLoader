@@ -17,7 +17,9 @@ namespace BPS.EdOrg.Loader
         public static string hireDate = @"&hireDate=";
         public static string beginDate = @"&beginDate=";
         public static string beginDateDefaultValue = @"2017-07-01";
-        public static string staffUniqueId = @"&staffUniqueId="; 
+        public static string staffUniqueId = @"&staffUniqueId=";
+        public static string programName = @"&name=";
+        public static string programType = @"&type=";
 
 
         public static string LOG_FILE { get; set; } = ConfigurationManager.AppSettings["LogFileDrive"] + DateTime.Today.ToString("yyyyMMdd") + ".csv";
@@ -31,6 +33,8 @@ namespace BPS.EdOrg.Loader
 
         public static string StaffEmploymentUrl { get; set; } = @"2019/staffEducationOrganizationEmploymentAssociations";
         public static string StaffAssociationUrl { get; set; } = @"2019/staffEducationOrganizationAssignmentAssociations";
+        public static string API_Program { get; set; } = @"2019/programs";
+        public static string StudentSpecialEducation { get; set; } = @"2019/studentSpecialEducationProgramAssociations";
 
        public static string EmpClassCode(string empCode)
        {
@@ -40,8 +44,6 @@ namespace BPS.EdOrg.Loader
                 return "Substitute/temporary";
             else
                 return "Other";
-
-
         }
 
        public static string StaffClassificationDescriptorCode(string jobCode, int deptID, string unionCode)

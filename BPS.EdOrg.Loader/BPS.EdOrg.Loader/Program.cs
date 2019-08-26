@@ -47,9 +47,11 @@ namespace BPS.EdOrg.Loader
                     Archive(param.Object);
                     LogConfiguration(param.Object);
 
-                    // creating the xml and executing the file through command line parser                     
+                    // creating the xml and executing the file through command line parser   
+                    RunAlertFile(param);
                     RunJobCodeFile(param);
                     RunDeptFile(param);
+                   
 
                 }
                 catch (Exception ex)
@@ -146,6 +148,20 @@ namespace BPS.EdOrg.Loader
             LoadXml(param.Object);
 
         }
+        private static void RunAlertFile(CommandLineParser param)
+        {
+
+            //For 504xml.xml            
+            var token = GetAuthToken();
+            if (token != null)
+            {
+                UpdateSpecialEducationData(token);
+                
+            }
+
+            else throw new Exception("Token is not generated, ODS not updated");
+
+        }
 
         private static void RunJobCodeFile(CommandLineParser param)
         {
@@ -161,7 +177,7 @@ namespace BPS.EdOrg.Loader
             }
                 
             else throw new Exception("Token is not generated, ODS not updated");
-            //LoadXml(param.Object);
+            
         }
         
         private static void CreateXml(Configuration configuration, List<SchoolDept> existingDeptIds)
@@ -1058,6 +1074,228 @@ namespace BPS.EdOrg.Loader
         }
 
 
+        private static XmlDocument ToXmlDocument(XDocument xDocument)
+        {
+            var xmlDocument = new XmlDocument();
+            using (var xmlReader = xDocument.CreateReader())
+            {
+                xmlDocument.Load(xmlReader);
+            }
+            return xmlDocument;
+        }
+
+        private static void UpdateSpecialEducationData(string token)
+        {
+            
+            try
+            {
+                string typeValue = null;
+                string nameValue = null;
+                string educationOrganizationIdValue = null;
+                string studentUniqueIdValue = null;     
+               
+
+                var fragments = File.ReadAllText(ConfigurationManager.AppSettings["XMLDeploymentPath"] + $"/504 in XML.xml").Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+                fragments =fragments.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>", "");
+                fragments = fragments.Replace("504Eligibility", "_504Eligibility");
+                var myRootedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><roots>" + fragments + "</roots>";
+                var doc = XDocument.Parse(myRootedXml);
+                XmlDocument xmlDoc = ToXmlDocument(doc);
+                //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
+                //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
+                XmlNodeList nodeList = xmlDoc.SelectNodes("//roots/root");
+               
+                foreach (XmlNode node in nodeList)
+                {
+                    List<SpecialEducationReference> spEducationList = new List<SpecialEducationReference>();
+                    
+                    XmlNode ProgramNode = node.SelectSingleNode("programReference");                    
+                    if (ProgramNode != null)
+                    {
+                        educationOrganizationIdValue = ProgramNode.SelectSingleNode("educationOrganizationId").InnerText ?? null;
+                        typeValue = ProgramNode.SelectSingleNode("type").InnerText ?? null;
+                        nameValue = ProgramNode.SelectSingleNode("name").InnerText ?? null;
+                        
+                    }
+
+                    XmlNode studentNode = node.SelectSingleNode("studentReference");                    
+                    if (studentNode != null)
+                    {
+                        studentUniqueIdValue = studentNode.SelectSingleNode("studentUniqueId").InnerText ?? null;
+
+                    }
+
+                    spEducationList.Add(new SpecialEducationReference()
+                    {
+                        
+                        beginDate = node.SelectSingleNode("beginDate").InnerText ?? null,
+                        endDate = node.SelectSingleNode("endDate").InnerText ?? null,
+                        ideaEligibility = node.SelectSingleNode("ideaEligiblity").InnerText.Equals("true")? true : false,
+                        iepBeginDate = node.SelectSingleNode("iepBeginDate").InnerText ?? null,
+                        iepEndDate = node.SelectSingleNode("iepEndDate").InnerText ?? null,
+                        iepReviewDate = node.SelectSingleNode("iepReviewDate").InnerText ?? null,
+                        iepParentResponse = node.SelectSingleNode("iepParentResponse").InnerText ?? null,
+                        iepSignatureDate = node.SelectSingleNode("iepSignatureDate").InnerText ?? null,
+                        Eligibility504 = node.SelectSingleNode("_504Eligibility").InnerText ?? null,
+                    });
+                    if (educationOrganizationIdValue != null && nameValue != null && typeValue != null)
+                    { 
+                        VerifyProgramData(token, educationOrganizationIdValue, nameValue, typeValue);
+                        if(studentUniqueIdValue != null)
+                        InsertDataSpecialEducation(token,typeValue,nameValue,educationOrganizationIdValue,studentUniqueIdValue,spEducationList);
+
+                    }
+
+                }
+
+                if (File.Exists(Constants.LOG_FILE))
+                    SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+            }
+
+        }
+
+
+        public static IRestResponse VerifyProgramData(string token, string educationOrganizationId,string programName,string programTypeId)
+        {
+            IRestResponse response = null;
+            try
+            {
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program+ Constants.educationOrganizationId + educationOrganizationId +Constants.programName+programName +Constants.programType+programTypeId);
+
+                response = GetData(client, token);
+                if (!IsSuccessStatusCode((int)response.StatusCode)) {
+                    var rootObject = new EdFiProgram
+                    {
+                        educationOrganizationReference = new EdFiEducationReference
+                        {
+                            educationOrganizationId = educationOrganizationId,
+                            Link = new Link()
+                            {
+                                Rel = string.Empty,
+                                Href = string.Empty
+                            }
+                        },
+                        programId = null,
+                        type = programTypeId,
+                        sponsorType = string.Empty,
+                        name = programName,
+
+
+                    };
+                    
+                    string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                    response = PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program), token);
+                    if ((int)response.StatusCode > 204 || (int)response.StatusCode < 200)
+                    {
+                        if (response.Content.Length > 2)
+                        {
+                            //Log the Error
+                            ErrorLog errorLog = new ErrorLog();
+                            //errorLog.staffUniqueId = studentUniqueId;
+                            //errorLog.endDate = endDateValue;
+                            errorLog.ErrorMessage = response.Content.ToString().Replace(System.Environment.NewLine, string.Empty) ?? null;
+                            //ErrorLogging(errorLog);
+
+                        }
+
+                    }
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error getting the program data :" + ex);
+            }
+
+
+        }
+
+       
+        private static void InsertDataSpecialEducation(string token,string type,string name,string educationId, string studentId, List<SpecialEducationReference> spList)
+        {
+            try
+            {
+                IRestResponse response = null;
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation);
+                foreach ( var item in spList)
+                {
+                    var rootObject = new SpecialEducationReference
+                    {
+
+                        educationOrganizationReference = new EdFiEducationReference
+                        {
+                            educationOrganizationId = Constants.educationOrganizationIdValue,
+                            Link = new Link()
+                            {
+                                Rel = string.Empty,
+                                Href = string.Empty
+                            }
+                        },
+                        programReference = new ProgramReference
+                        {
+                            educationOrganizationId = educationId,
+                            type = type,
+                            name = name,
+                            Link = new Link
+                            {
+                                Rel = string.Empty,
+                                Href = string.Empty
+                            }
+                        },
+                        studentReference = new StudentReference
+                        {
+                            studentUniqueId = studentId,
+                            Link = new Link
+                            {
+                                Rel = string.Empty,
+                                Href = string.Empty
+                            }
+                        },
+                        beginDate = item.iepBeginDate,
+                        ideaEligibility = item.ideaEligibility,
+                        specialEducationSettingDescriptor = item.specialEducationSettingDescriptor,
+                        specialEducationHoursPerWeek = item.specialEducationHoursPerWeek,
+                        multiplyDisabled = item.multiplyDisabled,
+                        medicallyFragile = item.medicallyFragile,
+                        lastEvaluationDate = item.lastEvaluationDate,
+                        iepReviewDate = item.iepReviewDate,
+                        iepBeginDate = item.iepBeginDate,
+                        iepEndDate = item.iepEndDate,
+                        reasonExitedDescriptor = item.reasonExitedDescriptor,
+                        schoolHoursPerWeek = item.schoolHoursPerWeek,
+                        servedOutsideOfRegularSession = item.servedOutsideOfRegularSession,
+                        endDate = item.endDate,
+                    };
+                    string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                    response = PostData(json, client, token);
+                    if ((int)response.StatusCode > 204 || (int)response.StatusCode < 200)
+                    {
+                        if (response.Content.Length > 2)
+                        {
+                            //Log the Error
+                            ErrorLog errorLog = new ErrorLog();
+                            //errorLog.staffUniqueId = studentUniqueId;
+                            //errorLog.endDate = endDateValue;
+                            errorLog.ErrorMessage = response.Content.ToString().Replace(System.Environment.NewLine, string.Empty) ?? null;
+                            //ErrorLogging(errorLog);
+
+                        }
+
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                Log.Error("Something went wrong while updating the data in ODS, check the XML values" + ex.Message);
+            }
+            
+
+        }
         private static void ErrorLogging(ErrorLog errorLog)
         {
             string strPath = Constants.LOG_FILE;
@@ -1167,8 +1405,8 @@ namespace BPS.EdOrg.Loader
 
             catch (Exception ex)
             {
-                string message = $"Exception while sending email ";
-                new EmailException(message, ex);
+                string message = $"Exception while sending email "+ ex;
+                //new EmailException(message, ex);
                 return false;
             }
 
