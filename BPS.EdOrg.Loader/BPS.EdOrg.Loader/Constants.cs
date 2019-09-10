@@ -46,7 +46,17 @@ namespace BPS.EdOrg.Loader
                 return "Other";
         }
 
-       public static string StaffClassificationDescriptorCode(string jobCode, int deptID, string unionCode)
+        public static string JobOrderAssignment(string jobcode)
+        {
+            if (jobcode.Equals("P"))
+                return "1";
+            if (jobcode.Equals("S"))
+                return "2";
+            else
+                return "0";
+        }
+
+        public static string StaffClassificationDescriptorCode(string jobCode, int deptID, string unionCode)
        {
             if (jobCode.Equals("S00022") || jobCode.Equals("S00023") || jobCode.Equals("S00170") ||
                 jobCode.Equals("S00167") || jobCode.Equals("S00200") || jobCode.Equals("S00218") ||

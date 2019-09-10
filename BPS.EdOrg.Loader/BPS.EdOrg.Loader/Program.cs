@@ -47,12 +47,10 @@ namespace BPS.EdOrg.Loader
                     Archive(param.Object);
                     LogConfiguration(param.Object);
 
-                    // creating the xml and executing the file through command line parser   
-                    RunAlertFile(param);
+                    // creating the xml and executing the file through command line parser                      
                     RunJobCodeFile(param);
-                    RunDeptFile(param);
-                   
-
+                    RunAlertFile(param);
+                    RunDeptFile(param);         
                 }
                 catch (Exception ex)
                 {
@@ -268,7 +266,7 @@ namespace BPS.EdOrg.Loader
                 string[] lines = File.ReadAllLines(dataFilePath);
                 int i = 0;
                 int empIdIndex = 0;
-                int deptIdIndex = 0; int unionCodeIndex = 0; int emplClassIndex = 0;
+                int deptIdIndex = 0; int unionCodeIndex = 0; int emplClassIndex = 0; int jobIndicatorIndex = 0;
                 int actionIndex=0; int  actionDateIndex = 0; int hireDateIndex = 0; int jobCodeIndex = 0; int jobTitleIndex = 0;
                 int entryDateIndex = 0;
                 int numberOfRecordsCreatedInXml = 0, numberOfRecordsSkipped = 0;
@@ -288,6 +286,7 @@ namespace BPS.EdOrg.Loader
                         entryDateIndex = Array.IndexOf(header, "Entry Date");
                         unionCodeIndex = Array.IndexOf(header, "Union Code");
                         emplClassIndex = Array.IndexOf(header, "Empl Class");
+                        jobIndicatorIndex = Array.IndexOf(header, "Job Indicator");
                         if (deptIdIndex < 0 || actionIndex < 0 || empIdIndex<0 || hireDateIndex <0 || entryDateIndex<0)
                         {
                             Log.Error($"Input data text file does not contains the ID or JobCode or ActionDt headers");
@@ -308,12 +307,15 @@ namespace BPS.EdOrg.Loader
                         string entryDate = fields[entryDateIndex]?.Trim();
                         string unionCode = fields[unionCodeIndex]?.Trim();
                         string empClass = fields[emplClassIndex]?.Trim();
+                        string jobIndicator = fields[jobIndicatorIndex]?.Trim();
                         if (existingStaffId.Contains(staffId))
                         {
                             string descCode = Constants.StaffClassificationDescriptorCode(jobCode, int.Parse(deptID), unionCode).ToString().Trim();
                             string empClassCode = Constants.EmpClassCode(empClass);
+                            string jobOrderAssignment= Constants.JobOrderAssignment(jobIndicator);
+
                             Log.Debug($"Creating node for {staffId}-{deptID}-{endDate}");                            
-                            CreateNodeJob(staffId, deptID, action, endDate, hireDate, jobCode, jobTitle, entryDate, descCode, empClassCode, writer);                            
+                            CreateNodeJob(staffId, deptID, action, endDate, hireDate, jobCode, jobTitle, entryDate, descCode, empClassCode, jobOrderAssignment, writer);                            
                             numberOfRecordsCreatedInXml++;
                         }
                         else
@@ -339,7 +341,7 @@ namespace BPS.EdOrg.Loader
             }
         }
 
-        private static void CreateNodeJob(string staffId,string deptID, string action, string endDate, string hireDate,string jobCode,string jobTitle,string entryDate,string descCode,string empCode, XmlTextWriter writer)
+        private static void CreateNodeJob(string staffId,string deptID, string action, string endDate, string hireDate,string jobCode,string jobTitle,string entryDate,string descCode,string empCode,string jobIndicator, XmlTextWriter writer)
         {
             try
             {
@@ -439,10 +441,24 @@ namespace BPS.EdOrg.Loader
                     writer.WriteStartElement("EndDate");
                     writer.WriteString(endDate);
                     writer.WriteEndElement();
-                   
+                    writer.WriteStartElement("HireDate");
+                    writer.WriteString(hireDate);
+                    writer.WriteEndElement();
+
+
+                    writer.WriteStartElement("EmploymentStatus");
+                    writer.WriteStartElement("CodeValue");
+                    writer.WriteString(empCode);
+                    writer.WriteEndElement();
+                    writer.WriteEndElement();
+
                     writer.WriteStartElement("PostionTitle");
                     writer.WriteString(jobCode + "-" + jobTitle);
-                    writer.WriteEndElement();                    
+                    writer.WriteEndElement();
+
+                    writer.WriteStartElement("OrderOfAssignment");
+                    writer.WriteString(jobIndicator);
+                    writer.WriteEndElement();
 
                     writer.WriteEndElement();
                     writer.WriteEndElement();
@@ -793,7 +809,10 @@ namespace BPS.EdOrg.Loader
                 string educationOrganizationIdValue = null;
                 string endDateValue = null;
                 string beginDateValue = null;
+                string hireDateValue = null;
                 string staffClassification = null;
+                string empDesc = null;
+                string jobOrderAssignment = null;
 
                 XmlDocument xmlDoc = LoadXml();
                 //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
@@ -817,13 +836,23 @@ namespace BPS.EdOrg.Loader
                     if (EducationNode != null)
                     {
                         XmlNode EducationOrgNode = EducationNode.SelectSingleNode("EducationOrganizationIdentity");
-                        XmlNode staffClassificationNode = EducationNode.SelectSingleNode("StaffClassification");
+                        
                         if (EducationOrgNode != null)
                             educationOrganizationIdValue = EducationOrgNode.SelectSingleNode("EducationOrganizationId").InnerText ?? null;
                         endDateValue = EducationNode.SelectSingleNode("EndDate").InnerText ?? null;
                         beginDateValue = EducationNode.SelectSingleNode("BeginDate").InnerText ?? null;
+                        hireDateValue = EducationNode.SelectSingleNode("HireDate").InnerText ?? null;
                         positionCodeDescription = EducationNode.SelectSingleNode("PostionTitle").InnerText ?? null;
+                        jobOrderAssignment = EducationNode.SelectSingleNode("OrderOfAssignment").InnerText ?? null; 
+
+                        XmlNode staffClassificationNode = EducationNode.SelectSingleNode("StaffClassification");
                         staffClassification = staffClassificationNode.SelectSingleNode("CodeValue").InnerText ?? null;
+
+                        XmlNode EmploymentStatus = EducationNode.SelectSingleNode("EmploymentStatus");
+                        if (EmploymentStatus != null)
+                        {
+                            empDesc = EmploymentStatus.SelectSingleNode("CodeValue").InnerText ?? null;
+                        }
                     }
 
                     if (educationOrganizationIdValue!= null)
@@ -837,7 +866,7 @@ namespace BPS.EdOrg.Loader
                                 var schoolid = educationOrganizationId.schoolId;
                                 string id = GetAssignmentAssociationId(token, schoolid, staffClassification, staffUniqueIdValue, beginDateValue);
                                 if (id != null && positionCodeDescription != null)
-                                    UpdatePostionTitle(token, id, schoolid, staffClassification, endDateValue, beginDateValue, staffUniqueIdValue, positionCodeDescription);
+                                    UpdatePostionTitle(token, id, schoolid, staffClassification, endDateValue, beginDateValue, hireDateValue, staffUniqueIdValue, positionCodeDescription, empDesc, jobOrderAssignment);
                             }
                         }
 
@@ -951,7 +980,7 @@ namespace BPS.EdOrg.Loader
         /// Updates the Position title in  [StaffEducationOrganizationAssignmentAssociation] table.
         /// </summary>
         /// <returns></returns>
-        private static void UpdatePostionTitle(string token,string id,string educationOrganizationId, string staffClassification,string endDateValue,string beginDateValue, string staffUniqueIdValue, string jobCodeDescription)
+        private static void UpdatePostionTitle(string token,string id,string educationOrganizationId, string staffClassification,string endDateValue,string beginDateValue, string hireDateValue, string staffUniqueIdValue, string jobCodeDescription, string empDesc, string jobOrderAssignment)
         {
             try
             {
@@ -980,8 +1009,23 @@ namespace BPS.EdOrg.Loader
                             Href = string.Empty
                         }
                     },
-                    employmentStatusDescriptor = staffClassification,
+                    employmentStaffEducationOrganizationEmploymentAssociationReference = new EdfiEmploymentAssociationReference
+                    {
+                        educationOrganizationId =Constants.educationOrganizationIdValue,
+                        staffUniqueId = staffUniqueIdValue,
+                        employmentStatusDescriptor = empDesc,
+                        hireDate = hireDateValue,
+                        Link = new Link
+                        {
+                            Rel = string.Empty,
+                            Href = string.Empty
+                        }
+                    },
+
+                    staffClassificationDescriptor = staffClassification,
                     beginDate = beginDateValue,
+                    endDate = endDateValue,
+                    orderOfAssignment = jobOrderAssignment,
                     positionTitle = jobCodeDescription
                 };                
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
@@ -1140,6 +1184,7 @@ namespace BPS.EdOrg.Loader
                     });
                     if (educationOrganizationIdValue != null && nameValue != null && typeValue != null)
                     { 
+                        // Check if the Program already exists in the ODS if not first enter the Progam.
                         VerifyProgramData(token, educationOrganizationIdValue, nameValue, typeValue);
                         if(studentUniqueIdValue != null)
                         InsertDataSpecialEducation(token,typeValue,nameValue,educationOrganizationIdValue,studentUniqueIdValue,spEducationList);
@@ -1167,7 +1212,8 @@ namespace BPS.EdOrg.Loader
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program+ Constants.educationOrganizationId + educationOrganizationId +Constants.programName+programName +Constants.programType+programTypeId);
 
                 response = GetData(client, token);
-                if (!IsSuccessStatusCode((int)response.StatusCode)) {
+                if (!IsSuccessStatusCode((int)response.StatusCode))
+                {
                     var rootObject = new EdFiProgram
                     {
                         educationOrganizationReference = new EdFiEducationReference
@@ -1221,71 +1267,92 @@ namespace BPS.EdOrg.Loader
             {
                 IRestResponse response = null;
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation);
-                foreach ( var item in spList)
+                response = GetData(client, token);
+                if (IsSuccessStatusCode((int)response.StatusCode))
                 {
-                    var rootObject = new SpecialEducationReference
-                    {
-
-                        educationOrganizationReference = new EdFiEducationReference
+                    if (response.Content.Length <= 2) throw new Exception("No Data retrieved from specialEducation ");
+                    
+                        dynamic original = JsonConvert.DeserializeObject(response.Content);
+                        foreach (var data in original)
                         {
-                            educationOrganizationId = Constants.educationOrganizationIdValue,
-                            Link = new Link()
+                            var id = data.id;
+                            var stuId = data.studentReference.studentUniqueId;
+                            DateTime iepDate = data.iepBeginDate;
+                            if (id != null)
+                                response = GetData(new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + "/" + id), token);
+                            if (IsSuccessStatusCode((int)response.StatusCode))
+                            foreach (var item in spList)
                             {
-                                Rel = string.Empty,
-                                Href = string.Empty
-                            }
-                        },
-                        programReference = new ProgramReference
-                        {
-                            educationOrganizationId = educationId,
-                            type = type,
-                            name = name,
-                            Link = new Link
-                            {
-                                Rel = string.Empty,
-                                Href = string.Empty
-                            }
-                        },
-                        studentReference = new StudentReference
-                        {
-                            studentUniqueId = studentId,
-                            Link = new Link
-                            {
-                                Rel = string.Empty,
-                                Href = string.Empty
-                            }
-                        },
-                        beginDate = item.iepBeginDate,
-                        ideaEligibility = item.ideaEligibility,
-                        specialEducationSettingDescriptor = item.specialEducationSettingDescriptor,
-                        specialEducationHoursPerWeek = item.specialEducationHoursPerWeek,
-                        multiplyDisabled = item.multiplyDisabled,
-                        medicallyFragile = item.medicallyFragile,
-                        lastEvaluationDate = item.lastEvaluationDate,
-                        iepReviewDate = item.iepReviewDate,
-                        iepBeginDate = item.iepBeginDate,
-                        iepEndDate = item.iepEndDate,
-                        reasonExitedDescriptor = item.reasonExitedDescriptor,
-                        schoolHoursPerWeek = item.schoolHoursPerWeek,
-                        servedOutsideOfRegularSession = item.servedOutsideOfRegularSession,
-                        endDate = item.endDate,
-                    };
-                    string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
-                    response = PostData(json, client, token);
-                    if ((int)response.StatusCode > 204 || (int)response.StatusCode < 200)
-                    {
-                        if (response.Content.Length > 2)
-                        {
-                            //Log the Error
-                            ErrorLog errorLog = new ErrorLog();
-                            //errorLog.staffUniqueId = studentUniqueId;
-                            //errorLog.endDate = endDateValue;
-                            errorLog.ErrorMessage = response.Content.ToString().Replace(System.Environment.NewLine, string.Empty) ?? null;
-                            //ErrorLogging(errorLog);
+                                if (item.iepBeginDate != null)
+                                {
+                                    var rootObject = new SpecialEducationReference
+                                    {
+                                        educationOrganizationReference = new EdFiEducationReference
+                                        {
+                                            educationOrganizationId = Constants.educationOrganizationIdValue,
+                                            Link = new Link()
+                                            {
+                                                Rel = string.Empty,
+                                                Href = string.Empty
+                                            }
+                                        },
+                                        programReference = new ProgramReference
+                                        {
+                                            educationOrganizationId = educationId,
+                                            type = type,
+                                            name = name,
+                                            Link = new Link
+                                            {
+                                                Rel = string.Empty,
+                                                Href = string.Empty
+                                            }
+                                        },
+                                        studentReference = new StudentReference
+                                        {
+                                            studentUniqueId = studentId,
+                                            Link = new Link
+                                            {
+                                                Rel = string.Empty,
+                                                Href = string.Empty
+                                            }
+                                        },
+                                        beginDate = item.iepBeginDate,
+                                        ideaEligibility = item.ideaEligibility,
+                                        specialEducationSettingDescriptor = item.specialEducationSettingDescriptor,
+                                        specialEducationHoursPerWeek = item.specialEducationHoursPerWeek,
+                                        multiplyDisabled = item.multiplyDisabled,
+                                        medicallyFragile = item.medicallyFragile,
+                                        lastEvaluationDate = item.lastEvaluationDate,
+                                        iepReviewDate = item.iepReviewDate,
+                                        iepBeginDate = item.iepBeginDate,
+                                        iepEndDate = item.iepEndDate,
+                                        reasonExitedDescriptor = item.reasonExitedDescriptor,
+                                        schoolHoursPerWeek = item.schoolHoursPerWeek,
+                                        servedOutsideOfRegularSession = item.servedOutsideOfRegularSession,
+                                        endDate = item.endDate,
+                                    };
+                                    string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                                    if (response.Content.Length > 2)
+                                    {
+                                        if (stuId != null && iepDate != null)
+                                        {
 
-                        }
+                                            DateTime inputDateTime;
+                                            if (DateTime.TryParse(item.iepBeginDate, out inputDateTime))
+                                            {
+                                                var result = DateTime.Compare(inputDateTime, iepDate);
+                                                if (stuId == studentId && result == 0)
+                                                    response = PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + "/" + id), token);
+                                            }
+                                        }
+                                    }
+                                    else
+                                        response = PostData(json, client, token);
 
-                    }
+
+                                }
+
+              
                 }
             }
 
@@ -1295,6 +1362,17 @@ namespace BPS.EdOrg.Loader
             }
             
 
+        }
+
+
+        private static void InsertAlertData(string type,string name,string educationId, string studentId,List<SpecialEducationReference> spList)
+        {
+
+            
+                       
+                    
+                }
+            }
         }
         private static void ErrorLogging(ErrorLog errorLog)
         {

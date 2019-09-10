@@ -18,16 +18,29 @@ namespace BPS.EdOrg.Loader
             public string employmentStatusDescriptor { get; set; }
         
         }
+
+        public class EdfiEmploymentAssociationReference
+        {
+            public string educationOrganizationId { get; set; }
+            public string staffUniqueId { get; set; }
+            public string hireDate { get; set; }            
+            public string employmentStatusDescriptor { get; set; }
+            public Link Link { get; set; }
+
+    }
         public class StaffAssignmentDescriptor
         {
 
             public string id { get; set; }
             public EdFiEducationReference educationOrganizationReference { get; set; }
             public EdFiStaffReference staffReference { get; set; }
+            public EdfiEmploymentAssociationReference employmentStaffEducationOrganizationEmploymentAssociationReference { get; set; }
             public string positionTitle { get; set; }
             public string beginDate { get; set; }
             public string endDate { get; set; }
-            public string employmentStatusDescriptor { get; set; }
+            public string staffClassificationDescriptor { get; set; }
+            public string orderOfAssignment { get; set; }
+        
 
         }
         public class EdFiProgram
