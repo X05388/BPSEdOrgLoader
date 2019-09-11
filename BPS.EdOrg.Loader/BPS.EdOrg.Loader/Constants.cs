@@ -20,6 +20,7 @@ namespace BPS.EdOrg.Loader
         public static string staffUniqueId = @"&staffUniqueId=";
         public static string programName = @"&name=";
         public static string programType = @"&type=";
+        public static string studentUniqueId = @"&studentUniqueId=";
 
 
         public static string LOG_FILE { get; set; } = ConfigurationManager.AppSettings["LogFileDrive"] + DateTime.Today.ToString("yyyyMMdd") + ".csv";
