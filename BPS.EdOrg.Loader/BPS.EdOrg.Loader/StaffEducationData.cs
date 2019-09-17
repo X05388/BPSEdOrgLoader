@@ -6,7 +6,16 @@ using System.Net.Mail;
 
 namespace BPS.EdOrg.Loader
 {
-    
+
+        public class StaffDescriptor
+        {
+
+            public string staffUniqueId { get; set; }            
+            public string firstName { get; set; }
+            public string lastSurname { get; set; }
+            public string birthDate { get; set; }
+
+        }   
         public class StaffEmploymentDescriptor
         {
 

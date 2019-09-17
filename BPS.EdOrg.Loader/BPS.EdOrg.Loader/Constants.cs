@@ -18,9 +18,11 @@ namespace BPS.EdOrg.Loader
         public static string beginDate = @"&beginDate=";
         public static string beginDateDefaultValue = @"2017-07-01";
         public static string staffUniqueId = @"&staffUniqueId=";
+        public static string staffUniqueId1 = @"?staffUniqueId="; 
         public static string programName = @"&name=";
         public static string programType = @"&type=";
-        public static string studentUniqueId = @"&studentUniqueId=";
+        public static string studentUniqueId = @"?studentUniqueId=";
+        public static string programEducationOrganizationId = @"&programEducationOrganizationId=";
 
 
         public static string LOG_FILE { get; set; } = ConfigurationManager.AppSettings["LogFileDrive"] + DateTime.Today.ToString("yyyyMMdd") + ".csv";
@@ -31,9 +33,9 @@ namespace BPS.EdOrg.Loader
         public static string LOG_FILE_BODY { get; set; } = @"EndDateDataReview Log File";
 
         public static string SmtpServerHost = ConfigurationManager.AppSettings["SmtpServerHost"];
-
+        public static string StaffUrl { get; set; } = @"2019/staffs";
         public static string StaffEmploymentUrl { get; set; } = @"2019/staffEducationOrganizationEmploymentAssociations";
-        public static string StaffAssociationUrl { get; set; } = @"2019/staffEducationOrganizationAssignmentAssociations";
+        public static string StaffAssignmentUrl { get; set; } = @"2019/staffEducationOrganizationAssignmentAssociations";
         public static string API_Program { get; set; } = @"2019/programs";
         public static string StudentSpecialEducation { get; set; } = @"2019/studentSpecialEducationProgramAssociations";
 
