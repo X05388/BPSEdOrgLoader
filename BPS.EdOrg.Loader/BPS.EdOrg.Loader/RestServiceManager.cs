@@ -48,7 +48,8 @@ namespace BPS.EdOrg.Loader
                                 string deptId = school.IdentificationCodes?
                                     .Where(x => string.Equals(x.EducationOrganizationIdentificationSystemDescriptor, "school", StringComparison.OrdinalIgnoreCase))
                                     .FirstOrDefault()?.IdentificationCode;
-                                
+                                if (deptId == null || deptId.Equals("N/A"))
+                                    deptId = school.schoolId;
                                 if (!string.IsNullOrEmpty(deptId) && !string.Equals(deptId, "N/A", StringComparison.OrdinalIgnoreCase))
                                 {
                                     existingDeptIds.Add(deptId);

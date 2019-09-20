@@ -194,7 +194,8 @@ namespace BPS.EdOrg.Loader
                 writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
 
                 string dataFilePath = configuration.DataFilePath;
-                string[] lines = File.ReadAllLines(dataFilePath);
+                string[] lines = File.ReadAllLines(dataFilePath);                
+               
                 int i = 0;
                 int deptIdIndex = 0;
                 int deptTitleIndex = 0;
@@ -266,12 +267,11 @@ namespace BPS.EdOrg.Loader
 
                 string dataFilePath = configuration.DataFilePathJob;
                 string[] lines = File.ReadAllLines(dataFilePath);
-                int i = 0;
-                int empIdIndex = 0;
+                int i = 0;               
                 int deptIdIndex = 0; int unionCodeIndex = 0; int emplClassIndex = 0; int jobIndicatorIndex = 0; int statusIndex = 0;
                 int actionIndex=0; int  actionDateIndex = 0; int hireDateIndex = 0; int jobCodeIndex = 0; int jobTitleIndex = 0;
                 int entryDateIndex = 0;int firstNameIndex = 0; int lastNameIndex = 0; int birthDateIndex = 0;
-                int numberOfRecordsCreatedInXml = 0, numberOfRecordsSkipped = 0;
+                int numberOfRecordsCreatedInXml = 0, numberOfRecordsSkipped = 0; int empIdIndex = 0;
                 foreach (string line in lines)
                 {
                     Log.Debug(line);
@@ -385,7 +385,7 @@ namespace BPS.EdOrg.Loader
                     writer.WriteStartElement("BeginDate");
                     writer.WriteString(entryDate);
                     writer.WriteEndElement();
-                    if(status.Equals("T"))
+                    if(status.Equals("T") || status.Equals("R"))
                     {
                         writer.WriteStartElement("EndDate");
                         writer.WriteString(endDate);
@@ -483,7 +483,7 @@ namespace BPS.EdOrg.Loader
                     writer.WriteEndElement();
 
                     writer.WriteStartElement("EndDate");
-                    if (status.Equals("D") || (status.Equals("R")))
+                    if (status.Equals("D") || status.Equals("R"))
                         writer.WriteString(endDate);
                     else
                         writer.WriteString(null);
@@ -790,10 +790,12 @@ namespace BPS.EdOrg.Loader
                 //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
 
 
-                XDocument document = XDocument.Load(ConfigurationManager.AppSettings["XMLOutputPath"] + $"/StaffAssociation-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
-                
-                XmlNodeList nodeList = xmlDoc.SelectNodes("//InterchangeStaffAssociation/StaffEducationOrganizationEmploymentAssociation");
-                
+
+
+
+
+                var nodeList = xmlDoc.SelectNodes("//InterchangeStaffAssociation/StaffEducationOrganizationEmploymentAssociation").Cast<XmlNode>().OrderBy(element => element.SelectSingleNode("EmploymentPeriod/EndDate").InnerText).ToList();                 
+               
                 foreach (XmlNode node in nodeList)
                 {
 
@@ -836,10 +838,13 @@ namespace BPS.EdOrg.Loader
                     // updating the values in Employment Association 
                     if (staffUniqueIdValue != null && hireDateValue != null && empDesc != null && endDateValue != null)
                     {
-                        string id = GetEmploymentAssociationId(token, staffUniqueIdValue, hireDateValue, empDesc, endDateValue);
-                        string endDate = GetAssignmentEndDate(token, staffUniqueIdValue);
+                        string id = GetEmploymentAssociationId(token, staffUniqueIdValue, hireDateValue, empDesc, endDateValue);                        
                         if (id != null)
+                        {
+                            string endDate = GetAssignmentEndDate(token, staffUniqueIdValue, empDesc);
                             UpdateEndDate(token, id, endDate, hireDateValue, staffUniqueIdValue, empDesc);
+                        }
+                            
                     }
                 }
                 if (File.Exists(Constants.LOG_FILE))
@@ -913,10 +918,19 @@ namespace BPS.EdOrg.Loader
                         
                         if (schoolDeptids.Count > 0)
                         {
-                            var educationOrganizationId = schoolDeptids.Where(x => x.DeptId == educationOrganizationIdValue).FirstOrDefault();
-                            if (educationOrganizationId != null && staffUniqueIdValue != null && beginDateValue != null && staffClassification != null && positionCodeDescription != null)
+                            string schoolid = null;
+                            // Getting the EdOrgId for the Department ID 
+                            var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(educationOrganizationIdValue)).FirstOrDefault();
+
+                            // setting the DeptId as EdOrgId for the staff, if no corresponding school is found
+                            if (educationOrganizationId == null)
+                                schoolid = educationOrganizationIdValue;
+                            else
+                                schoolid = educationOrganizationId.schoolId;
+
+                            //Inserting new Assignments and updating the postioTitle with JoboCode - JobDesc
+                            if (staffUniqueIdValue != null && beginDateValue != null && staffClassification != null && positionCodeDescription != null)
                             {
-                                var schoolid = educationOrganizationId.schoolId ?? educationOrganizationIdValue;
                                 string id = GetAssignmentAssociationId(token, schoolid, staffClassification, staffUniqueIdValue, endDateValue, beginDateValue, empDesc, hireDateValue, jobOrderAssignment, positionCodeDescription);
                                 if (id != null)
                                     UpdatePostionTitle(token, id, schoolid, staffClassification, endDateValue, beginDateValue, hireDateValue, staffUniqueIdValue, positionCodeDescription, empDesc, jobOrderAssignment);
@@ -936,32 +950,29 @@ namespace BPS.EdOrg.Loader
             }       
             
         }
-        private static string GetAssignmentEndDate(string token, string staffUniqueIdValue)
+        private static string GetAssignmentEndDate(string token, string staffUniqueIdValue, string employmentStatusDescriptor)
         {
             string date = null;
             try
             {
                 IRestResponse response = null;
                 
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl + Constants.staffUniqueId1 + staffUniqueIdValue);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl + Constants.staffUniqueId1 + staffUniqueIdValue+ Constants.employmentStatusDescriptor+ employmentStatusDescriptor);
                 response = GetData(client, token);
                 if (IsSuccessStatusCode((int)response.StatusCode))
                 {
                     if (response.Content.Length > 2)
                     {
-                        //dynamic original = JObject.Parse(response.Content.TrimStart(new char[] { '[' }).TrimEnd(new char[] { ']' }).ToString());
                         dynamic original = JsonConvert.DeserializeObject(response.Content);                         
                         foreach (var data in original)
                         {
-                            var beginDate = data.beginDate.ToString() ?? null;
                             var endDate = Convert.ToString(data.endDate) ?? null;
                             if (endDate != null)
                                 date = endDate;
 
                             else break;
                         }
-
-                           
+                     
                     }
 
                 }
