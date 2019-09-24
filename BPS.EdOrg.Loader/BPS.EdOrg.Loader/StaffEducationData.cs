@@ -198,5 +198,38 @@ namespace BPS.EdOrg.Loader
 
     }
 
+    public class StaffAssociationData
+    {
+        public string staffId { get; set; }
+
+        public string deptId { get; set; }
+
+        public string action { get; set; }
+
+        public string endDate { get; set; }
+
+        public string hireDate { get; set; }
+
+        public string jobCode { get; set; }
+        public string jobTitle { get; set; }
+
+        public string entryDate { get; set; }
+        public string unionCode { get; set; }
+        public string empClass { get; set; }
+        public string descCode { get; set; }
+        public string empCode { get; set; }
+
+        public string jobIndicator { get; set; }
+
+        public string status { get; set; }
+        public string firstName { get; set; }
+        public string lastName { get; set; }
+
+        public string birthDate { get; set; }
+
+        public string location { get; set; }
+
+    }
+   
 }
 
