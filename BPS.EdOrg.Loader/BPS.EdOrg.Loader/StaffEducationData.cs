@@ -167,5 +167,36 @@ namespace BPS.EdOrg.Loader
         public string jobOrderAssignment { get; set; }
     }
 
+    public class StaffEmploymentAssociationData
+    {
+
+        public StaffData staff { get; set; }
+        public string staffUniqueIdValue { get; set; }
+
+        public string positionCodeDescription { get; set; }
+
+        public string educationOrganizationIdValue { get; set; }
+
+        public string endDateValue { get; set; }
+
+        public string beginDateValue { get; set; }
+        public string hireDateValue { get; set; }
+        public string status { get; set; }
+
+        public string staffClassification { get; set; }
+        public string empDesc { get; set; }
+        public string jobOrderAssignment { get; set; }
+    }
+
+    public class StaffData
+    {
+        public string firstName { get; set; }
+
+        public string lastName { get; set; }
+
+        public string birthDate { get; set; }
+
+    }
+
 }
 

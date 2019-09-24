@@ -151,12 +151,8 @@ namespace BPS.EdOrg.Loader
 
             //For 504xml.xml            
             var token = GetAuthToken();
-            if (token != null)
-            {
-                UpdateSpecialEducationData(token);
-                
-            }
-
+            if (token != null)           
+                UpdateSpecialEducationData(token);               
             else throw new Exception("Token is not generated, ODS not updated");
 
         }
@@ -169,11 +165,9 @@ namespace BPS.EdOrg.Loader
             CreateXmlJob(param.Object);
             var token = GetAuthToken();
             if (token != null)
-            {
-                
+            {                
                 UpdateStaffEmploymentAssociationData(token);
                 UpdateStaffAssignmentAssociationData(token, param.Object);
-
             }
                 
             else throw new Exception("Token is not generated, ODS not updated");
@@ -478,20 +472,20 @@ namespace BPS.EdOrg.Loader
                     writer.WriteEndElement();
 
                     writer.WriteStartElement("EmploymentPeriod");
+                    writer.WriteStartElement("Status");
+                    writer.WriteString(status);
+                    writer.WriteEndElement();
                     writer.WriteStartElement("HireDate");
                     writer.WriteString(hireDate);
                     writer.WriteEndElement();
 
                     writer.WriteStartElement("EndDate");
-                    if (status.Equals("D") || status.Equals("R"))
+                    if (status.Equals("D") || status.Equals("R")|| status.Equals("T"))
                         writer.WriteString(endDate);
                     else
                         writer.WriteString(null);
 
-
-                    writer.WriteEndElement();
-
-                    
+                    writer.WriteEndElement();                   
                    
                     writer.WriteEndElement();
 
@@ -712,7 +706,7 @@ namespace BPS.EdOrg.Loader
         }
 
         /// <summary>
-        /// Updates the data from EdFi ODS
+        /// Update the data from EdFi ODS
         /// </summary>
         /// <returns></returns>
         private static IRestResponse PutData(string jsonData, RestClient client, string token)
@@ -768,84 +762,53 @@ namespace BPS.EdOrg.Loader
             }
 
         }
+
+
         /// <summary>
-        /// Gets the data from the xml and updates the table.
+        /// Gets the data from the xml and updates StaffEducationOrganizationEmploymentAssociation table.
         /// </summary>
         /// <returns></returns>
         private static void UpdateStaffEmploymentAssociationData(string token)
         {
             try
             {
-                string staffUniqueIdValue = null;
-                string educationOrganizationIdValue = null;
-                string endDateValue = null;
-                string hireDateValue = null;
-                string empDesc = null;
-                string firstNameValue = null;
-                string lastNameValue = null;
-                string birthDateValue = null;
-
                 XmlDocument xmlDoc = LoadXml();
                 //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
                 //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
 
-
-
-
-
-
-                var nodeList = xmlDoc.SelectNodes("//InterchangeStaffAssociation/StaffEducationOrganizationEmploymentAssociation").Cast<XmlNode>().OrderBy(element => element.SelectSingleNode("EmploymentPeriod/EndDate").InnerText).ToList();                 
-               
+                var nodeList = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationEmploymentAssociation").Cast<XmlNode>().OrderBy(element => element.SelectSingleNode("EmploymentPeriod/EndDate").InnerText).ToList();
+                                  
                 foreach (XmlNode node in nodeList)
                 {
-
-                    XmlNode staffNode = node.SelectSingleNode("StaffReference/StaffIdentity");
-                    // get the values from the <Staff> node
-                    if (staffNode != null)
+                    // Extracting the data froom the XMl file
+                    var staffEmploymentNodeList = GetEmploymentAssociationXml(node);
+                    if (staffEmploymentNodeList.status == "T")
                     {
-                        staffUniqueIdValue = staffNode.SelectSingleNode("StaffUniqueId").InnerText ?? null;
-                        firstNameValue = staffNode.SelectSingleNode("FirstName").InnerText ?? null;
-                        lastNameValue = staffNode.SelectSingleNode("LastName").InnerText ?? null;
-                        birthDateValue = staffNode.SelectSingleNode("BirthDate").InnerText ?? null;
-
+                        int count = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationEmploymentAssociation/StaffReference/StaffIdentity/StaffUniqueId").Cast<XmlNode>().Where(a => a.InnerText == staffEmploymentNodeList.staffUniqueIdValue).Distinct().Count();
+                        if (count > 1)
+                            staffEmploymentNodeList.endDateValue = null;                        
                     }
-                    XmlNode EducationNode = node.SelectSingleNode("EducationOrganizationReference/EducationOrganizationIdentity");
+                    
 
-                    // get the values from the <Staff> node
-                    if (EducationNode != null)
+                    if (staffEmploymentNodeList != null)
                     {
-                        educationOrganizationIdValue = EducationNode.SelectSingleNode("EducationOrganizationId").InnerText ?? null;
+                        // Adding new staff from peoplesoft file.
+                        if (staffEmploymentNodeList.staffUniqueIdValue != null && staffEmploymentNodeList.staff.firstName != null && staffEmploymentNodeList.staff.lastName != null && staffEmploymentNodeList.staff.birthDate != null)
+                            UpdatingNewStaffData(token, staffEmploymentNodeList.staffUniqueIdValue, staffEmploymentNodeList.staff.firstName, staffEmploymentNodeList.staff.lastName, staffEmploymentNodeList.staff.birthDate);
 
-                    }
-                    XmlNode EmploymentStatus = node.SelectSingleNode("EmploymentStatus");
-
-                    if (EmploymentStatus != null)
-                    {
-                        empDesc = EmploymentStatus.SelectSingleNode("CodeValue").InnerText ?? null;
-                    }
-                    XmlNode EmploymentNode = node.SelectSingleNode("EmploymentPeriod");
-
-                    if (EmploymentNode != null)
-                    {
-                        endDateValue = EmploymentNode.SelectSingleNode("EndDate").InnerText ?? null;
-                        hireDateValue = EmploymentNode.SelectSingleNode("HireDate").InnerText ?? null;
-
-                    }
-                    // Adding new staff from peoplesoft file.
-                    if (staffUniqueIdValue != null && firstNameValue != null && lastNameValue != null && birthDateValue != null)
-                        UpdatingNewStaffData(token, staffUniqueIdValue, firstNameValue, lastNameValue, birthDateValue);
-
-                    // updating the values in Employment Association 
-                    if (staffUniqueIdValue != null && hireDateValue != null && empDesc != null && endDateValue != null)
-                    {
-                        string id = GetEmploymentAssociationId(token, staffUniqueIdValue, hireDateValue, empDesc, endDateValue);                        
-                        if (id != null)
+                        // updating the values in Employment Association 
+                        if (staffEmploymentNodeList.staffUniqueIdValue != null && staffEmploymentNodeList.hireDateValue != null && staffEmploymentNodeList.empDesc != null && staffEmploymentNodeList.endDateValue != null)
                         {
-                            string endDate = GetAssignmentEndDate(token, staffUniqueIdValue, empDesc);
-                            UpdateEndDate(token, id, endDate, hireDateValue, staffUniqueIdValue, empDesc);
+                            string id = GetEmploymentAssociationId(token, staffEmploymentNodeList);
+                            if (id != null)
+                            {
+                                string endDate = GetAssignmentEndDate(token, staffEmploymentNodeList);
+                                UpdateEndDate(token, id, staffEmploymentNodeList);
+                            }
+
                         }
-                            
                     }
+                    
                 }
                 if (File.Exists(Constants.LOG_FILE))
                     SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
@@ -855,23 +818,52 @@ namespace BPS.EdOrg.Loader
                 Log.Error(ex.Message);
             }
         }
-        
 
 
+        /// <summary>
+        /// Gets the data from the xml file
+        /// </summary>
+        /// <returns></returns>
+        private static StaffEmploymentAssociationData GetEmploymentAssociationXml(XmlNode node)
+        {
+            StaffEmploymentAssociationData staffEmploymentList = null;
+            XmlNode staffNode = node.SelectSingleNode("StaffReference/StaffIdentity");
+            //XmlNode EducationNode = node.SelectSingleNode("EducationOrganizationReference/EducationOrganizationIdentity");
+            XmlNode EmploymentNode = node.SelectSingleNode("EmploymentPeriod");
+            XmlNode EmploymentStatus = node.SelectSingleNode("EmploymentStatus");
+            if (staffNode != null && EmploymentNode != null)
+            {
+                staffEmploymentList = new StaffEmploymentAssociationData
+                {
+
+                    //educationOrganizationIdValue = EducationNode.SelectSingleNode("EducationOrganizationId").InnerText ?? null,
+                    staffUniqueIdValue = staffNode.SelectSingleNode("StaffUniqueId").InnerText ?? null,
+                    staff = new StaffData
+                    {
+                        firstName = staffNode.SelectSingleNode("FirstName").InnerText ?? null,
+                        lastName = staffNode.SelectSingleNode("LastName").InnerText ?? null,
+                        birthDate = staffNode.SelectSingleNode("BirthDate").InnerText ?? null,
+                    },
+                    status = EmploymentNode.SelectSingleNode("Status").InnerText ?? null,
+                    hireDateValue = EmploymentNode.SelectSingleNode("HireDate").InnerText ?? null,
+                    endDateValue = EmploymentNode.SelectSingleNode("EndDate").InnerText ?? null,
+                    empDesc = EmploymentStatus.SelectSingleNode("CodeValue").InnerText ?? null
+
+                };                
+            }
+
+            return staffEmploymentList;
+        }
+
+
+        /// <summary>
+        /// Gets the data from the xml and updates StaffEducationOrganizationAssignmentAssociation table.
+        /// </summary>
+        /// <returns></returns>
         private static void UpdateStaffAssignmentAssociationData(string token, Configuration configuration)
         {
             try
-            {
-                string staffUniqueIdValue = null;
-                string positionCodeDescription = null;
-                string educationOrganizationIdValue = null;
-                string endDateValue = null;
-                string beginDateValue = null;
-                string hireDateValue = null;
-                string staffClassification = null;
-                string empDesc = null;
-                string jobOrderAssignment = null;
-
+            {               
                 XmlDocument xmlDoc = LoadXml();
                 //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
                 //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
@@ -879,65 +871,36 @@ namespace BPS.EdOrg.Loader
                 var schoolDeptids = GetDeptList(configuration);
                 foreach (XmlNode node in nodeList)
                 {
-
-                    XmlNode staffNode = node.SelectSingleNode("StaffReference/StaffIdentity");
-
-                    // get the values from the <Staff> node
-                    if (staffNode != null)
+                    // Extracting the data froom the XMl file
+                    var staffAssignmentNodeList = GetAssignmentAssociationXml(node);
+                    if(staffAssignmentNodeList != null)
                     {
-                        staffUniqueIdValue = staffNode.SelectSingleNode("StaffUniqueId").InnerText ?? null;
-
-                    }
-                    XmlNode EducationNode = node.SelectSingleNode("EducationOrganizationReference");
-
-                    // get the values from the <Staff> node
-                    if (EducationNode != null)
-                    {
-                        XmlNode EducationOrgNode = EducationNode.SelectSingleNode("EducationOrganizationIdentity");
-                        
-                        if (EducationOrgNode != null)
-                            educationOrganizationIdValue = EducationOrgNode.SelectSingleNode("EducationOrganizationId").InnerText ?? null;
-                        endDateValue = EducationNode.SelectSingleNode("EndDate").InnerText ?? null;
-                        beginDateValue = EducationNode.SelectSingleNode("BeginDate").InnerText ?? null;
-                        hireDateValue = EducationNode.SelectSingleNode("HireDate").InnerText ?? null;
-                        positionCodeDescription = EducationNode.SelectSingleNode("PostionTitle").InnerText ?? null;
-                        jobOrderAssignment = EducationNode.SelectSingleNode("OrderOfAssignment").InnerText ?? null; 
-
-                        XmlNode staffClassificationNode = EducationNode.SelectSingleNode("StaffClassification");
-                        staffClassification = staffClassificationNode.SelectSingleNode("CodeValue").InnerText ?? null;
-
-                        XmlNode EmploymentStatus = EducationNode.SelectSingleNode("EmploymentStatus");
-                        if (EmploymentStatus != null)
+                        if (staffAssignmentNodeList.educationOrganizationIdValue != null)
                         {
-                            empDesc = EmploymentStatus.SelectSingleNode("CodeValue").InnerText ?? null;
-                        }
-                    }
-
-                    if (educationOrganizationIdValue!= null)
-                    {
-                        
-                        if (schoolDeptids.Count > 0)
-                        {
-                            string schoolid = null;
-                            // Getting the EdOrgId for the Department ID 
-                            var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(educationOrganizationIdValue)).FirstOrDefault();
-
-                            // setting the DeptId as EdOrgId for the staff, if no corresponding school is found
-                            if (educationOrganizationId == null)
-                                schoolid = educationOrganizationIdValue;
-                            else
-                                schoolid = educationOrganizationId.schoolId;
-
-                            //Inserting new Assignments and updating the postioTitle with JoboCode - JobDesc
-                            if (staffUniqueIdValue != null && beginDateValue != null && staffClassification != null && positionCodeDescription != null)
+                            if (schoolDeptids.Count > 0)
                             {
-                                string id = GetAssignmentAssociationId(token, schoolid, staffClassification, staffUniqueIdValue, endDateValue, beginDateValue, empDesc, hireDateValue, jobOrderAssignment, positionCodeDescription);
-                                if (id != null)
-                                    UpdatePostionTitle(token, id, schoolid, staffClassification, endDateValue, beginDateValue, hireDateValue, staffUniqueIdValue, positionCodeDescription, empDesc, jobOrderAssignment);
-                            }
-                        }
+                                string schoolid = null;
+                                // Getting the EdOrgId for the Department ID 
+                                var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(staffAssignmentNodeList.educationOrganizationIdValue)).FirstOrDefault();
 
+                                // setting the DeptId as EdOrgId for the staff, if no corresponding school is found
+                                if (educationOrganizationId == null)
+                                    schoolid = staffAssignmentNodeList.educationOrganizationIdValue;
+                                else
+                                    schoolid = educationOrganizationId.schoolId;
+
+                                //Inserting new Assignments and updating the postioTitle with JobCode - JobDesc
+                                if (staffAssignmentNodeList.staffUniqueIdValue != null && staffAssignmentNodeList.beginDateValue != null && staffAssignmentNodeList.staffClassification != null && staffAssignmentNodeList.positionCodeDescription != null)
+                                {
+                                    string id = GetAssignmentAssociationId(token, schoolid, staffAssignmentNodeList);
+                                    if (id != null)
+                                        UpdatePostionTitle(token, id, schoolid, staffAssignmentNodeList);
+                                }
+                            }
+
+                        }
                     }
+                    
 
                 }
 
@@ -950,14 +913,44 @@ namespace BPS.EdOrg.Loader
             }       
             
         }
-        private static string GetAssignmentEndDate(string token, string staffUniqueIdValue, string employmentStatusDescriptor)
+
+        private static StaffAssignmentAssociationData GetAssignmentAssociationXml(XmlNode node)
+        {
+            StaffAssignmentAssociationData staffAssignmentList = null;
+            XmlNode staffNode = node.SelectSingleNode("StaffReference/StaffIdentity");
+            XmlNode EducationNode = node.SelectSingleNode("EducationOrganizationReference");
+            if (staffNode == null && EducationNode == null) throw new Exception("Nodes not reurning any data for Assignment");
+            XmlNode EducationOrgNode = EducationNode.SelectSingleNode("EducationOrganizationIdentity");
+            XmlNode staffClassificationNode = EducationNode.SelectSingleNode("StaffClassification");
+            XmlNode EmploymentStatus = EducationNode.SelectSingleNode("EmploymentStatus");
+            if (staffNode != null && EducationNode != null)
+            {
+                staffAssignmentList = new StaffAssignmentAssociationData
+                {
+                    staffUniqueIdValue = staffNode.SelectSingleNode("StaffUniqueId").InnerText ?? null,
+                    educationOrganizationIdValue = EducationOrgNode.SelectSingleNode("EducationOrganizationId").InnerText ?? null,
+                    endDateValue = EducationNode.SelectSingleNode("EndDate").InnerText ?? null,
+                    beginDateValue = EducationNode.SelectSingleNode("BeginDate").InnerText ?? null,
+                    hireDateValue = EducationNode.SelectSingleNode("HireDate").InnerText ?? null,
+                    positionCodeDescription = EducationNode.SelectSingleNode("PostionTitle").InnerText ?? null,
+                    jobOrderAssignment = EducationNode.SelectSingleNode("OrderOfAssignment").InnerText ?? null,
+                    staffClassification = staffClassificationNode.SelectSingleNode("CodeValue").InnerText ?? null,
+                    empDesc = EmploymentStatus.SelectSingleNode("CodeValue").InnerText ?? null,
+
+                };
+               
+            }
+            return staffAssignmentList;
+
+        }
+        private static string GetAssignmentEndDate(string token, StaffEmploymentAssociationData staffData)
         {
             string date = null;
             try
             {
                 IRestResponse response = null;
                 
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl + Constants.staffUniqueId1 + staffUniqueIdValue+ Constants.employmentStatusDescriptor+ employmentStatusDescriptor);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl + Constants.staffUniqueId1 + staffData.staffUniqueIdValue + Constants.employmentStatusDescriptor+ staffData.empDesc);
                 response = GetData(client, token);
                 if (IsSuccessStatusCode((int)response.StatusCode))
                 {
@@ -1016,11 +1009,11 @@ namespace BPS.EdOrg.Loader
         /// Get the Id from the [StaffEducationOrganizationEmploymentAssociation] table.
         /// </summary>
         /// <returns></returns>
-        private static string GetEmploymentAssociationId(string token, string staffUniqueIdValue, string hireDateValue, string empDesc, string endDateValue)
+        private static string GetEmploymentAssociationId(string token, StaffEmploymentAssociationData staffData)
         {
             IRestResponse response = null;
            
-            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffEmploymentUrl + Constants.educationOrganizationId + Constants.educationOrganizationIdValue + Constants.employmentStatusDescriptor + empDesc + Constants.hireDate + hireDateValue + Constants.staffUniqueId + staffUniqueIdValue);
+            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffEmploymentUrl + Constants.educationOrganizationId + Constants.educationOrganizationIdValue + Constants.employmentStatusDescriptor + staffData.empDesc + Constants.hireDate + staffData.hireDateValue + Constants.staffUniqueId + staffData.staffUniqueIdValue);
            
             response = GetData(client, token);
             if (IsSuccessStatusCode((int)response.StatusCode))
@@ -1051,7 +1044,7 @@ namespace BPS.EdOrg.Loader
                     },
                     staffReference = new EdFiStaffReference
                     {
-                        staffUniqueId = staffUniqueIdValue,
+                        staffUniqueId = staffData.staffUniqueIdValue,
 
                                 Link = new Link
                                 {
@@ -1059,9 +1052,9 @@ namespace BPS.EdOrg.Loader
                                     Href = string.Empty
                                 }
                     },
-                        employmentStatusDescriptor = empDesc,
-                        hireDate = hireDateValue,
-                        endDate = endDateValue
+                        employmentStatusDescriptor = staffData.empDesc,
+                        hireDate = staffData.hireDateValue,
+                        endDate = staffData.endDateValue
                 };
 
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
@@ -1076,11 +1069,11 @@ namespace BPS.EdOrg.Loader
         /// Get the Id from the [StaffEducationOrganizationAssignmentAssociation] table.
         /// </summary>
         /// <returns></returns>
-        private static string GetAssignmentAssociationId(string token,string educationOrganizationIdValue,string staffClassification, string staffUniqueIdValue,string endDateValue, string beginDateValue, string empDesc, string hireDateValue, string jobOrderAssignment, string jobCodeDescription)
+        private static string GetAssignmentAssociationId(string token,string educationOrganizationId, StaffAssignmentAssociationData staffData)
         {
             IRestResponse response = null;
 
-            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl + Constants.educationOrganizationId + educationOrganizationIdValue+ Constants.beginDate + beginDateValue+ Constants.staffClassificationDescriptorId + staffClassification + Constants.staffUniqueId + staffUniqueIdValue);
+            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl + Constants.educationOrganizationId + educationOrganizationId + Constants.beginDate + staffData.beginDateValue + Constants.staffClassificationDescriptorId + staffData.staffClassification + Constants.staffUniqueId + staffData.staffUniqueIdValue);
             response = GetData(client, token);
             if (IsSuccessStatusCode((int)response.StatusCode))
             {
@@ -1099,7 +1092,7 @@ namespace BPS.EdOrg.Loader
 
                         educationOrganizationReference = new EdFiEducationReference
                         {
-                            educationOrganizationId = educationOrganizationIdValue,
+                            educationOrganizationId = educationOrganizationId,
                             Link = new Link()
                             {
                                 Rel = string.Empty,
@@ -1108,7 +1101,7 @@ namespace BPS.EdOrg.Loader
                         },
                         staffReference = new EdFiStaffReference
                         {
-                            staffUniqueId = staffUniqueIdValue,
+                            staffUniqueId = staffData.staffUniqueIdValue,
 
                             Link = new Link
                             {
@@ -1119,9 +1112,9 @@ namespace BPS.EdOrg.Loader
                         employmentStaffEducationOrganizationEmploymentAssociationReference = new EdfiEmploymentAssociationReference
                         {
                             educationOrganizationId = Constants.educationOrganizationIdValue,
-                            staffUniqueId = staffUniqueIdValue,
-                            employmentStatusDescriptor = empDesc,
-                            hireDate = hireDateValue,
+                            staffUniqueId = staffData.staffUniqueIdValue,
+                            employmentStatusDescriptor = staffData.empDesc,
+                            hireDate = staffData.hireDateValue,
                             Link = new Link
                             {
                                 Rel = string.Empty,
@@ -1129,11 +1122,11 @@ namespace BPS.EdOrg.Loader
                             }
                         },
 
-                        staffClassificationDescriptor = staffClassification,
-                        beginDate = beginDateValue,
-                        endDate = endDateValue,
-                        orderOfAssignment = jobOrderAssignment,
-                        positionTitle = jobCodeDescription
+                        staffClassificationDescriptor = staffData.staffClassification,
+                        beginDate = staffData.beginDateValue,
+                        endDate = staffData.endDateValue,
+                        orderOfAssignment = staffData.jobOrderAssignment,
+                        positionTitle = staffData.positionCodeDescription
                     };
 
                     string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
@@ -1151,7 +1144,7 @@ namespace BPS.EdOrg.Loader
         /// Updates the Position title in  [StaffEducationOrganizationAssignmentAssociation] table.
         /// </summary>
         /// <returns></returns>
-        private static void UpdatePostionTitle(string token,string id,string educationOrganizationId, string staffClassification,string endDateValue,string beginDateValue, string hireDateValue, string staffUniqueIdValue, string jobCodeDescription, string empDesc, string jobOrderAssignment)
+        private static void UpdatePostionTitle(string token,string id,string educationOrganizationId, StaffAssignmentAssociationData staffData)
         {
             try
             {
@@ -1172,7 +1165,7 @@ namespace BPS.EdOrg.Loader
                     },
                     staffReference = new EdFiStaffReference
                     {
-                        staffUniqueId = staffUniqueIdValue,
+                        staffUniqueId = staffData.staffUniqueIdValue,
 
                         Link = new Link
                         {
@@ -1183,9 +1176,9 @@ namespace BPS.EdOrg.Loader
                     employmentStaffEducationOrganizationEmploymentAssociationReference = new EdfiEmploymentAssociationReference
                     {
                         educationOrganizationId =Constants.educationOrganizationIdValue,
-                        staffUniqueId = staffUniqueIdValue,
-                        employmentStatusDescriptor = empDesc,
-                        hireDate = hireDateValue,
+                        staffUniqueId = staffData.staffUniqueIdValue,
+                        employmentStatusDescriptor = staffData.empDesc,
+                        hireDate = staffData.hireDateValue,
                         Link = new Link
                         {
                             Rel = string.Empty,
@@ -1193,11 +1186,11 @@ namespace BPS.EdOrg.Loader
                         }
                     },
 
-                    staffClassificationDescriptor = staffClassification,
-                    beginDate = beginDateValue,
-                    endDate = endDateValue,
-                    orderOfAssignment = jobOrderAssignment,
-                    positionTitle = jobCodeDescription
+                    staffClassificationDescriptor = staffData.staffClassification,
+                    beginDate = staffData.beginDateValue,
+                    endDate = staffData.endDateValue,
+                    orderOfAssignment = staffData.jobOrderAssignment,
+                    positionTitle = staffData.positionCodeDescription
                 };                
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
                 response = PutData(json, client, token);
@@ -1207,8 +1200,8 @@ namespace BPS.EdOrg.Loader
                     {
                         //Log the Error
                         ErrorLog errorLog = new ErrorLog();
-                        errorLog.staffUniqueId = staffUniqueIdValue;
-                        errorLog.PositionTitle = jobCodeDescription;
+                        errorLog.staffUniqueId = staffData.staffUniqueIdValue;
+                        errorLog.PositionTitle = staffData.positionCodeDescription;
                         errorLog.ErrorMessage = response.Content.ToString().Replace(System.Environment.NewLine, string.Empty) ?? null;
                         //ErrorLogging(errorLog);
                     }
@@ -1228,7 +1221,7 @@ namespace BPS.EdOrg.Loader
         /// Updates the enddate to [StaffEducationOrganizationAssignmentAssociation] table.
         /// </summary>
         /// <returns></returns>
-        private static bool UpdateEndDate(string token, string id, string endDateValue, string hireDateValue, string staffUniqueIdValue, string empDesc)
+        private static bool UpdateEndDate(string token, string id, StaffEmploymentAssociationData staffData)
         {
             bool isPosted = true;
             try
@@ -1249,7 +1242,7 @@ namespace BPS.EdOrg.Loader
                     },
                     staffReference = new EdFiStaffReference
                     {
-                        staffUniqueId = staffUniqueIdValue,
+                        staffUniqueId = staffData.staffUniqueIdValue,
 
                         Link = new Link
                         {
@@ -1257,9 +1250,9 @@ namespace BPS.EdOrg.Loader
                             Href = string.Empty
                         }
                     },
-                    employmentStatusDescriptor = empDesc,
-                    hireDate = hireDateValue,
-                    endDate = endDateValue
+                    employmentStatusDescriptor = staffData.empDesc,
+                    hireDate = staffData.hireDateValue,
+                    endDate = staffData.endDateValue
                 };
                 
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
@@ -1270,8 +1263,8 @@ namespace BPS.EdOrg.Loader
                     {
                         //Log the Error
                         ErrorLog errorLog = new ErrorLog();
-                        errorLog.staffUniqueId = staffUniqueIdValue;
-                        errorLog.endDate = endDateValue;
+                        errorLog.staffUniqueId = staffData.staffUniqueIdValue;
+                        errorLog.endDate = staffData.endDateValue;
                         errorLog.ErrorMessage = response.Content.ToString().Replace(System.Environment.NewLine, string.Empty) ?? null;
                         //ErrorLogging(errorLog);
                         isPosted = false;
