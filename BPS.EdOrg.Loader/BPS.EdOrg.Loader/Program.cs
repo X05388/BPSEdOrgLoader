@@ -166,9 +166,11 @@ namespace BPS.EdOrg.Loader
             CreateXmlJob(param.Object);
             var token = GetAuthToken();
             if (token != null)
-            {                
+            {
+                
                 UpdateStaffEmploymentAssociationData(token);
                 UpdateStaffAssignmentAssociationData(token, param.Object);
+
             }
                 
             else throw new Exception("Token is not generated, ODS not updated");
@@ -332,22 +334,23 @@ namespace BPS.EdOrg.Loader
                         string empClassCode = Constants.EmpClassCode(staffAssociationData.empClass);
                         string jobOrderAssignment = Constants.JobOrderAssignment(staffAssociationData.jobIndicator);
 
-                        XmlDocument xmlDoc = new XmlDocument();
-                        xmlDoc.Load(ConfigurationManager.AppSettings["XMLOutputPath"] + $"/EducationOrganization-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
-                        XmlNodeList list = xmlDoc.SelectNodes(@"//InterchangeEducationOrganization/EducationServiceCenter");                       
-                        var deptIdLocation = list.Cast<XmlNode>().Where(n => n["Location"].InnerText == staffAssociationData.location).Select(x => x["StateOrganizationId"].InnerText).FirstOrDefault();
-                        if(deptIdLocation != null)
+                        XmlNodeList nodeList = GetDeptforLocation();
+                        if (nodeList != null)
                         {
-                            // If departments are different that means Physical location is different so  we have 2 assignments for the staff
-                            if (!staffAssociationData.deptId.Equals(deptIdLocation))
+                            var deptIdLocation = nodeList.Cast<XmlNode>().Where(n => n["Location"].InnerText == staffAssociationData.location).Select(x => x["StateOrganizationId"].InnerText).FirstOrDefault();
+                            if (deptIdLocation != null)
                             {
-                                staffAssociationData.deptId = deptIdLocation;
-                                Log.Debug($"Creating node for {staffAssociationData.staffId}-{staffAssociationData.deptId}-{staffAssociationData.endDate}");
-                                CreateNodeJob(staffAssociationData, descCode, empClassCode, jobOrderAssignment, writer);
-                                numberOfRecordsCreatedInXml++;
+                                // If departments are different that means Physical location is different so  we have 2 assignments for the staff
+                                if (!staffAssociationData.deptId.Equals(deptIdLocation))
+                                {
+                                    staffAssociationData.deptId = deptIdLocation;
+                                    Log.Debug($"Creating node for {staffAssociationData.staffId}-{staffAssociationData.deptId}-{staffAssociationData.endDate}");
+                                    CreateNodeJob(staffAssociationData, descCode, empClassCode, jobOrderAssignment, writer);
+                                    numberOfRecordsCreatedInXml++;
+                                }
                             }
                         }
-                                              
+                                                         
                         Log.Debug($"Creating node for {staffAssociationData.staffId}-{staffAssociationData.deptId}-{staffAssociationData.endDate}");
                         CreateNodeJob(staffAssociationData, descCode, empClassCode, jobOrderAssignment, writer);
                         numberOfRecordsCreatedInXml++;
@@ -370,7 +373,23 @@ namespace BPS.EdOrg.Loader
                 Log.Error($"Error while creating JobCode XML , Exception: {ex.Message}");
             }
         }
+        private static XmlNodeList GetDeptforLocation()
+        {
+            try
+            {
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(ConfigurationManager.AppSettings["XMLOutputPath"] + $"/EducationOrganization-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
+                XmlNodeList list = xmlDoc.SelectNodes(@"//InterchangeEducationOrganization/EducationServiceCenter");
+                return list;
+            }
+            
+            catch (Exception ex)
+            {
+                Log.Error($"Error accessing the Dept File from peoplesoft , Exception: {ex.Message}");
+                return null;
+            }
 
+        }
         private static void CreateNodeJob(StaffAssociationData staffData,string descCode,string empCode,string jobIndicator, XmlTextWriter writer)
         {
             try
