@@ -289,7 +289,7 @@ namespace BPS.EdOrg.Loader
                     if (staffEmploymentNodeList != null)
                     {
                         if (staffEmploymentNodeList.status == "T")
-                        {
+                        {                            
                             int count = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationAssociation/StaffReference/StaffIdentity/StaffUniqueId").Cast<XmlNode>().Where(a => a.InnerText == staffEmploymentNodeList.staffUniqueIdValue).Distinct().Count();
                             if (count > 1)
                                 staffEmploymentNodeList.endDateValue = null;
@@ -310,6 +310,9 @@ namespace BPS.EdOrg.Loader
                             if (id != null)
                             {
                                 string endDate = GetAssignmentEndDate(token, staffEmploymentNodeList);
+                                //Setting the Enddate with the one from AssignmentAssociation
+                                if(endDate != null)
+                                staffEmploymentNodeList.endDateValue = endDate;
                                 UpdateEndDate(token, id, staffEmploymentNodeList);
                             }
 
@@ -510,7 +513,7 @@ namespace BPS.EdOrg.Loader
                 IRestResponse response = null;
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + Constants.staffUniqueId1 + staffUniqueIdValue);
                 response = GetData(client, token);
-                if (IsSuccessStatusCode((int)response.StatusCode) || (int)response.StatusCode == 404)
+                if (!IsSuccessStatusCode((int)response.StatusCode) || (int)response.StatusCode == 404)
                 {
 
                     //Insert Data 
