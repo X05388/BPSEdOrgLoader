@@ -175,6 +175,10 @@ namespace BPS.EdOrg.Loader
                         string empClassCode = Constants.EmpClassCode(staffAssociationData.empClass);
                         string jobOrderAssignment = Constants.JobOrderAssignment(staffAssociationData.jobIndicator);
 
+                        _log.Debug($"Creating node for {staffAssociationData.staffId}-{staffAssociationData.deptId}-{staffAssociationData.endDate}");
+                        CreateNodeJob(staffAssociationData, descCode, empClassCode, jobOrderAssignment, writer);
+                        numberOfRecordsCreatedInXml++;
+
                         XmlNodeList nodeList = GetDeptforLocation();
                         if (nodeList.Count > 0)
                         {
@@ -191,12 +195,6 @@ namespace BPS.EdOrg.Loader
                                 }
                             }
                         }
-
-                        _log.Debug($"Creating node for {staffAssociationData.staffId}-{staffAssociationData.deptId}-{staffAssociationData.endDate}");
-                        CreateNodeJob(staffAssociationData, descCode, empClassCode, jobOrderAssignment, writer);
-                        numberOfRecordsCreatedInXml++;
-
-
                     }
                 }
                 writer.WriteEndElement();
