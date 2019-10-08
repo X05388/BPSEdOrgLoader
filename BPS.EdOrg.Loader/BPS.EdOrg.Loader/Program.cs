@@ -290,9 +290,14 @@ namespace BPS.EdOrg.Loader
                     {
                         if (staffEmploymentNodeList.status == "T")
                         {                            
-                            int count = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationAssociation/StaffReference/StaffIdentity/StaffUniqueId").Cast<XmlNode>().Where(a => a.InnerText == staffEmploymentNodeList.staffUniqueIdValue).Distinct().Count();
-                            if (count > 1)
-                                staffEmploymentNodeList.endDateValue = null;
+                            int countStd = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationAssociation/StaffReference/StaffIdentity/StaffUniqueId").Cast<XmlNode>().Where(a => a.InnerText == staffEmploymentNodeList.staffUniqueIdValue).Distinct().Count();
+                            if (countStd > 1) staffEmploymentNodeList.endDateValue = null;
+                            //if (countStd > 1)
+                            //{
+                            //    int countStatus = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/EmploymentPeriod").Cast<XmlNode>().Select(x => x["Status"].InnerText == "T").Cast<XmlNode>().Where(a => a.InnerText == staffEmploymentNodeList.staffUniqueIdValue).Distinct().Count();
+                            //    if (countStatus >1)staffEmploymentNodeList.endDateValue = null;
+                            //}
+                                
                         }
 
                         // Adding new staff from peoplesoft file.
@@ -401,21 +406,21 @@ namespace BPS.EdOrg.Loader
                             {
                                 string schoolid = null;
                                 // Getting the EdOrgId for the Department ID 
-                                var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(staffAssignmentNodeList.educationOrganizationIdValue)).FirstOrDefault();
+                                var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(staffAssignmentNodeList.educationOrganizationIdValue)&& x.OperationalStatus.Equals("Active")).FirstOrDefault();
 
                                 // setting the DeptId as EdOrgId for the staff, if no corresponding school is found
-                                if (educationOrganizationId == null)
-                                    schoolid = staffAssignmentNodeList.educationOrganizationIdValue;
-                                else
-                                    schoolid = educationOrganizationId.schoolId;
-
-                                //Inserting new Assignments and updating the postioTitle with JobCode - JobDesc
-                                if (!string.IsNullOrEmpty(staffAssignmentNodeList.staffUniqueIdValue) && !string.IsNullOrEmpty(staffAssignmentNodeList.beginDateValue) && !string.IsNullOrEmpty(staffAssignmentNodeList.staffClassification) && !string.IsNullOrEmpty(staffAssignmentNodeList.positionCodeDescription))
+                                if (educationOrganizationId != null)schoolid = educationOrganizationId.schoolId;
+                                if (!string.IsNullOrEmpty(schoolid))
                                 {
-                                    string id = GetAssignmentAssociationId(token, schoolid, staffAssignmentNodeList);
-                                    if (id != null)
-                                        UpdatePostionTitle(token, id, schoolid, staffAssignmentNodeList);
+                                    //Inserting new Assignments and updating the postioTitle with JobCode - JobDesc
+                                    if (!string.IsNullOrEmpty(staffAssignmentNodeList.staffUniqueIdValue) && !string.IsNullOrEmpty(staffAssignmentNodeList.beginDateValue) && !string.IsNullOrEmpty(staffAssignmentNodeList.staffClassification) && !string.IsNullOrEmpty(staffAssignmentNodeList.positionCodeDescription))
+                                    {
+                                        string id = GetAssignmentAssociationId(token, schoolid, staffAssignmentNodeList);
+                                        if (id != null)
+                                            UpdatePostionTitle(token, id, schoolid, staffAssignmentNodeList);
+                                    }
                                 }
+                                
                             }
 
                         }

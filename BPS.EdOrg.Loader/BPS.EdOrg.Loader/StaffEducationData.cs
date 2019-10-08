@@ -124,7 +124,8 @@ namespace BPS.EdOrg.Loader
         {
             public string schoolId { get; set; }
             public string DeptId { get; set; }
-        }
+            public string OperationalStatus { get; set; }
+    }
 
     public class ErrorLog
     {

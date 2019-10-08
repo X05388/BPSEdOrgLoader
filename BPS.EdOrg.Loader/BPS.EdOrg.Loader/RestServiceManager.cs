@@ -52,7 +52,7 @@ namespace BPS.EdOrg.Loader
                                 if (!string.IsNullOrEmpty(deptId) && !string.Equals(deptId, "N/A", StringComparison.OrdinalIgnoreCase))
                                 {
                                     existingDeptIds.Add(deptId);
-                                    schoolDepts.Add(new SchoolDept { schoolId = school.schoolId, DeptId = deptId });
+                                    schoolDepts.Add(new SchoolDept { schoolId = school.schoolId, DeptId = deptId, OperationalStatus = school.operationalStatusType });
                                 }
                             }
                         }
