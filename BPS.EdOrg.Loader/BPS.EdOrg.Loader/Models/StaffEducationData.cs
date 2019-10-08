@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Net.Mail;
 
 
-namespace BPS.EdOrg.Loader
+namespace BPS.EdOrg.Loader.Models
 {
 
         public class StaffDescriptor

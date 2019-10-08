@@ -5,14 +5,14 @@ using System.Xml;
 using System.IO;
 using System.Configuration;
 using System.Linq;
-
+using BPS.EdOrg.Loader.Models;
 namespace BPS.EdOrg.Loader
 {
     class ParseXmls
     {
-        private readonly Configuration _configuration = null;      
+        private readonly EdorgConfiguration _configuration = null;      
         private readonly ILog _log;
-        public ParseXmls(Configuration configuration, ILog logger)
+        public ParseXmls(EdorgConfiguration configuration, ILog logger)
         {
             _configuration = configuration;            
             _log = logger;
@@ -408,7 +408,7 @@ namespace BPS.EdOrg.Loader
                 _log.Error($"There is exception while creating Node for DeptId:{deptId} and Dept title: {deptTitle}, Exception  :{ex.Message}");
             }
         }
-        public void Archive(Configuration _configuration)
+        public void Archive(EdorgConfiguration _configuration)
         {
             try
             {
@@ -461,7 +461,7 @@ namespace BPS.EdOrg.Loader
 
 
         }
-        private void MoveFiles(Configuration configuration)
+        private void MoveFiles(EdorgConfiguration configuration)
         {
             try
             {
@@ -491,7 +491,7 @@ namespace BPS.EdOrg.Loader
             }
 
         }
-        private void DeleteOldFiles(Configuration configuration)
+        private void DeleteOldFiles(EdorgConfiguration configuration)
         {
             try
             {

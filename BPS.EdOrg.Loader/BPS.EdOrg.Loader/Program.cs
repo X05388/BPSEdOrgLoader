@@ -15,7 +15,7 @@ using Newtonsoft.Json.Linq;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Linq;
-
+using BPS.EdOrg.Loader.Models;
 namespace BPS.EdOrg.Loader
 {
     class Program
@@ -62,7 +62,7 @@ namespace BPS.EdOrg.Loader
             }
         }
 
-        private static void LogConfiguration(Configuration configuration)
+        private static void LogConfiguration(EdorgConfiguration configuration)
         {
             Log.Info($"Api Url: {configuration.ApiUrl}");
             Log.Info($"CrossWalk Cross Walk OAuth Url:   {configuration.CrossWalkOAuthUrl}");
@@ -82,7 +82,7 @@ namespace BPS.EdOrg.Loader
             Log.Info($"Xsd Folder:  {configuration.XsdFolder}");
             Log.Info($"InterchangeOrder Folder:  {configuration.InterchangeOrderFolder}");
         }
-        private static void LoadXml(Configuration configuration)
+        private static void LoadXml(EdorgConfiguration configuration)
         {
             try
             {
@@ -105,7 +105,7 @@ namespace BPS.EdOrg.Loader
                 Log.Error($"Exception while executing EdFi.ApiLoader.Console : {ex.Message}");
             }
         }
-        private static string GetArguments(Configuration configuration)
+        private static string GetArguments(EdorgConfiguration configuration)
         {
             StringBuilder argumentBuilder = new StringBuilder();
             try
@@ -271,7 +271,7 @@ namespace BPS.EdOrg.Loader
         /// Gets the data from the xml and updates StaffEducationOrganizationEmploymentAssociation table.
         /// </summary>
         /// <returns></returns>
-        private static void UpdateStaffEmploymentAssociationData(string token, Configuration configuration)
+        private static void UpdateStaffEmploymentAssociationData(string token, EdorgConfiguration configuration)
         {
             try
             {
@@ -377,7 +377,7 @@ namespace BPS.EdOrg.Loader
         /// Gets the data from the xml and updates StaffEducationOrganizationAssignmentAssociation table.
         /// </summary>
         /// <returns></returns>
-        private static void UpdateStaffAssignmentAssociationData(string token, Configuration configuration)
+        private static void UpdateStaffAssignmentAssociationData(string token, EdorgConfiguration configuration)
         {
             try
             {               
@@ -1057,7 +1057,7 @@ namespace BPS.EdOrg.Loader
         }
 
        
-        private static List<SchoolDept> GetDeptList(Configuration configuration)
+        private static List<SchoolDept> GetDeptList(EdorgConfiguration configuration)
         {
             
             List<SchoolDept> existingDeptIds = new List<SchoolDept>();
@@ -1085,7 +1085,7 @@ namespace BPS.EdOrg.Loader
             return existingDeptIds;
         }
 
-        private static List<string> GetStaffList(Configuration configuration)
+        private static List<string> GetStaffList(EdorgConfiguration configuration)
         {
 
             List<string> existingStaffIds = new List<string>();

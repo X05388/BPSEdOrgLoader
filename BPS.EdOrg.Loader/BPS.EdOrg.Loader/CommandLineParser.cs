@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BPS.EdOrg.Loader
 {
-    public class CommandLineParser : FluentCommandLineParser<Configuration>
+    public class CommandLineParser : FluentCommandLineParser<EdorgConfiguration>
     {
         public CommandLineParser()
         {

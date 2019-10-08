@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- (c)2018 Ed-Fi Alliance, LLC. All Rights Reserved. -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://ed-fi.org/0220" targetNamespace="http://ed-fi.org/0220" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xs:include schemaLocation="Ed-Fi-Core.xsd" />
+  <xs:annotation>
+    <xs:documentation>===== Student Special Education Program Association Interchange Model =====</xs:documentation>
+  </xs:annotation>
+<xs:complexType name="StudentSpecialEducationProgramAssociation">
+  <xs:annotation>
+    <xs:documentation>This association represents the special education program(s) that a student participates in or receives services from. The association is an extension of the StudentProgramAssociation particular for special education programs.</xs:documentation>
+    <xs:appinfo>
+      <ann:TypeGroup>Association</ann:TypeGroup>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:complexContent>
+    <xs:extension base="StudentProgramAssociation">
+      <xs:sequence>
+        <xs:element name="IdeaEligibility" type="xs:boolean" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Indicator of the eligibility of the student to receive special education services according to the Individuals with Disabilities Education Act (IDEA).</xs:documentation>
+          </xs:annotation>
+
+        </xs:element>
+        <xs:element name="SpecialEducationSetting" type="SpecialEducationSettingDescriptorReferenceType" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>The major instructional setting (more than 50 percent of a student's special education program).</xs:documentation>
+            <xs:appinfo>
+              <ann:Descriptor>SpecialEducationSettingDescriptor</ann:Descriptor>
+            </xs:appinfo>
+          </xs:annotation>
+
+        </xs:element>
+        <xs:element name="ServiceProvider" type="ServiceProvider" minOccurs="0" maxOccurs="unbounded">
+          <xs:annotation>
+            <xs:documentation>The Staff providing special education services to the Student.</xs:documentation>
+          </xs:annotation>
+
+        </xs:element>
+        <xs:element name="SpecialEducationHoursPerWeek" type="HoursPerWeek" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>The number of hours per week for special education instruction and therapy.</xs:documentation>
+          </xs:annotation>
+
+        </xs:element>
+        <xs:element name="SchoolHoursPerWeek" type="HoursPerWeek" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Indicate the total number of hours of instructional time per week for the school that the student attends.</xs:documentation>
+          </xs:annotation>
+
+        </xs:element>
+        <xs:element name="MultiplyDisabled" type="xs:boolean" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Indicates whether the Student receiving special education and related services has been designated as multiply disabled by the admission, review, and dismissal committee as aligned with federal requirements.</xs:documentation>
+          </xs:annotation>
+
+        </xs:element>
+        <xs:element name="MedicallyFragile" type="xs:boolean" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Indicates whether the Student receiving special education and related services is: 1) in the age range of birth to 22 years, and 2) has a serious, ongoing illness or a chronic condition that has lasted or is anticipated to last at least 12
+              or more months or has required at least one month of hospitalization, and that requires daily, ongoing medical treatments and monitoring by appropriately trained personnel which may include parents or other family members, and 3) requires
+              the routine use of medical device or of assistive technology to compensate for the loss of usefulness of a body function needed to participate in activities of daily living, and 4) lives with ongoing threat to his or her continued well-being.
+              Aligns with federal requirements.</xs:documentation>
+          </xs:annotation>
+
+        </xs:element>
+        <xs:element name="LastEvaluationDate" type="xs:date" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>The date of the last special education evaluation.</xs:documentation>
+          </xs:annotation>
+
+        </xs:element>
+        <xs:element name="IEPReviewDate" type="xs:date" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>The date of the last IEP review.</xs:documentation>
+          </xs:annotation>
+
+        </xs:element>
+        <xs:element name="IEPBeginDate" type="xs:date" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>The effective date of the most recent IEP.</xs:documentation>
+          </xs:annotation>
+
+        </xs:element>
+        <xs:element name="IEPEndDate" type="xs:date" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>The end date of the most recent IEP.</xs:documentation>
+          </xs:annotation>
+
+        </xs:element>
+      </xs:sequence>
+    </xs:extension>
+  </xs:complexContent>
+</xs:complexType>
+</xs:schema>

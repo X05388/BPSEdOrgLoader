@@ -4,16 +4,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using BPS.EdOrg.Loader.Models;
 
 
 namespace BPS.EdOrg.Loader
 {
     public class RestServiceManager
     {
-        private readonly Configuration _configuration = null;
+        private readonly EdorgConfiguration _configuration = null;
         private readonly string _accessToken = string.Empty;
         private readonly ILog _log;
-        public RestServiceManager(Configuration configuration,string token, ILog logger)
+        public RestServiceManager(EdorgConfiguration configuration,string token, ILog logger)
         {
             _configuration = configuration;
             _accessToken = token;

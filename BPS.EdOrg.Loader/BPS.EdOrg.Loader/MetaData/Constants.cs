@@ -145,6 +145,43 @@ namespace BPS.EdOrg.Loader
             else
                     return "Other";
             }
-        
+
+        public static string getSpecialEducationSetting(int? descSetting)
+        {
+            switch (descSetting)
+            {
+                case 30:
+                case 32:
+                case 20:
+                    return @"Inside reg class between 40% and 79% of the day";
+
+                case 31:
+                case 34:
+                case 10:
+                    return @"Inside regular class 80% or more of the day";
+                case 36:
+                case 40:
+                    return @"Inside regular class less than 40% of the day";
+                case 38:
+                case 42:
+                case 41:
+                case 50:
+                    return @"Separate School";
+                case 44:
+                case 60:
+                    return @"Residential Facility";
+                case 45:
+                case 90:
+                    return @"Correctional Facilities";
+                case 46:
+                case 70:
+                    return @"Homebound/Hospital";
+                default:
+                    return null;
+            }
+
+
+        }
     }
+
 }

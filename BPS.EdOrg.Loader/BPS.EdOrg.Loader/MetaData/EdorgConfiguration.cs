@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BPS.EdOrg.Loader
 {
-    public class Configuration
+    public class EdorgConfiguration
     {
         public string CrossWalkOAuthUrl { get; set; }
         public string CrossWalkSchoolApiUrl { get; set; }

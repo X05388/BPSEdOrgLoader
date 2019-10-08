@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace BPS.EdOrg.Loader
+namespace BPS.EdOrg.Loader.Models
 {
     public class SchoolResponse
     {
