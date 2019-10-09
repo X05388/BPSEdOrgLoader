@@ -888,11 +888,12 @@ namespace BPS.EdOrg.Loader
             {
                 var fragments = File.ReadAllText(ConfigurationManager.AppSettings["XMLDeploymentPath"] + $"Aspen_in_XML.xml").Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
                 fragments = fragments.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>", "");
-                fragments = fragments.Replace("504Eligibility", "_504Eligibility");
-                var myRootedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><roots>" + fragments + "</roots>";
-                var doc = XDocument.Parse(myRootedXml);
+                //fragments = fragments.Replace("504Eligibility", "_504Eligibility");
+                //var myRootedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><roots>" + fragments + "</roots>";
+                //var doc = XDocument.Parse(myRootedXml);
+                var doc = XDocument.Parse(fragments);
                 XmlDocument xmlDoc = ToXmlDocument(doc);
-                XmlNodeList nodeList = xmlDoc.SelectNodes("//roots/iep");
+                XmlNodeList nodeList = xmlDoc.SelectNodes("//root/iep");
                 foreach (XmlNode node in nodeList)
                 {
                     SpecialEducationReference spEducation = new SpecialEducationReference();// Need to add all the Link references 
@@ -923,10 +924,10 @@ namespace BPS.EdOrg.Loader
                     spEducation.specialEducationHoursPerWeek = Int32.Parse(node.SelectSingleNode("specialEducationHoursPerWeek").InnerText ?? null); // Null Check req need to Modify
                     spEducation.specialEducationSettingDescriptor = Constants.getSpecialEducationSetting(Int32.Parse(node.SelectSingleNode("SpecialEducationSetting").InnerText ?? null)); // Null Check req need to Modify
                     //Check required fied exist in XML source 
-                    if (spEducation.programReference.educationOrganizationId != null && spEducation.programReference.name != null && spEducation.programReference.type != null && spEducation.beginDate != null && spEducation.studentReference.studentUniqueId != null) // 
+                    if (!string.IsNullOrEmpty(spEducation.programReference.educationOrganizationId) && !string.IsNullOrEmpty(spEducation.programReference.name)  && !string.IsNullOrEmpty(spEducation.programReference.type) && !string.IsNullOrEmpty(spEducation.beginDate) && !string.IsNullOrEmpty(spEducation.studentReference.studentUniqueId)) // 
                     {
                         // Check if the Program already exists in the ODS if not first enter the Progam.
-                        // VerifyProgramData(token, spEducation.programReference.educationOrganizationId, spEducation.programReference.name, spEducation.programReference.type);
+                        VerifyProgramData(token, spEducation.programReference.educationOrganizationId, spEducation.programReference.name, spEducation.programReference.type);
                         //KRS - Proram Type ID does not exist in the XML 
                         InsertAlertDataStudentSpecialEducation(token, spEducation);
                     }
@@ -946,12 +947,12 @@ namespace BPS.EdOrg.Loader
         }
 
 
-        public static IRestResponse VerifyProgramData(string token, string educationOrganizationId, string programName, string programTypeId)
+        public static IRestResponse VerifyProgramData(string token, string educationOrganizationId, string programName, string programType)
         {
             IRestResponse response = null;
             try
             {
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program + Constants.educationOrganizationId + educationOrganizationId + Constants.programName + programName + Constants.programType + programTypeId);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program + Constants.educationOrganizationId + educationOrganizationId + Constants.programName + programName + Constants.programType + programType);
 
                 response = GetData(client, token);
                 if (!IsSuccessStatusCode((int)response.StatusCode))
@@ -968,7 +969,7 @@ namespace BPS.EdOrg.Loader
                             }
                         },
                         programId = null,
-                        type = programTypeId,
+                        type = programType,
                         sponsorType = string.Empty,
                         name = programName,
 
@@ -977,7 +978,7 @@ namespace BPS.EdOrg.Loader
 
                     string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
                     response = PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program), token); // Need to Check - Get requred here 
-                    Log.Info("Check if the program data exists in EdfI Program for programTypeId : " + programTypeId);
+                    Log.Info("Check if the program data exists in EdfI Program for programTypeId : " + programType);
                 }
                 return response;
             }
@@ -1147,7 +1148,10 @@ namespace BPS.EdOrg.Loader
                     }
 
                     else
+                    {
                         response = PostData(json, client, token);
+                    }
+                        
 
                 }
             }
