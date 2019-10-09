@@ -16,6 +16,7 @@ using System.Net.Mail;
 using System.Net.Mime;
 using System.Linq;
 using BPS.EdOrg.Loader.Models;
+using BPS.EdOrg.Loader.XMLDataLoad;
 namespace BPS.EdOrg.Loader
 {
     class Program

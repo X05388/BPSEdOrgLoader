@@ -6,7 +6,7 @@ using System.IO;
 using System.Configuration;
 using System.Linq;
 using BPS.EdOrg.Loader.Models;
-namespace BPS.EdOrg.Loader
+namespace BPS.EdOrg.Loader.XMLDataLoad
 {
     class ParseXmls
     {

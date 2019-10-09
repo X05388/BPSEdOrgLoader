@@ -72,7 +72,7 @@
     <Compile Include="CommandLineParser.cs" />
     <Compile Include="MetaData\EdorgConfiguration.cs" />
     <Compile Include="Models\StudentEducationData.cs" />
-    <Compile Include="ParseXmls.cs" />
+    <Compile Include="XMLDataLoad\ParseXmls.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RestServiceManager.cs" />
