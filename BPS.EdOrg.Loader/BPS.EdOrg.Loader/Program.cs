@@ -23,7 +23,7 @@ namespace BPS.EdOrg.Loader
     {
         private static readonly Process Process = new Process();
         private static readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        
+
 
         static void Main(string[] args)
         {
@@ -54,7 +54,7 @@ namespace BPS.EdOrg.Loader
                     RunDeptFile(param);
                     RunJobCodeFile(param);
                     RunAlertFile(param);
-                             
+
                 }
                 catch (Exception ex)
                 {
@@ -140,7 +140,7 @@ namespace BPS.EdOrg.Loader
         {
             Log.Info(e.Data);
         }
-        
+
         private static void RunDeptFile(CommandLineParser param)
         {
 
@@ -164,8 +164,8 @@ namespace BPS.EdOrg.Loader
             var token = GetAuthToken();
             if (token != null)
             {
-               
-                UpdateStaffEmploymentAssociationData(token,param.Object);
+
+                UpdateStaffEmploymentAssociationData(token, param.Object);
                 UpdateStaffAssignmentAssociationData(token, param.Object);
             }
 
@@ -177,12 +177,12 @@ namespace BPS.EdOrg.Loader
 
             //For 504xml.xml            
             var token = GetAuthToken();
-            if (token != null)           
-                UpdateSpecialEducationData(token);               
+            if (token != null)
+                UpdateSpecialEducationData(token);
             else Log.Error("Token is not generated, ODS not updated");
 
         }
-   
+
         /// <summary>
         /// Token is needed for the Bearer value to Post data 
         /// </summary>
@@ -281,11 +281,11 @@ namespace BPS.EdOrg.Loader
                 //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
                 var existingStaffIds = GetStaffList(configuration);
                 var nodeList = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationAssociation").Cast<XmlNode>().OrderBy(element => element.SelectSingleNode("EmploymentPeriod/EndDate").InnerText).ToList();
-                                  
+
                 foreach (XmlNode node in nodeList)
                 {
                     // Extracting the data froom the XMl file
-                    var staffEmploymentNodeList = GetEmploymentAssociationXml(node);                   
+                    var staffEmploymentNodeList = GetEmploymentAssociationXml(node);
 
                     if (staffEmploymentNodeList != null)
                     {
@@ -302,7 +302,7 @@ namespace BPS.EdOrg.Loader
                             if (!existingStaffIds.Any(p => p == staffEmploymentNodeList.staffUniqueIdValue))
                                 UpdatingNewStaffData(token, staffEmploymentNodeList.staffUniqueIdValue, staffEmploymentNodeList.staff.firstName, staffEmploymentNodeList.staff.lastName, staffEmploymentNodeList.staff.birthDate);
                         }
-                            
+
 
                         // updating the values in Employment Association 
                         if (!string.IsNullOrEmpty(staffEmploymentNodeList.staffUniqueIdValue) && !string.IsNullOrEmpty(staffEmploymentNodeList.hireDateValue) && !string.IsNullOrEmpty(staffEmploymentNodeList.empDesc))
@@ -316,7 +316,7 @@ namespace BPS.EdOrg.Loader
 
                         }
                     }
-                    
+
                 }
                 if (File.Exists(Constants.LOG_FILE))
                     SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
@@ -364,7 +364,7 @@ namespace BPS.EdOrg.Loader
 
                 return staffEmploymentList;
             }
-            
+
             catch (Exception ex)
             {
                 Log.Error("Error getting Emplyment data from StaffAssociation xml : Exception : " + ex.Message);
@@ -381,7 +381,7 @@ namespace BPS.EdOrg.Loader
         private static void UpdateStaffAssignmentAssociationData(string token, EdorgConfiguration configuration)
         {
             try
-            {               
+            {
                 XmlDocument xmlDoc = LoadXml();
                 //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
                 //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
@@ -391,7 +391,7 @@ namespace BPS.EdOrg.Loader
                 {
                     // Extracting the data froom the XMl file
                     var staffAssignmentNodeList = GetAssignmentAssociationXml(node);
-                    if(staffAssignmentNodeList != null)
+                    if (staffAssignmentNodeList != null)
                     {
                         if (staffAssignmentNodeList.educationOrganizationIdValue != null)
                         {
@@ -418,18 +418,18 @@ namespace BPS.EdOrg.Loader
 
                         }
                     }
-                    
+
 
                 }
 
                 if (File.Exists(Constants.LOG_FILE))
                     SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Error(ex.Message);
-            }       
-            
+            }
+
         }
 
         private static StaffAssignmentAssociationData GetAssignmentAssociationXml(XmlNode node)
@@ -440,7 +440,7 @@ namespace BPS.EdOrg.Loader
                 XmlNode staffNode = node.SelectSingleNode("StaffReference/StaffIdentity");
                 XmlNode EducationNode = node.SelectSingleNode("EducationOrganizationReference/EducationOrganizationIdentity");
                 XmlNode EmploymentNode = node.SelectSingleNode("EmploymentPeriod");
-                if (staffNode == null && EducationNode == null) Log.Error("Nodes not reurning any data for Assignment");                
+                if (staffNode == null && EducationNode == null) Log.Error("Nodes not reurning any data for Assignment");
                 XmlNode staffClassificationNode = node.SelectSingleNode("StaffClassification");
                 XmlNode EmploymentStatus = node.SelectSingleNode("EmploymentStatus");
                 if (staffNode != null && EducationNode != null)
@@ -476,14 +476,14 @@ namespace BPS.EdOrg.Loader
             try
             {
                 IRestResponse response = null;
-                
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl + Constants.staffUniqueId1 + staffData.staffUniqueIdValue + Constants.employmentStatusDescriptor+ staffData.empDesc);
+
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl + Constants.staffUniqueId1 + staffData.staffUniqueIdValue + Constants.employmentStatusDescriptor + staffData.empDesc);
                 response = GetData(client, token);
                 if (IsSuccessStatusCode((int)response.StatusCode))
                 {
                     if (response.Content.Length > 2)
                     {
-                        dynamic original = JsonConvert.DeserializeObject(response.Content);                         
+                        dynamic original = JsonConvert.DeserializeObject(response.Content);
                         foreach (var data in original)
                         {
                             var endDate = Convert.ToString(data.endDate) ?? null;
@@ -492,7 +492,7 @@ namespace BPS.EdOrg.Loader
 
                             else break;
                         }
-                     
+
                     }
 
                 }
@@ -532,8 +532,8 @@ namespace BPS.EdOrg.Loader
             }
             catch (Exception ex)
             {
-                Log.Error("Error inserting staff in edfi.staff for Staff Id : " + staffUniqueIdValue +" Exception : "+ ex.Message);
-                
+                Log.Error("Error inserting staff in edfi.staff for Staff Id : " + staffUniqueIdValue + " Exception : " + ex.Message);
+
             }
 
 
@@ -546,9 +546,9 @@ namespace BPS.EdOrg.Loader
         private static string GetEmploymentAssociationId(string token, StaffEmploymentAssociationData staffData)
         {
             IRestResponse response = null;
-           
+
             var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffEmploymentUrl + Constants.educationOrganizationId + Constants.educationOrganizationIdValue + Constants.employmentStatusDescriptor + staffData.empDesc + Constants.hireDate + staffData.hireDateValue + Constants.staffUniqueId + staffData.staffUniqueIdValue);
-           
+
             response = GetData(client, token);
             if (IsSuccessStatusCode((int)response.StatusCode))
             {
@@ -558,7 +558,7 @@ namespace BPS.EdOrg.Loader
                     var id = original.id;
                     if (id != null)
                         return id;
-                }      
+                }
 
             }
             else
@@ -567,35 +567,35 @@ namespace BPS.EdOrg.Loader
                 var rootObject = new StaffEmploymentDescriptor
                 {
 
-                educationOrganizationReference = new EdFiEducationReference
+                    educationOrganizationReference = new EdFiEducationReference
                     {
                         educationOrganizationId = Constants.educationOrganizationIdValue,
-                             Link = new Link()
-                             {
-                                    Rel = string.Empty,
-                                    Href = string.Empty
-                             }
+                        Link = new Link()
+                        {
+                            Rel = string.Empty,
+                            Href = string.Empty
+                        }
                     },
                     staffReference = new EdFiStaffReference
                     {
                         staffUniqueId = staffData.staffUniqueIdValue,
 
-                                Link = new Link
-                                {
-                                    Rel = string.Empty,
-                                    Href = string.Empty
-                                }
+                        Link = new Link
+                        {
+                            Rel = string.Empty,
+                            Href = string.Empty
+                        }
                     },
-                        employmentStatusDescriptor = staffData.empDesc,
-                        hireDate = staffData.hireDateValue,
-                        endDate = staffData.endDateValue
+                    employmentStatusDescriptor = staffData.empDesc,
+                    hireDate = staffData.hireDateValue,
+                    endDate = staffData.endDateValue
                 };
 
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
                 PostData(json, client, token);
-                Log.Info("Inserted into StaffEducationOrganizationEmploymentAssociation for Staff Id : "+ staffData.staffUniqueIdValue);
+                Log.Info("Inserted into StaffEducationOrganizationEmploymentAssociation for Staff Id : " + staffData.staffUniqueIdValue);
             }
-                    
+
             return null;
         }
 
@@ -603,7 +603,7 @@ namespace BPS.EdOrg.Loader
         /// Get the Id from the [StaffEducationOrganizationAssignmentAssociation] table.
         /// </summary>
         /// <returns></returns>
-        private static string GetAssignmentAssociationId(string token,string educationOrganizationId, StaffAssignmentAssociationData staffData)
+        private static string GetAssignmentAssociationId(string token, string educationOrganizationId, StaffAssignmentAssociationData staffData)
         {
             IRestResponse response = null;
             try
@@ -675,8 +675,8 @@ namespace BPS.EdOrg.Loader
 
             catch (Exception ex)
             {
-                Log.Error(" Error updating  StaffEducationOrganizationAssignmentAssociation for Staff Id : " + staffData.staffUniqueIdValue +ex.Message);
-                
+                Log.Error(" Error updating  StaffEducationOrganizationAssignmentAssociation for Staff Id : " + staffData.staffUniqueIdValue + ex.Message);
+
             }
             return null;
         }
@@ -685,13 +685,13 @@ namespace BPS.EdOrg.Loader
         /// Updates the Position title in  [StaffEducationOrganizationAssignmentAssociation] table.
         /// </summary>
         /// <returns></returns>
-        private static void UpdatePostionTitle(string token,string id,string educationOrganizationId, StaffAssignmentAssociationData staffData)
+        private static void UpdatePostionTitle(string token, string id, string educationOrganizationId, StaffAssignmentAssociationData staffData)
         {
             try
             {
 
                 IRestResponse response = null;
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] +Constants.StaffAssignmentUrl + "/" + id);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl + "/" + id);
                 var rootObject = new StaffAssignmentDescriptor
                 {
                     id = id,
@@ -716,7 +716,7 @@ namespace BPS.EdOrg.Loader
                     },
                     employmentStaffEducationOrganizationEmploymentAssociationReference = new EdfiEmploymentAssociationReference
                     {
-                        educationOrganizationId =Constants.educationOrganizationIdValue,
+                        educationOrganizationId = Constants.educationOrganizationIdValue,
                         staffUniqueId = staffData.staffUniqueIdValue,
                         employmentStatusDescriptor = staffData.empDesc,
                         hireDate = staffData.hireDateValue,
@@ -732,7 +732,7 @@ namespace BPS.EdOrg.Loader
                     endDate = staffData.endDateValue,
                     orderOfAssignment = staffData.jobOrderAssignment,
                     positionTitle = staffData.positionCodeDescription
-                };                
+                };
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
                 response = PutData(json, client, token);
                 Log.Info("Updating  StaffEducationOrganizationAssignmentAssociation for Staff Id : " + staffData.staffUniqueIdValue);
@@ -742,22 +742,22 @@ namespace BPS.EdOrg.Loader
             catch (Exception ex)
             {
                 Log.Error(" Error updating  StaffEducationOrganizationAssignmentAssociation for Staff Id : " + staffData.staffUniqueIdValue);
-                
+
             }
 
         }
-                             
+
         /// <summary>
         /// Updates the enddate to [StaffEducationOrganizationAssignmentAssociation] table.
         /// </summary>
         /// <returns></returns>
         private static void UpdateEndDate(string token, string id, StaffEmploymentAssociationData staffData)
         {
-           
+
             try
-            {                
+            {
                 IRestResponse response = null;
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffEmploymentUrl + "/"+id);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffEmploymentUrl + "/" + id);
                 var rootObject = new StaffEmploymentDescriptor
                 {
                     id = id,
@@ -784,18 +784,18 @@ namespace BPS.EdOrg.Loader
                     hireDate = staffData.hireDateValue,
                     endDate = staffData.endDateValue
                 };
-                
+
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
                 response = PutData(json, client, token);
                 Log.Info("Updated StaffEducationOrganizationEmploymentAssociation for Staff Id : " + staffData.staffUniqueIdValue);
-                
+
             }
 
             catch (Exception ex)
             {
                 Log.Error("Something went wrong while updating the data in ODS, check the XML values" + ex.Message);
             }
-           
+
         }
 
 
@@ -811,7 +811,7 @@ namespace BPS.EdOrg.Loader
 
         private static void UpdateSpecialEducationData(string token)
         {
-            
+
             try
             {
                 string typeValue = null;
@@ -821,7 +821,7 @@ namespace BPS.EdOrg.Loader
 
 
                 var fragments = File.ReadAllText(ConfigurationManager.AppSettings["XMLDeploymentPath"] + $"/504inXML.xml").Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
-                fragments =fragments.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>", "");
+                fragments = fragments.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>", "");
                 fragments = fragments.Replace("504Eligibility", "_504Eligibility");
                 var myRootedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><roots>" + fragments + "</roots>";
                 var doc = XDocument.Parse(myRootedXml);
@@ -830,21 +830,21 @@ namespace BPS.EdOrg.Loader
                 //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
                 XmlNodeList nodeList = xmlDoc.SelectNodes("//roots/root");
 
-               
+
                 foreach (XmlNode node in nodeList)
                 {
                     List<SpecialEducationReference> spEducationList = new List<SpecialEducationReference>();
-                    
-                    XmlNode ProgramNode = node.SelectSingleNode("programReference");                    
+
+                    XmlNode ProgramNode = node.SelectSingleNode("programReference");
                     if (ProgramNode != null)
                     {
                         educationOrganizationIdValue = ProgramNode.SelectSingleNode("educationOrganizationId").InnerText ?? null;
                         typeValue = ProgramNode.SelectSingleNode("type").InnerText ?? null;
                         nameValue = ProgramNode.SelectSingleNode("name").InnerText ?? null;
-                        
+
                     }
 
-                    XmlNode studentNode = node.SelectSingleNode("studentReference");                    
+                    XmlNode studentNode = node.SelectSingleNode("studentReference");
                     if (studentNode != null)
                     {
                         studentUniqueIdValue = studentNode.SelectSingleNode("studentUniqueId").InnerText ?? null;
@@ -860,13 +860,13 @@ namespace BPS.EdOrg.Loader
                     string iepParentResponse = node.SelectSingleNode("iepParentResponse").InnerText ?? null;
                     string iepSignatureDate = node.SelectSingleNode("iepSignatureDate").InnerText ?? null;
                     string Eligibility504 = node.SelectSingleNode("_504Eligibility").InnerText ?? null;
-                  
+
                     if (educationOrganizationIdValue != null && nameValue != null && typeValue != null)
-                    { 
+                    {
                         // Check if the Program already exists in the ODS if not first enter the Progam.
                         VerifyProgramData(token, educationOrganizationIdValue, nameValue, typeValue);
-                        if(studentUniqueIdValue != null)
-                        InsertAlertDataSpecialEducation(token,typeValue,nameValue,educationOrganizationIdValue,studentUniqueIdValue, beginDate, endDate, ideaEligibility, iepBeginDate, iepEndDate, iepReviewDate, iepParentResponse, iepSignatureDate, Eligibility504);
+                        if (studentUniqueIdValue != null)
+                            InsertAlertDataSpecialEducation(token, typeValue, nameValue, educationOrganizationIdValue, studentUniqueIdValue, beginDate, endDate, ideaEligibility, iepBeginDate, iepEndDate, iepReviewDate, iepParentResponse, iepSignatureDate, Eligibility504);
 
                     }
 
@@ -886,12 +886,7 @@ namespace BPS.EdOrg.Loader
         {
             try
             {
-                string typeValue = null;
-                string nameValue = null;
-                string educationOrganizationIdValue = null;
-                string studentUniqueIdValue = null;
-
-                var fragments = File.ReadAllText(ConfigurationManager.AppSettings["XMLDeploymentPath"] + $"AspenInXML.xml").Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+                var fragments = File.ReadAllText(ConfigurationManager.AppSettings["XMLDeploymentPath"] + $"Aspen_in_XML.xml").Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
                 fragments = fragments.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>", "");
                 fragments = fragments.Replace("504Eligibility", "_504Eligibility");
                 var myRootedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><roots>" + fragments + "</roots>";
@@ -902,7 +897,6 @@ namespace BPS.EdOrg.Loader
                 {
                     SpecialEducationReference spEducation = new SpecialEducationReference();// Need to add all the Link references 
                     spEducation.educationOrganizationReference.educationOrganizationId = Constants.educationOrganizationIdValue;
-
                     XmlNode ProgramNode = node.SelectSingleNode("programReference");
                     if (ProgramNode != null)
                     {
@@ -910,13 +904,11 @@ namespace BPS.EdOrg.Loader
                         spEducation.programReference.type = ProgramNode.SelectSingleNode("type").InnerText ?? null;
                         spEducation.programReference.name = ProgramNode.SelectSingleNode("name").InnerText ?? null;
                     }
-
                     XmlNode studentNode = node.SelectSingleNode("studentReference");
                     if (studentNode != null)
                     {
                         spEducation.studentReference.studentUniqueId = studentNode.SelectSingleNode("studentUniqueId").InnerText ?? null;
                     }
-
                     spEducation.beginDate = node.SelectSingleNode("beginDate").InnerText ?? null;
                     spEducation.endDate = node.SelectSingleNode("endDate").InnerText ?? null;
                     spEducation.ideaEligibility = node.SelectSingleNode("ideaEligiblity").InnerText.Equals("true") ? true : false;
@@ -930,20 +922,19 @@ namespace BPS.EdOrg.Loader
                     spEducation.schoolHoursPerWeek = Int32.Parse(node.SelectSingleNode("schoolHoursPerWeek").InnerText ?? null); // Null Check req need to Modify
                     spEducation.specialEducationHoursPerWeek = Int32.Parse(node.SelectSingleNode("specialEducationHoursPerWeek").InnerText ?? null); // Null Check req need to Modify
                     spEducation.specialEducationSettingDescriptor = Constants.getSpecialEducationSetting(Int32.Parse(node.SelectSingleNode("SpecialEducationSetting").InnerText ?? null)); // Null Check req need to Modify
-
-                    if (spEducation.programReference.educationOrganizationId != null && spEducation.programReference.name != null && spEducation.programReference.type != null && spEducation.beginDate!=null && spEducation.studentReference.studentUniqueId!=null) // 
+                    //Check required fied exist in XML source 
+                    if (spEducation.programReference.educationOrganizationId != null && spEducation.programReference.name != null && spEducation.programReference.type != null && spEducation.beginDate != null && spEducation.studentReference.studentUniqueId != null) // 
                     {
                         // Check if the Program already exists in the ODS if not first enter the Progam.
-                        VerifyProgramData(token, educationOrganizationIdValue, nameValue, typeValue);
-                        if (studentUniqueIdValue != null)
-                            InsertAlertDataStudentSpecialEducation(token, spEducation);
+                        // VerifyProgramData(token, spEducation.programReference.educationOrganizationId, spEducation.programReference.name, spEducation.programReference.type);
+                        //KRS - Proram Type ID does not exist in the XML 
+                        InsertAlertDataStudentSpecialEducation(token, spEducation);
                     }
                     else
                     {
                         Log.Info("Required fields are empty for studentUniqueId:" + spEducation.studentReference.studentUniqueId);
                     }
                 }
-
                 if (File.Exists(Constants.LOG_FILE))
                     SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
             }
@@ -955,12 +946,12 @@ namespace BPS.EdOrg.Loader
         }
 
 
-        public static IRestResponse VerifyProgramData(string token, string educationOrganizationId,string programName,string programTypeId)
+        public static IRestResponse VerifyProgramData(string token, string educationOrganizationId, string programName, string programTypeId)
         {
             IRestResponse response = null;
             try
             {
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program+ Constants.educationOrganizationId + educationOrganizationId +Constants.programName+programName +Constants.programType+programTypeId);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program + Constants.educationOrganizationId + educationOrganizationId + Constants.programName + programName + Constants.programType + programTypeId);
 
                 response = GetData(client, token);
                 if (!IsSuccessStatusCode((int)response.StatusCode))
@@ -983,10 +974,10 @@ namespace BPS.EdOrg.Loader
 
 
                     };
-                    
+
                     string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
-                    response = PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program), token);
-                    Log.Info("Check if the program data exists in EdfI Program for programTypeId : "+ programTypeId);
+                    response = PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program), token); // Need to Check - Get requred here 
+                    Log.Info("Check if the program data exists in EdfI Program for programTypeId : " + programTypeId);
                 }
                 return response;
             }
@@ -999,9 +990,9 @@ namespace BPS.EdOrg.Loader
 
         }
 
-       
-        private static void InsertAlertDataSpecialEducation(string token,string type,string name,string educationId, string studentId, string beginDate, string endDate, bool ideaEligibility, string iepBeginDate, string iepEndDate, string iepReviewDate, string iepParentResponse, string iepSignatureDate, string Eligibility504)
-        { 
+
+        private static void InsertAlertDataSpecialEducation(string token, string type, string name, string educationId, string studentId, string beginDate, string endDate, bool ideaEligibility, string iepBeginDate, string iepEndDate, string iepReviewDate, string iepParentResponse, string iepSignatureDate, string Eligibility504)
+        {
             try
             {
                 IRestResponse response = null;
@@ -1053,9 +1044,9 @@ namespace BPS.EdOrg.Loader
                 };
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
 
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation+Constants.studentUniqueId+ studentId+Constants.beginDate+ iepBeginDate);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + Constants.studentUniqueId + studentId + Constants.beginDate + iepBeginDate);
                 response = GetData(client, token);
-                               
+
                 dynamic original = JsonConvert.DeserializeObject(response.Content);
                 if (IsSuccessStatusCode((int)response.StatusCode))
                 {
@@ -1078,7 +1069,7 @@ namespace BPS.EdOrg.Loader
                                         if (DateTime.TryParse(iepBeginDate, out inputDateTime))
                                         {
                                             var result = DateTime.Compare(inputDateTime, iepDate);
-                                            if (stuId == studentId && result == 0)                                            
+                                            if (stuId == studentId && result == 0)
                                                 response = PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + "/" + id), token);
                                             else
                                                 response = PostData(json, client, token);
@@ -1103,7 +1094,7 @@ namespace BPS.EdOrg.Loader
             {
                 Log.Error("Something went wrong while updating the data in ODS, check the XML values" + ex.Message);
             }
-            
+
 
         }
 
@@ -1114,7 +1105,9 @@ namespace BPS.EdOrg.Loader
                 IRestResponse response = null;
                 string json = JsonConvert.SerializeObject(spEducation, Newtonsoft.Json.Formatting.Indented);
 
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + Constants.studentUniqueId + spEducation.studentReference.studentUniqueId + Constants.beginDate + spEducation.iepBeginDate);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.beginDate + spEducation.iepBeginDate + Constants.
+                    educationOrganizationId + spEducation.educationOrganizationReference.educationOrganizationId + Constants.programEducationOrganizationId + spEducation.programReference.educationOrganizationId +
+                    Constants.programName + spEducation.programReference.name + Constants.programType + spEducation.programReference.type + Constants.studentUniqueId + spEducation.studentReference.studentUniqueId);
                 response = GetData(client, token);
 
                 dynamic original = JsonConvert.DeserializeObject(response.Content);
@@ -1190,10 +1183,10 @@ namespace BPS.EdOrg.Loader
 
         }
 
-       
+
         private static List<SchoolDept> GetDeptList(EdorgConfiguration configuration)
         {
-            
+
             List<SchoolDept> existingDeptIds = new List<SchoolDept>();
             try
             {
@@ -1279,7 +1272,7 @@ namespace BPS.EdOrg.Loader
 
             catch (Exception ex)
             {
-                string message = $"Exception while sending email "+ ex;
+                string message = $"Exception while sending email " + ex;
                 //new EmailException(message, ex);
                 return false;
             }
