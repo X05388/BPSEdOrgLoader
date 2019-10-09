@@ -234,6 +234,14 @@ namespace BPS.EdOrg.Loader
             request.RequestFormat = DataFormat.Json;
             return client.Execute(request);
         }
+        private static IRestResponse GetData(string jsonData, RestClient client, string token)
+        {
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("Authorization", "Bearer  " + token);
+            request.AddParameter("application/json; charset=utf-8", ParameterType.RequestBody);
+            request.RequestFormat = DataFormat.Json;
+            return client.Execute(request);
+        }
 
         /// <summary>
         /// Checks the value of the Status code. 
@@ -927,9 +935,12 @@ namespace BPS.EdOrg.Loader
                     if (!string.IsNullOrEmpty(spEducation.programReference.educationOrganizationId) && !string.IsNullOrEmpty(spEducation.programReference.name)  && !string.IsNullOrEmpty(spEducation.programReference.type) && !string.IsNullOrEmpty(spEducation.beginDate) && !string.IsNullOrEmpty(spEducation.studentReference.studentUniqueId)) // 
                     {
                         // Check if the Program already exists in the ODS if not first enter the Progam.
-                        VerifyProgramData(token, spEducation.programReference.educationOrganizationId, spEducation.programReference.name, spEducation.programReference.type);
+                        IRestResponse response = VerifyProgramData(token, spEducation.programReference.educationOrganizationId, spEducation.programReference.name, spEducation.programReference.type);
                         //KRS - Proram Type ID does not exist in the XML 
+                        if((int)response.StatusCode==304)
                         InsertAlertDataStudentSpecialEducation(token, spEducation);
+                        else
+                            Log.Info("Program :" + spEducation.programReference.name + "does not exist in ODS");
                     }
                     else
                     {
@@ -977,7 +988,7 @@ namespace BPS.EdOrg.Loader
                     };
 
                     string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
-                    response = PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program), token); // Need to Check - Get requred here 
+                    response = GetData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program), token); // Need to Check - Get requred here 
                     Log.Info("Check if the program data exists in EdfI Program for programTypeId : " + programType);
                 }
                 return response;
