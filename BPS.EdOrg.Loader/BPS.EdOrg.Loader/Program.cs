@@ -53,9 +53,9 @@ namespace BPS.EdOrg.Loader
                     LogConfiguration(param.Object);
 
                     // creating the xml and executing the file through command line parser
-                    RunDeptFile(param);
-                    RunJobCodeFile(param);
-                    RunAlertFile(param);
+                    //RunDeptFile(param);
+                    //RunJobCodeFile(param);
+                    RunAlertIEPFile(param);
 
                 }
                 catch (Exception ex)
@@ -174,7 +174,7 @@ namespace BPS.EdOrg.Loader
             else Log.Error("Token is not generated, ODS not updated");
 
         }
-        private static void RunAlertFile(CommandLineParser param)
+        private static void RunAlertIEPFile(CommandLineParser param)
         {
 
             //For 504xml.xml            
@@ -976,7 +976,6 @@ namespace BPS.EdOrg.Loader
             {
                 Log.Error(ex.Message);
             }
-
         }
 
 
