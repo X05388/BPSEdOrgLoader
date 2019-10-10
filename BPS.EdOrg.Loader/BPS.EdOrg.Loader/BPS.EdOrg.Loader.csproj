@@ -68,10 +68,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiClient\TokenRetriever.cs" />
+    <Compile Include="EmailException.cs" />
     <Compile Include="MetaData\Constants.cs" />
     <Compile Include="MetaData\CommandLineParser.cs" />
     <Compile Include="MetaData\EdorgConfiguration.cs" />
     <Compile Include="Models\StudentEducationData.cs" />
+    <Compile Include="obj\Debug\TemporaryGeneratedFile_036C0B5B-1481-4323-8D20-8F5ADCB23D92.cs" />
+    <Compile Include="obj\Debug\TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs" />
+    <Compile Include="obj\Debug\TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10BC5D3.cs" />
+    <Compile Include="obj\Release\TemporaryGeneratedFile_036C0B5B-1481-4323-8D20-8F5ADCB23D92.cs" />
+    <Compile Include="obj\Release\TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs" />
+    <Compile Include="obj\Release\TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10BC5D3.cs" />
     <Compile Include="XMLDataLoad\ParseXmls.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -82,9 +89,46 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="bin\Debug\BPS.EdOrg.Loader.exe.config" />
+    <None Include="bin\Release\BPS.EdOrg.Loader.exe.config" />
+    <None Include="bin\Release\log\BPS.EdOrg.Loader.log" />
+    <None Include="bin\Release\log\BPS.EdOrg.Loader.log.2019-07-16" />
+    <None Include="bin\Release\log\BPS.EdOrg.Loader.log.2019-08-07" />
+    <None Include="bin\Release\log\BPS.EdOrg.Loader.log.2019-09-16" />
+    <None Include="bin\Release\log\BPS.EdOrg.Loader.log.2019-09-17" />
+    <None Include="bin\Release\log\BPS.EdOrg.Loader.log.2019-09-26" />
+    <None Include="BPS.EdOrg.Loader_TemporaryKey.pfx" />
+    <None Include="obj\Release\BPS.EdOrg.Loader.csproj.CopyComplete" />
+    <None Include="obj\Release\BPS.EdOrg.Loader.csproj.CoreCompileInputs.cache" />
+    <None Include="obj\Release\BPS.EdOrg.Loader.csprojAssemblyReference.cache" />
+    <None Include="obj\Release\DesignTimeResolveAssemblyReferencesInput.cache" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="bin\Debug\BPS.EdOrg.Loader.exe" />
+    <Content Include="bin\Debug\BPS.EdOrg.Loader.pdb" />
+    <Content Include="bin\Release\app.publish\BPS.EdOrg.Loader.exe" />
+    <Content Include="bin\Release\BPS.EdOrg.Loader.exe" />
+    <Content Include="bin\Release\BPS.EdOrg.Loader.pdb" />
+    <Content Include="bin\Release\BPS.EdOrg.Loader.vshost.exe" />
+    <Content Include="bin\Release\EdFi.OdsApi.Sdk.dll" />
+    <Content Include="bin\Release\FluentCommandLineParser.dll" />
+    <Content Include="bin\Release\FluentCommandLineParser.pdb" />
+    <Content Include="bin\Release\FluentCommandLineParser.xml" />
+    <Content Include="bin\Release\JsonSubTypes.dll" />
+    <Content Include="bin\Release\log4net.dll" />
+    <Content Include="bin\Release\log4net.xml" />
+    <Content Include="bin\Release\Newtonsoft.Json.dll" />
+    <Content Include="bin\Release\Newtonsoft.Json.xml" />
+    <Content Include="bin\Release\RestSharp.dll" />
+    <Content Include="bin\Release\RestSharp.xml" />
+    <Content Include="obj\Release\BPS.EdOrg.Loader.csproj.FileListAbsolute.txt" />
+    <Content Include="obj\Release\BPS.EdOrg.Loader.exe" />
+    <Content Include="obj\Release\BPS.EdOrg.Loader.pdb" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="obj\Release\TempPE\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
