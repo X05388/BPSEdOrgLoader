@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-namespace BPS.EdOrg.Loader
+using System.Configuration;
+namespace BPS.EdOrg.Loader.MetaData
 {
     public class EdorgConfiguration
     {

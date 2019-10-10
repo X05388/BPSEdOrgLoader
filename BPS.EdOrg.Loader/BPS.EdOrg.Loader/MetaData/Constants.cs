@@ -10,18 +10,23 @@ namespace BPS.EdOrg.Loader
     class Constants
     {
         public static string educationOrganizationId = @"?educationOrganizationId=";
+        public static string SpecEduEducationOrganizationId = @"&educationOrganizationId=";
         public static string educationOrganizationIdValue = @"350000";
         public static string employmentStatusDescriptor = @"&employmentStatusDescriptor=";
         public static string employmentStatusDescriptorValue = @"Tenured%20or%20permanent";
         public static string staffClassificationDescriptorId = @"&StaffClassificationDescriptorId=";
         public static string hireDate = @"&hireDate=";
         public static string beginDate = @"&beginDate=";
+        public static string SpecEduBeginDate = @"?beginDate=";
         public static string beginDateDefaultValue = @"2017-07-01";
         public static string staffUniqueId = @"&staffUniqueId=";
         public static string staffUniqueId1 = @"?staffUniqueId="; 
         public static string programName = @"&name=";
         public static string programType = @"&type=";
+        public static string SpecEduProgramName = @"&programName=";
+        public static string SpecEduProgramType = @"&programType=";
         public static string studentUniqueId = @"?studentUniqueId=";
+        public static string SpecEduStudentUniqueId = @"&studentUniqueId=";
         public static string programEducationOrganizationId = @"&programEducationOrganizationId=";
 
 

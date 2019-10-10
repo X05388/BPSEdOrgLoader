@@ -69,13 +69,13 @@
   <ItemGroup>
     <Compile Include="ApiClient\TokenRetriever.cs" />
     <Compile Include="MetaData\Constants.cs" />
-    <Compile Include="CommandLineParser.cs" />
+    <Compile Include="MetaData\CommandLineParser.cs" />
     <Compile Include="MetaData\EdorgConfiguration.cs" />
     <Compile Include="Models\StudentEducationData.cs" />
     <Compile Include="XMLDataLoad\ParseXmls.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RestServiceManager.cs" />
+    <Compile Include="EdFi\Api\RestServiceManager.cs" />
     <Compile Include="Models\SchoolResponse.cs" />
     <Compile Include="Models\StaffEducationData.cs" />
     <Compile Include="XMLDataLoad\StudentSpecialEducationProgram.cs" />

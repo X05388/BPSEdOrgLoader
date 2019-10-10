@@ -17,6 +17,8 @@ using System.Net.Mime;
 using System.Linq;
 using BPS.EdOrg.Loader.Models;
 using BPS.EdOrg.Loader.XMLDataLoad;
+using BPS.EdOrg.Loader.MetaData;
+using BPS.EdOrg.Loader.EdFi.Api;
 namespace BPS.EdOrg.Loader
 {
     class Program
@@ -178,7 +180,10 @@ namespace BPS.EdOrg.Loader
             //For 504xml.xml            
             var token = GetAuthToken();
             if (token != null)
-                UpdateSpecialEducationData(token);
+            {
+                UpdateAlertSpecialEducationData(token);
+                UpdateIEPSpecialEducationProgramAssociationData(token);
+            }
             else Log.Error("Token is not generated, ODS not updated");
 
         }
@@ -817,7 +822,7 @@ namespace BPS.EdOrg.Loader
             return xmlDocument;
         }
 
-        private static void UpdateSpecialEducationData(string token)
+        private static void UpdateAlertSpecialEducationData(string token)
         {
 
             try
@@ -890,57 +895,74 @@ namespace BPS.EdOrg.Loader
 
         }
 
-        private static void UpdateSpecialEducationProgramAssociationData(string token)
+        private static void UpdateIEPSpecialEducationProgramAssociationData(string token)
         {
             try
             {
                 var fragments = File.ReadAllText(ConfigurationManager.AppSettings["XMLDeploymentPath"] + $"Aspen_in_XML.xml").Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
                 fragments = fragments.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>", "");
-                //fragments = fragments.Replace("504Eligibility", "_504Eligibility");
-                //var myRootedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><roots>" + fragments + "</roots>";
-                //var doc = XDocument.Parse(myRootedXml);
                 var doc = XDocument.Parse(fragments);
                 XmlDocument xmlDoc = ToXmlDocument(doc);
                 XmlNodeList nodeList = xmlDoc.SelectNodes("//root/iep");
                 foreach (XmlNode node in nodeList)
                 {
-                    SpecialEducationReference spEducation = new SpecialEducationReference();// Need to add all the Link references 
+                    SpecialEducationReference spEducation = new SpecialEducationReference();
+                    spEducation.educationOrganizationReference = new EdFiEducationReference();
+                    spEducation.studentReference = new StudentReference();
+                    spEducation.programReference = new ProgramReference();
                     spEducation.educationOrganizationReference.educationOrganizationId = Constants.educationOrganizationIdValue;
+                    spEducation.educationOrganizationReference.Link = new Link()
+                    {
+                        Rel = string.Empty,
+                        Href = string.Empty
+                    };
                     XmlNode ProgramNode = node.SelectSingleNode("programReference");
                     if (ProgramNode != null)
                     {
                         spEducation.programReference.educationOrganizationId = ProgramNode.SelectSingleNode("educationOrganizationId").InnerText ?? null;
-                        spEducation.programReference.type = ProgramNode.SelectSingleNode("type").InnerText ?? null;
-                        spEducation.programReference.name = ProgramNode.SelectSingleNode("name").InnerText ?? null;
+                        spEducation.programReference.type = ProgramNode.SelectSingleNode("type").InnerText.ToString() ?? null;
+                        spEducation.programReference.name = ProgramNode.SelectSingleNode("name").InnerText.ToString() ?? null;
+                        spEducation.programReference.Link = new Link()
+                        {
+                            Rel = string.Empty,
+                            Href = string.Empty
+                        };
                     }
                     XmlNode studentNode = node.SelectSingleNode("studentReference");
                     if (studentNode != null)
                     {
-                        spEducation.studentReference.studentUniqueId = studentNode.SelectSingleNode("studentUniqueId").InnerText ?? null;
+                        spEducation.studentReference.studentUniqueId = studentNode.SelectSingleNode("studentUniqueId").InnerText.ToString() ?? null;
+                        spEducation.studentReference.Link = new Link()
+                        {
+                            Rel = string.Empty,
+                            Href = string.Empty
+                        };
                     }
-                    spEducation.beginDate = node.SelectSingleNode("beginDate").InnerText ?? null;
+                    string beginDate = node.SelectSingleNode("beginDate").InnerText ?? null;
+                    if (string.IsNullOrEmpty(beginDate))
+                        beginDate = ConfigurationManager.AppSettings["SchoolStartDate"];
+                    spEducation.beginDate = beginDate;
                     spEducation.endDate = node.SelectSingleNode("endDate").InnerText ?? null;
-                    spEducation.ideaEligibility = node.SelectSingleNode("ideaEligiblity").InnerText.Equals("true") ? true : false;
-                    spEducation.iepBeginDate = node.SelectSingleNode("iepBeginDate").InnerText ?? null;
-                    spEducation.iepEndDate = node.SelectSingleNode("iepEndDate").InnerText ?? null;
-                    spEducation.iepReviewDate = node.SelectSingleNode("iepReviewDate").InnerText ?? null;
-                    spEducation.lastEvaluationDate = node.SelectSingleNode("lastEvaluationDate").InnerText ?? null;
+                    //spEducation.ideaEligibility = node.SelectSingleNode("ideaEligiblity").InnerText.Equals("true") ? true : false;
+                    spEducation.iepBeginDate = node.SelectSingleNode("iepBeginDate").InnerText.ToString() ?? null;
+                    spEducation.iepEndDate = node.SelectSingleNode("iepEndDate").InnerText.ToString() ?? null;
+                    spEducation.iepReviewDate = node.SelectSingleNode("iepReviewDate").InnerText.ToString() ?? null;
+                    spEducation.lastEvaluationDate = node.SelectSingleNode("lastEvaluationDate").InnerText.ToString() ?? null;
                     //spEducation.medicallyFragile = null;
                     //spEducation.multiplyDisabled = null;
-                    spEducation.reasonExitedDescriptor = node.SelectSingleNode("reasonExitedDescriptor").InnerText ?? null;
-                    spEducation.schoolHoursPerWeek = Int32.Parse(node.SelectSingleNode("schoolHoursPerWeek").InnerText ?? null); // Null Check req need to Modify
-                    spEducation.specialEducationHoursPerWeek = Int32.Parse(node.SelectSingleNode("specialEducationHoursPerWeek").InnerText ?? null); // Null Check req need to Modify
-                    spEducation.specialEducationSettingDescriptor = Constants.getSpecialEducationSetting(Int32.Parse(node.SelectSingleNode("SpecialEducationSetting").InnerText ?? null)); // Null Check req need to Modify
+                    spEducation.reasonExitedDescriptor = node.SelectSingleNode("reasonExitedDescriptor").InnerText.ToString() ?? null;
+                    if (node.SelectSingleNode("schoolHoursPerWeek").InnerText.Trim().Length > 0)
+                        spEducation.schoolHoursPerWeek = Convert.ToDouble(node.SelectSingleNode("schoolHoursPerWeek").InnerText.ToString()); // Null Check req need to Modify
+                    if (node.SelectSingleNode("specialEducationHoursPerWeek").InnerText.Trim().Length > 0)
+                        spEducation.specialEducationHoursPerWeek = Convert.ToDouble(node.SelectSingleNode("specialEducationHoursPerWeek").InnerText.ToString()); // Null Check req need to Modify
+                    if (node.SelectSingleNode("SpecialEducationSetting").InnerText.Trim().Length > 0)
+                        spEducation.specialEducationSettingDescriptor = Constants.getSpecialEducationSetting(Int32.Parse(node.SelectSingleNode("SpecialEducationSetting").InnerText.ToString())); // Null Check req need to Modify
                     //Check required fied exist in XML source 
-                    if (!string.IsNullOrEmpty(spEducation.programReference.educationOrganizationId) && !string.IsNullOrEmpty(spEducation.programReference.name)  && !string.IsNullOrEmpty(spEducation.programReference.type) && !string.IsNullOrEmpty(spEducation.beginDate) && !string.IsNullOrEmpty(spEducation.studentReference.studentUniqueId)) // 
+                    if (!string.IsNullOrEmpty(spEducation.programReference.educationOrganizationId) && !string.IsNullOrEmpty(spEducation.programReference.name) && !string.IsNullOrEmpty(spEducation.programReference.type) && !string.IsNullOrEmpty(spEducation.beginDate) && !string.IsNullOrEmpty(spEducation.studentReference.studentUniqueId)) // 
                     {
                         // Check if the Program already exists in the ODS if not first enter the Progam.
-                        IRestResponse response = VerifyProgramData(token, spEducation.programReference.educationOrganizationId, spEducation.programReference.name, spEducation.programReference.type);
-                        //KRS - Proram Type ID does not exist in the XML 
-                        if((int)response.StatusCode==304)
-                        InsertAlertDataStudentSpecialEducation(token, spEducation);
-                        else
-                            Log.Info("Program :" + spEducation.programReference.name + "does not exist in ODS");
+                        VerifyProgramData(token, spEducation.programReference.educationOrganizationId, spEducation.programReference.name, spEducation.programReference.type);
+                        InsertIEPStudentSpecialEducation(token, spEducation);
                     }
                     else
                     {
@@ -988,7 +1010,7 @@ namespace BPS.EdOrg.Loader
                     };
 
                     string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
-                    response = GetData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program), token); // Need to Check - Get requred here 
+                    response = PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program), token); // Need to Check - Get requred here 
                     Log.Info("Check if the program data exists in EdfI Program for programTypeId : " + programType);
                 }
                 return response;
@@ -1110,70 +1132,53 @@ namespace BPS.EdOrg.Loader
 
         }
 
-        private static void InsertAlertDataStudentSpecialEducation(string token, SpecialEducationReference spEducation)
+        private static void InsertIEPStudentSpecialEducation(string token, SpecialEducationReference spEducation)
         {
             try
             {
                 IRestResponse response = null;
                 string json = JsonConvert.SerializeObject(spEducation, Newtonsoft.Json.Formatting.Indented);
-
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.beginDate + spEducation.iepBeginDate + Constants.
-                    educationOrganizationId + spEducation.educationOrganizationReference.educationOrganizationId + Constants.programEducationOrganizationId + spEducation.programReference.educationOrganizationId +
-                    Constants.programName + spEducation.programReference.name + Constants.programType + spEducation.programReference.type + Constants.studentUniqueId + spEducation.studentReference.studentUniqueId);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + Constants.SpecEduBeginDate + spEducation.beginDate + Constants.
+                    SpecEduEducationOrganizationId + spEducation.educationOrganizationReference.educationOrganizationId + Constants.programEducationOrganizationId + spEducation.programReference.educationOrganizationId +
+                    Constants.SpecEduProgramName + spEducation.programReference.name + Constants.SpecEduProgramType + spEducation.programReference.type + Constants.SpecEduStudentUniqueId + spEducation.studentReference.studentUniqueId);
                 response = GetData(client, token);
-
-                dynamic original = JsonConvert.DeserializeObject(response.Content);
                 if (IsSuccessStatusCode((int)response.StatusCode))
                 {
                     if (response.Content.Length > 2)
                     {
-                        foreach (var data in original)
+                        SpecialEducationReference data = JsonConvert.DeserializeObject<SpecialEducationReference>(response.Content);
+                        var id = data.id;
+                        string stuId = data.studentReference.studentUniqueId;
+                        DateTime iepDate = Convert.ToDateTime(data.iepBeginDate);
+                        if (id != null)
                         {
-                            var id = data.id;
-
-                            string stuId = data.studentReference.studentUniqueId;
-                            DateTime iepDate = data.iepBeginDate;
-                            if (id != null)
+                            if (spEducation.iepBeginDate != null)
                             {
-                                if (spEducation.iepBeginDate != null)
+                                if (stuId != null && iepDate != null)
                                 {
-                                    if (stuId != null && iepDate != null)
+                                    DateTime inputDateTime;
+                                    if (DateTime.TryParse(spEducation.iepBeginDate, out inputDateTime))
                                     {
-
-                                        DateTime inputDateTime;
-                                        if (DateTime.TryParse(spEducation.iepBeginDate, out inputDateTime))
-                                        {
-                                            var result = DateTime.Compare(inputDateTime, iepDate);
-                                            if (stuId == spEducation.studentReference.studentUniqueId && result == 0)
-                                                response = PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + "/" + id), token);
-                                            else
-                                                response = PostData(json, client, token);
-
-                                        }
+                                        var result = DateTime.Compare(inputDateTime, iepDate);
+                                        if (stuId == spEducation.studentReference.studentUniqueId && result == 0)
+                                            response = PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + "/" + id), token);
+                                        else
+                                            response = PostData(json, client, token);
                                     }
-
                                 }
-
                             }
                         }
                     }
-
-                    else
-                    {
-                        response = PostData(json, client, token);
-                    }
-                        
-
+                }
+                else
+                {
+                    response = PostData(json, client, token);
                 }
             }
-
-
             catch (Exception ex)
             {
                 Log.Error("Something went wrong while updating the data in ODS, check the XML values" + ex.Message);
             }
-
-
         }
 
 

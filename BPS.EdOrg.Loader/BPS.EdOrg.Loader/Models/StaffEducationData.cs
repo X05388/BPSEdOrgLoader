@@ -64,6 +64,8 @@ namespace BPS.EdOrg.Loader.Models
         }
         public class SpecialEducationReference
         {
+        public SpecialEducationReference()
+        { }
              public string id { get; set; }
              public EdFiEducationReference educationOrganizationReference { get; set; }
              public ProgramReference programReference { get; set; }
@@ -81,9 +83,9 @@ namespace BPS.EdOrg.Loader.Models
              public bool medicallyFragile { get; set; }
              public bool multiplyDisabled { get; set; }
              public string reasonExitedDescriptor { get; set; }
-             public int schoolHoursPerWeek { get; set; }
+             public double schoolHoursPerWeek { get; set; }
              public bool servedOutsideOfRegularSession{ get; set; }
-             public int specialEducationHoursPerWeek{ get; set; }
+             public double specialEducationHoursPerWeek { get; set; }
              public string specialEducationSettingDescriptor{ get; set; }
 
             
