@@ -54,7 +54,7 @@ namespace BPS.EdOrg.Loader.EdFi.Api
                                 if (!string.IsNullOrEmpty(deptId) && !string.Equals(deptId, "N/A", StringComparison.OrdinalIgnoreCase))
                                 {
                                     existingDeptIds.Add(deptId);
-                                    schoolDepts.Add(new SchoolDept { schoolId = school.schoolId, DeptId = deptId });
+                                    schoolDepts.Add(new SchoolDept { schoolId = school.schoolId, DeptId = deptId, OperationalStatus = school.operationalStatusType });
                                 }
                             }
                         }
@@ -154,6 +154,11 @@ namespace BPS.EdOrg.Loader.EdFi.Api
             request.AddParameter("limit", limit);
             var response = httpClient.Execute<List<StaffResponse>>(request);
             return response;
+        }
+
+        public bool IsSuccessStatusCode(int statusCode)
+        {
+            return ((int)statusCode >= 200) && ((int)statusCode <= 204);
         }
     }
 }

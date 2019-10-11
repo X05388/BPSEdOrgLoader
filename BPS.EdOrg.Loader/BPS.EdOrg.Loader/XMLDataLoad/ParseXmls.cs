@@ -7,6 +7,7 @@ using System.Configuration;
 using System.Linq;
 using BPS.EdOrg.Loader.Models;
 using BPS.EdOrg.Loader.MetaData;
+using System.Xml.Linq;
 
 namespace BPS.EdOrg.Loader.XMLDataLoad
 {
@@ -28,10 +29,7 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 string filePath = Path.Combine(xmlOutPutPath, $"EducationOrganization-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
                 XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
                 CreateXmlGenericStart(writer);
-                writer.WriteStartElement("InterchangeEducationOrganization");
-                //writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
-                //writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
-                //writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
+                writer.WriteStartElement("InterchangeEducationOrganization");           
 
                 string dataFilePath = _configuration.DataFilePath;
                 string[] lines = File.ReadAllLines(dataFilePath);
@@ -66,17 +64,7 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
 
                         _log.Debug($"Creating node for {deptId}-{deptTitle}-{location}");
                         CreateNode(deptId, deptTitle, location, writer);
-                        //if (!existingDeptIds.Any(p => p.DeptId == deptId))
-                        //{
-                        //    Log.Debug($"Creating node for {deptId}-{deptTitle}");
-                        //    CreateNode(deptId, deptTitle, writer);
-                        //    numberOfRecordsCreatedInXml++;
-                        //}
-                        //else
-                        //{
-                        //    Log.Debug($"Record skipped : {line}");
-                        //    numberOfRecordsSkipped++;
-                        //}
+                        
                     }
                 }
                 writer.WriteEndElement();
@@ -105,12 +93,7 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
                 CreateXmlGenericStart(writer);
                 writer.WriteStartElement("InterchangeStaffAssociation");
-                //writer.WriteAttributeString("xmlns", null, "http://ed-fi.org/0220");
-                //writer.WriteAttributeString("xmlns", "xsi", null, "http://www.w3.org/2001/XMLSchema-instance");
-                //writer.WriteAttributeString("xmlns", "ann", null, "http://ed-fi.org/annotation");
-
-
-
+               
                 string dataFilePath = _configuration.DataFilePathJob;
                 string[] lines = File.ReadAllLines(dataFilePath);
                 int i = 0;
@@ -177,6 +160,10 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                         string empClassCode = Constants.EmpClassCode(staffAssociationData.empClass);
                         string jobOrderAssignment = Constants.JobOrderAssignment(staffAssociationData.jobIndicator);
 
+                        _log.Debug($"Creating node for {staffAssociationData.staffId}-{staffAssociationData.deptId}-{staffAssociationData.endDate}");
+                        CreateNodeJob(staffAssociationData, descCode, empClassCode, jobOrderAssignment, writer);
+                        numberOfRecordsCreatedInXml++;
+
                         XmlNodeList nodeList = GetDeptforLocation();
                         if (nodeList.Count > 0)
                         {
@@ -193,12 +180,6 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                                 }
                             }
                         }
-
-                        _log.Debug($"Creating node for {staffAssociationData.staffId}-{staffAssociationData.deptId}-{staffAssociationData.endDate}");
-                        CreateNodeJob(staffAssociationData, descCode, empClassCode, jobOrderAssignment, writer);
-                        numberOfRecordsCreatedInXml++;
-
-
                     }
                 }
                 writer.WriteEndElement();
@@ -260,10 +241,6 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 writer.WriteEndElement();
                 writer.WriteEndElement();
 
-                //writer.WriteStartElement("Department");
-                //writer.WriteString(jobCode);
-                //writer.WriteEndElement();
-
                 writer.WriteStartElement("EducationOrganizationReference");
 
                 writer.WriteStartElement("EducationOrganizationIdentity");
@@ -271,16 +248,6 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 writer.WriteString(staffData.deptId);
                 writer.WriteEndElement();
                 writer.WriteEndElement();
-
-                //writer.WriteStartElement("EducationOrganizationLookup");
-                //writer.WriteStartElement("EducationOrganizationIdentificationCode");
-                //writer.WriteStartElement("EducationOrganizationIdentificationSystem");
-                //writer.WriteStartElement("CodeValue");
-                //writer.WriteString("School");
-                //writer.WriteEndElement();
-                //writer.WriteEndElement();
-                //writer.WriteEndElement();
-                //writer.WriteEndElement();
 
                 writer.WriteEndElement();
 
@@ -514,6 +481,38 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
             {
                 _log.Error(ex.Message);
             }
+        }
+
+        public XmlDocument ToXmlDocument(XDocument xDocument)
+        {
+            var xmlDocument = new XmlDocument();
+            using (var xmlReader = xDocument.CreateReader())
+            {
+                xmlDocument.Load(xmlReader);
+            }
+            return xmlDocument;
+        }
+
+        /// <summary>
+        /// Loading the generated Xml to get required values
+        /// </summary>
+        /// <returns></returns>
+
+        public XmlDocument LoadStaffXml()
+        {
+            try
+            {
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(ConfigurationManager.AppSettings["XMLOutputPath"] + $"/StaffAssociation-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
+                return xmlDoc;
+
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Error occured while fetching the generated xml, please check if xml file exists" + ex.Message);
+                return null;
+            }
+
         }
     }
 }
