@@ -23,6 +23,9 @@ namespace BPS.EdOrg.Loader
         public static string programType = @"&type=";
         public static string studentUniqueId = @"?studentUniqueId=";
         public static string programEducationOrganizationId = @"&programEducationOrganizationId=";
+        public static string programAssignmentDescriptor = @"?programAssignmentDescriptor = Regular Education ";
+        public static string schoolId = @"&schoolId=";
+       
 
 
         public static string LOG_FILE { get; set; } = ConfigurationManager.AppSettings["LogFileDrive"] + DateTime.Today.ToString("yyyyMMdd") + ".csv";
@@ -39,6 +42,8 @@ namespace BPS.EdOrg.Loader
         public static string API_Program { get; set; } = @"2019/programs";
         public static string StudentSpecialEducation { get; set; } = @"2019/studentSpecialEducationProgramAssociations";
 
+        public static string StaffAssociationUrl { get; set; } = @"2019/staffSchoolAssociations";
+       
        public static string EmpClassCode(string empCode)
        {
             if (empCode.Equals("4") || empCode.Equals("P"))
