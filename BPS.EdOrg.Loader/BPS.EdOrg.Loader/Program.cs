@@ -46,13 +46,12 @@ namespace BPS.EdOrg.Loader
                 {
                     ParseXmls parseXmls = new ParseXmls(param.Object, Log);
                     parseXmls.Archive(param.Object);
-
                     LogConfiguration(param.Object);
 
                     // creating the xml and executing the file through command line parser
-                    RunDeptFile(param);
-                    RunJobCodeFile(param);
                     RunAlertFile(param);
+                    RunDeptFile(param);
+                    RunJobCodeFile(param);                   
                              
                 }
                 catch (Exception ex)
@@ -164,7 +163,7 @@ namespace BPS.EdOrg.Loader
             if (token != null)
             {
                
-                //UpdateStaffEmploymentAssociationData(token,param.Object);
+                UpdateStaffEmploymentAssociationData(token,param.Object);
                 UpdateStaffAssignmentAssociationData(token, param.Object);
             }
 
@@ -487,7 +486,6 @@ namespace BPS.EdOrg.Loader
             {
                 
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssociationUrl +Constants.programAssignmentDescriptor+Constants.schoolId+ schoolid + Constants.staffUniqueId + staffData.StaffUniqueIdValue);
-                
                 response = GetData(client, token);
                 var rootObject = new StaffSchoolAssociation
                 {
@@ -502,7 +500,7 @@ namespace BPS.EdOrg.Loader
                     },
                     SchoolYearTypeReference = new EdFiSchoolYearTypeReference
                     {
-                        SchoolYear = "2020",
+                        SchoolYear = GetSchoolYear().ToString(),
 
                         Link = new Link
                         {
@@ -540,6 +538,26 @@ namespace BPS.EdOrg.Loader
             }
             
         }
+
+        private static int GetSchoolYear() {
+            var date = DateTime.Today;
+            var month = date.Month;
+            int year = date.Year;
+            try
+            {
+                if (month <= 6)               
+                    year = date.Year;
+                else               
+                    year = date.Year + 1;              
+            }
+            catch (Exception ex)
+            {
+               Log.Error("Error getting schoolYear :  Exception : " + ex.Message);
+            }
+            return year;
+        }
+
+
         private static string GetAssignmentEndDate(string token, StaffEmploymentAssociationData staffData)
         {
             string date = null;
