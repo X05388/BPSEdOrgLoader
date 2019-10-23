@@ -182,6 +182,7 @@ namespace BPS.EdOrg.Loader.Controller
                                 if (educationOrganizationId != null) schoolid = educationOrganizationId.SchoolId;
                                 if (!string.IsNullOrEmpty(schoolid))
                                 {
+                                    UpdateStaffSchoolAssociation(token, schoolid, staffAssignmentNodeList);
                                     //Inserting new Assignments and updating the postioTitle with JobCode - JobDesc
                                     if (!string.IsNullOrEmpty(staffAssignmentNodeList.StaffUniqueIdValue) && !string.IsNullOrEmpty(staffAssignmentNodeList.BeginDateValue) && !string.IsNullOrEmpty(staffAssignmentNodeList.StaffClassification) && !string.IsNullOrEmpty(staffAssignmentNodeList.PositionCodeDescription))
                                     {
