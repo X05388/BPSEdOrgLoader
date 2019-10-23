@@ -10,10 +10,10 @@ namespace BPS.EdOrg.Loader.Models
         public class StaffDescriptor
         {
 
-            public string staffUniqueId { get; set; }            
-            public string firstName { get; set; }
-            public string lastSurname { get; set; }
-            public string birthDate { get; set; }
+            public string StaffUniqueId { get; set; }            
+            public string FirstName { get; set; }
+            public string LastSurname { get; set; }
+            public string BirthDate { get; set; }
 
         }   
         public class StaffEmploymentDescriptor
@@ -36,7 +36,20 @@ namespace BPS.EdOrg.Loader.Models
             public string employmentStatusDescriptor { get; set; }
             public Link Link { get; set; }
 
-    }
+        }
+
+        public class StaffSchoolAssociation
+        {
+            public EdFiSchoolReference SchoolReference { get; set; }
+            public EdFiSchoolYearTypeReference SchoolYearTypeReference { get; set; }
+            public EdFiStaffReference StaffReference { get; set; }          
+            
+            public string ProgramAssignmentDescriptor { get; set; }
+            
+
+        }
+    
+
         public class StaffAssignmentDescriptor
         {
 
@@ -109,8 +122,19 @@ namespace BPS.EdOrg.Loader.Models
             public string staffUniqueId { get; set; }
             public Link Link { get; set; }
          }
+        public class EdFiSchoolReference
+        {
+            public string schoolId { get; set; }
+            public Link Link { get; set; }
+        }
+        public class EdFiSchoolYearTypeReference
+        {
+        public string SchoolYear { get; set; }
+        public Link Link { get; set; }
+        }
 
-        public class StudentReference
+
+    public class StudentReference
         {
            public string studentUniqueId  { get; set; }
            public Link Link { get; set; }
@@ -124,19 +148,19 @@ namespace BPS.EdOrg.Loader.Models
 
         public class SchoolDept
         {
-            public string schoolId { get; set; }
+            public string SchoolId { get; set; }
             public string DeptId { get; set; }
             public string OperationalStatus { get; set; }
-    }
+        }
 
-    public class ErrorLog
-    {
-        public string staffUniqueId { get; set; }
-        public string endDate { get; set; }
-        public string ErrorMessage { get; set; }
-        public string PositionTitle { get; set; }
+        public class ErrorLog
+        {
+            public string StaffUniqueId { get; set; }
+            public string EndDate { get; set; }
+            public string ErrorMessage { get; set; }
+            public string PositionTitle { get; set; }
 
-    }
+        }
 
     public class SendEmail
     {
@@ -154,20 +178,20 @@ namespace BPS.EdOrg.Loader.Models
 
     public class StaffAssignmentAssociationData
     {
-        public string staffUniqueIdValue { get; set; }
+        public string StaffUniqueIdValue { get; set; }
 
-        public string positionCodeDescription { get; set; }
+        public string PositionCodeDescription { get; set; }
 
-        public string educationOrganizationIdValue { get; set; }
+        public string EducationOrganizationIdValue { get; set; }
 
-        public string endDateValue { get; set; }
+        public string EndDateValue { get; set; }
 
-        public string beginDateValue { get; set; }
-        public string hireDateValue { get; set; }
+        public string BeginDateValue { get; set; }
+        public string HireDateValue { get; set; }
 
-        public string staffClassification { get; set; }
-        public string empDesc { get; set; }
-        public string jobOrderAssignment { get; set; }
+        public string StaffClassification { get; set; }
+        public string EmpDesc { get; set; }
+        public string JobOrderAssignment { get; set; }
     }
 
     public class StaffEmploymentAssociationData
