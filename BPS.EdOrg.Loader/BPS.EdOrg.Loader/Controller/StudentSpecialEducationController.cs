@@ -195,7 +195,7 @@ namespace BPS.EdOrg.Loader.Controller
                 {
                     var rootObject = new EdFiProgram
                     {
-                        educationOrganizationReference = new EdFiEducationReference
+                        EducationOrganizationReference = new EdFiEducationReference
                         {
                             educationOrganizationId = educationOrganizationId,
                             Link = new Link()
@@ -204,10 +204,10 @@ namespace BPS.EdOrg.Loader.Controller
                                 Href = string.Empty
                             }
                         },
-                        programId = null,
-                        type = programType,
-                        sponsorType = string.Empty,
-                        name = programName,
+                        ProgramId = null,
+                        Type = programType,
+                        SponsorType = string.Empty,
+                        Name = programName,
 
 
                     };

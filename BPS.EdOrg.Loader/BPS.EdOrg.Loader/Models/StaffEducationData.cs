@@ -54,24 +54,24 @@ namespace BPS.EdOrg.Loader.Models
         {
 
             public string id { get; set; }
-            public EdFiEducationReference educationOrganizationReference { get; set; }
-            public EdFiStaffReference staffReference { get; set; }
-            public EdfiEmploymentAssociationReference employmentStaffEducationOrganizationEmploymentAssociationReference { get; set; }
-            public string positionTitle { get; set; }
-            public string beginDate { get; set; }
-            public string endDate { get; set; }
-            public string staffClassificationDescriptor { get; set; }
-            public string orderOfAssignment { get; set; }
+            public EdFiEducationReference EducationOrganizationReference { get; set; }
+            public EdFiStaffReference StaffReference { get; set; }
+            public EdfiEmploymentAssociationReference EmploymentStaffEducationOrganizationEmploymentAssociationReference { get; set; }
+            public string PositionTitle { get; set; }
+            public string BeginDate { get; set; }
+            public string EndDate { get; set; }
+            public string StaffClassificationDescriptor { get; set; }
+            public string OrderOfAssignment { get; set; }
         
 
         }
         public class EdFiProgram
         {
-            public EdFiEducationReference educationOrganizationReference { get; set; }
-            public int? programId { get; set; }
-            public string type { get; set; }
-            public string sponsorType { get; set; }
-            public string name { get; set; }
+            public EdFiEducationReference EducationOrganizationReference { get; set; }
+            public int? ProgramId { get; set; }
+            public string Type { get; set; }
+            public string SponsorType { get; set; }
+            public string Name { get; set; }
             public string ProgramEducationOrganizationId { get; set; }
 
         }
