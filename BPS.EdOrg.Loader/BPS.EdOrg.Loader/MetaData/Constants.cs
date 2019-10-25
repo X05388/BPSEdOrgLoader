@@ -46,7 +46,7 @@ namespace BPS.EdOrg.Loader
         public static string StaffAssignmentUrl { get; set; } = @"2019/staffEducationOrganizationAssignmentAssociations";
         public static string API_Program { get; set; } = @"2019/programs";
         public static string StudentSpecialEducation { get; set; } = @"2019/studentSpecialEducationProgramAssociations";
-
+        public static string API_ServiceDescriptor { get; set; } = @"api/v2.0/2018/serviceDescriptors";
         public static string StaffAssociationUrl { get; set; } = @"2019/staffSchoolAssociations";
        
        public static string EmpClassCode(string empCode)
@@ -155,8 +155,24 @@ namespace BPS.EdOrg.Loader
             else
                     return "Other";
             }
-
-        public static string getSpecialEducationSetting(int? descSetting)
+        /// <summary>
+        /// Gets the sei program by seicode.
+        /// </summary>
+        /// <param name="transCode"></param>
+        /// <returns></returns>
+        public static string GetTransportationEligibility(string transCode)
+        {
+            switch (transCode?.Trim())
+            {
+               
+                case "Transportation - Door to Door":
+                    return @"Transportation - Door to Door";
+                
+                default:
+                    return @"Not Eligible";
+            }
+        }
+        public static string GetSpecialEducationSetting(int? descSetting)
         {
             switch (descSetting)
             {

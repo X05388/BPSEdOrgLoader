@@ -4,22 +4,15 @@ using System.Collections.Generic;
 using System.Xml;
 using System.IO;
 using System.Configuration;
-using System.Diagnostics;
-using System.Text;
-using BPS.EdOrg.Loader.ApiClient;
 using Newtonsoft.Json;
 using RestSharp;
-using EdFi.OdsApi.Sdk;
 using System.Xml.Linq;
-using Newtonsoft.Json.Linq;
-using System.Net.Mail;
-using System.Net.Mime;
 using System.Linq;
 using BPS.EdOrg.Loader.Models;
 using BPS.EdOrg.Loader.XMLDataLoad;
 using BPS.EdOrg.Loader.MetaData;
 using BPS.EdOrg.Loader.EdFi.Api;
-
+using Formatting = Newtonsoft.Json.Formatting;
 
 namespace BPS.EdOrg.Loader.Controller
 {
@@ -36,8 +29,8 @@ namespace BPS.EdOrg.Loader.Controller
                 string typeValue = null;
                 string nameValue = null;
                 string educationOrganizationIdValue = null;
-                string studentUniqueIdValue = null;
-
+                string studentUniqueIdValue = null; 
+                string serviceDescriptorValue = null;
 
                 var fragments = File.ReadAllText(ConfigurationManager.AppSettings["XMLDeploymentPath"] + $"/504inXML.xml").Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
                 fragments = fragments.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>", "");
@@ -69,7 +62,12 @@ namespace BPS.EdOrg.Loader.Controller
                         studentUniqueIdValue = studentNode.SelectSingleNode("studentUniqueId").InnerText ?? null;
 
                     }
+                    XmlNode serviceDesc = node.SelectSingleNode("service");
+                    if (serviceDesc != null)
+                    {
+                        serviceDescriptorValue = studentNode.SelectSingleNode("serviceDescriptor").InnerText ?? null;
 
+                    }
                     string beginDate = node.SelectSingleNode("beginDate").InnerText ?? null;
                     string endDate = node.SelectSingleNode("endDate").InnerText ?? null;
                     bool ideaEligibility = node.SelectSingleNode("ideaEligiblity").InnerText.Equals("true") ? true : false;
@@ -80,6 +78,19 @@ namespace BPS.EdOrg.Loader.Controller
                     string iepSignatureDate = node.SelectSingleNode("iepSignatureDate").InnerText ?? null;
                     string Eligibility504 = node.SelectSingleNode("_504Eligibility").InnerText ?? null;
 
+                    //if (serviceDescriptorValue != null)
+                    //{
+                    //    PostServiceDescriptor(Constants.GetTransportationEligibility(serviceDescriptorValue), token);
+                    //    var transportationCodeService = new Service
+                    //    {
+                    //        PrimaryIndicator = false, // default is false
+                    //        ServiceDescriptor = $"{Constants.GetTransportationEligibility(serviceDescriptorValue)}",
+                    //        ServiceBeginDate = iepBeginDate,
+                    //        ServiceEndDate = iepEndDate
+                    //    };
+                    //    rootObject.Services.Add(transportationCodeService);
+
+                    //}
                     if (educationOrganizationIdValue != null && nameValue != null && typeValue != null)
                     {
                         // Check if the Program already exists in the ODS if not first enter the Progam.
@@ -161,7 +172,7 @@ namespace BPS.EdOrg.Loader.Controller
                     if (node.SelectSingleNode("specialEducationHoursPerWeek").InnerText.Trim().Length > 0)
                         spEducation.specialEducationHoursPerWeek = Convert.ToDouble(node.SelectSingleNode("specialEducationHoursPerWeek").InnerText.ToString()); // Null Check req need to Modify
                     if (node.SelectSingleNode("SpecialEducationSetting").InnerText.Trim().Length > 0)
-                        spEducation.specialEducationSettingDescriptor = Constants.getSpecialEducationSetting(Int32.Parse(node.SelectSingleNode("SpecialEducationSetting").InnerText.ToString())); // Null Check req need to Modify
+                        spEducation.specialEducationSettingDescriptor = Constants.GetSpecialEducationSetting(Int32.Parse(node.SelectSingleNode("SpecialEducationSetting").InnerText.ToString())); // Null Check req need to Modify
                     //Check required fied exist in XML source 
                     if (!string.IsNullOrEmpty(spEducation.programReference.educationOrganizationId) && !string.IsNullOrEmpty(spEducation.programReference.name) && !string.IsNullOrEmpty(spEducation.programReference.type) && !string.IsNullOrEmpty(spEducation.beginDate) && !string.IsNullOrEmpty(spEducation.studentReference.studentUniqueId)) // 
                     {
@@ -226,6 +237,8 @@ namespace BPS.EdOrg.Loader.Controller
 
 
         }
+
+        
 
         private static bool IsSuccessStatusCode(int statusCode)
         {
@@ -379,5 +392,44 @@ namespace BPS.EdOrg.Loader.Controller
                 Log.Error("Something went wrong while updating the data in ODS, check the XML values" + ex.Message);
             }
         }
+
+
+        /// <summary>
+        /// POST the Data from the BPS Interface View to EdFi ODS
+        /// </summary>
+        /// <returns></returns>
+        private bool PostServiceDescriptor(string Item, string token)
+        {
+            bool isPosted = true;
+            List<ServiceDescriptor> serviceDescriptorList = new List<ServiceDescriptor>();
+            IRestResponse response = null;
+
+
+            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_ServiceDescriptor);
+            var rootObject = new ServiceDescriptor
+            {
+                CodeValue = string.Concat(Item.ToString().Trim().Take(50)),
+                ShortDescription = string.Concat(Item.ToString().Trim().Take(75)),
+                Description = Item.ToString().Trim(),
+                EffectiveBeginDate = null,
+                EffectiveEndDate = null,
+                //Namespace = "http://ed-fi.org/Descriptor/BPS/SPED/ServiceDescriptor.xml",
+                Namespace = "http://ed-fi.org/Descriptor/BPS/SPEDTransportation/ServiceDescriptor.xml",
+                PriorDescriptorId = 0
+
+
+            };
+            string json = JsonConvert.SerializeObject(rootObject, Formatting.Indented);
+            response = edfiApi.PostData(json, client, token);
+            if ((int)response.StatusCode > 204 || (int)response.StatusCode < 200)
+            {
+                //Log the Error
+                Log.Error("Something went wrong while updating the Service Descriptor in ODS, check the XML values" + response.Content.ToString());
+                
+            }
+            return isPosted;
+
+        }
+
     }
 }

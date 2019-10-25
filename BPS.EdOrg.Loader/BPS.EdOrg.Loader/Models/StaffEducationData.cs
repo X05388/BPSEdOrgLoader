@@ -224,7 +224,12 @@ namespace BPS.EdOrg.Loader.Models
         public string birthDate { get; set; }
 
     }
-
+    public class UpdateEndDate
+    {
+        public string StaffUSI { get; set; }
+        public string BeginDate { get; set; }
+        public string EndDate { get; set; }
+    }
     public class StaffAssociationData
     {
         public string staffId { get; set; }

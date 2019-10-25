@@ -182,6 +182,7 @@ namespace BPS.EdOrg.Loader.Controller
                                 if (educationOrganizationId != null) schoolid = educationOrganizationId.SchoolId;
                                 if (!string.IsNullOrEmpty(schoolid))
                                 {
+                                    //Update StaffSchoolAssociation for staff schools
                                     UpdateStaffSchoolAssociation(token, schoolid, staffAssignmentNodeList);
                                     //Inserting new Assignments and updating the postioTitle with JobCode - JobDesc
                                     if (!string.IsNullOrEmpty(staffAssignmentNodeList.StaffUniqueIdValue) && !string.IsNullOrEmpty(staffAssignmentNodeList.BeginDateValue) && !string.IsNullOrEmpty(staffAssignmentNodeList.StaffClassification) && !string.IsNullOrEmpty(staffAssignmentNodeList.PositionCodeDescription))
@@ -248,9 +249,10 @@ namespace BPS.EdOrg.Loader.Controller
             }
 
         }
+        
         private string GetAssignmentEndDate(string token, StaffEmploymentAssociationData staffData)
         {
-            string date = null;
+            string endDate = null;
             try
             {
                 IRestResponse response = null;
@@ -261,14 +263,10 @@ namespace BPS.EdOrg.Loader.Controller
                 {
                     if (response.Content.Length > 2)
                     {
-                        dynamic original = JsonConvert.DeserializeObject(response.Content);
+                        var original = JsonConvert.DeserializeObject<List<UpdateEndDate>>(response.Content).OrderBy(x => x.BeginDate);
                         foreach (var data in original)
                         {
-                            var endDate = Convert.ToString(data.endDate) ?? null;
-                            if (endDate != null)
-                                date = endDate;
-
-                            else break;
+                            endDate = data.EndDate ?? null;                    
                         }
 
                     }
@@ -279,7 +277,7 @@ namespace BPS.EdOrg.Loader.Controller
             {
                 _log.Error(ex.Message);
             }
-            return date;
+            return endDate;
         }
 
         private void UpdatingNewStaffData(string token, string staffUniqueIdValue, string fname, string lname, string birthDate)
@@ -598,7 +596,7 @@ namespace BPS.EdOrg.Loader.Controller
                     },
                     SchoolYearTypeReference = new EdFiSchoolYearTypeReference
                     {
-                        SchoolYear = GetSchoolYear().ToString(),
+                        SchoolYear = GetSchoolYear(DateTime.Parse(staffData.EndDateValue)).ToString(),
 
                         Link = new Link
                         {
@@ -637,17 +635,29 @@ namespace BPS.EdOrg.Loader.Controller
 
         }
 
-        private  int GetSchoolYear()
+        private  int GetSchoolYear(DateTime endDate)
         {
-            var date = DateTime.Today;
-            var month = date.Month;
+            DateTime date = DateTime.Today;
+            int month;
             int year = date.Year;
             try
             {
-                if (month <= 6)
-                    year = date.Year;
+                if (endDate != null)
+                {
+                    month = endDate.Month;
+                    year = endDate.Year;
+                }
                 else
-                    year = date.Year + 1;
+                { 
+                    month = date.Month;
+                    year =date.Year;
+                }
+              
+            
+                if (month <= 6)
+                    year = endDate.Year;
+                else
+                    year = endDate.Year + 1;
             }
             catch (Exception ex)
             {
