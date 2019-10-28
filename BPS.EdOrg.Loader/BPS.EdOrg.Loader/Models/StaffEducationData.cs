@@ -262,6 +262,11 @@ namespace BPS.EdOrg.Loader.Models
         public string location { get; set; }
 
     }
-   
+    public class StaffAssociationReference
+    {
+        public string id { get; set; }
+    }
+
+
 }
 

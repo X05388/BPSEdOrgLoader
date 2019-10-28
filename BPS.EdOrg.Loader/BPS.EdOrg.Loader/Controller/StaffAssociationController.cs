@@ -162,7 +162,10 @@ namespace BPS.EdOrg.Loader.Controller
                 XmlDocument xmlDoc = _prseXML.LoadStaffXml();
                 //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
                 //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
-                XmlNodeList nodeList = xmlDoc.SelectNodes("//InterchangeStaffAssociation/StaffEducationOrganizationAssociation");
+
+                
+                var nodeList = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationAssociation").Cast<XmlNode>().OrderBy(element => element.SelectSingleNode("EmploymentPeriod/EndDate").InnerText).ThenBy(o => o.SelectSingleNode("EmploymentPeriod/EndDate") == null).ToList();
+                
                 var schoolDeptids = GetDeptList(configuration);
                 foreach (XmlNode node in nodeList)
                 {
@@ -268,7 +271,7 @@ namespace BPS.EdOrg.Loader.Controller
                         {
                             endDate = data.EndDate ?? null;                    
                         }
-
+                       
                     }
 
                 }
@@ -580,7 +583,7 @@ namespace BPS.EdOrg.Loader.Controller
             IRestResponse response = null;
             try
             {
-
+                
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssociationUrl + Constants.programAssignmentDescriptor + Constants.schoolId + schoolid + Constants.staffUniqueId + staffData.StaffUniqueIdValue);
                 response = _edfiApi.GetData(client, token);
                 var rootObject = new StaffSchoolAssociation
@@ -596,7 +599,7 @@ namespace BPS.EdOrg.Loader.Controller
                     },
                     SchoolYearTypeReference = new EdFiSchoolYearTypeReference
                     {
-                        SchoolYear = GetSchoolYear(DateTime.Parse(staffData.EndDateValue)).ToString(),
+                        SchoolYear = GetSchoolYear(staffData.EndDateValue).ToString(),
 
                         Link = new Link
                         {
@@ -619,14 +622,27 @@ namespace BPS.EdOrg.Loader.Controller
 
                 if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
                 {
+                   
+                    string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
                     if (response.Content.Length <= 2)
+                        response= _edfiApi.PostData(json, client, token);
+                    else
                     {
-                        string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
-                        response = _edfiApi.PostData(json, client, token);
+                        var data = JsonConvert.DeserializeObject<List<StaffAssociationReference>>(response.Content);
+                        foreach(var item in data)
+                        {
+                            var id = item.id;
+                            response = _edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssociationUrl + "/" + id), token);
+                        }
+                        
+                       
+                        
                     }
-                    _log.Info("Updating  edfi.StaffAssociation for Schoolid : " + schoolid);
+                       
                 }
-            }
+                _log.Info("Updating  edfi.StaffAssociation for Schoolid : " + schoolid);
+                }
+            
             catch (Exception ex)
             {
                 _log.Error("Error updating  edfi.StaffAssociation for Schoolid : " + schoolid + " Exception : " + ex.Message);
@@ -635,23 +651,23 @@ namespace BPS.EdOrg.Loader.Controller
 
         }
 
-        private  int GetSchoolYear(DateTime endDate)
+        private  int GetSchoolYear(string endDate)
         {
             DateTime date = DateTime.Today;
             int month = date.Month;
             int year = date.Year;
             try
             {
-                if (endDate != null)
+                if (!string.IsNullOrEmpty(endDate))
                 {
-                    month = endDate.Month;
-                    year = endDate.Year;
+                    month = DateTime.Parse(endDate).Month;
+                    year = DateTime.Parse(endDate).Year;
                 }
                             
                 if (month <= 6)
-                    year = endDate.Year;
+                    year = DateTime.Parse(endDate).Year;
                 else
-                    year = endDate.Year + 1;
+                    year = DateTime.Parse(endDate).Year + 1;
             }
             catch (Exception ex)
             {
