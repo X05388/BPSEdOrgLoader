@@ -638,7 +638,7 @@ namespace BPS.EdOrg.Loader.Controller
         private  int GetSchoolYear(DateTime endDate)
         {
             DateTime date = DateTime.Today;
-            int month;
+            int month = date.Month;
             int year = date.Year;
             try
             {
@@ -647,13 +647,7 @@ namespace BPS.EdOrg.Loader.Controller
                     month = endDate.Month;
                     year = endDate.Year;
                 }
-                else
-                { 
-                    month = date.Month;
-                    year =date.Year;
-                }
-              
-            
+                            
                 if (month <= 6)
                     year = endDate.Year;
                 else

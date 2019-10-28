@@ -93,7 +93,7 @@ namespace BPS.EdOrg.Loader
             if (jobCode.Equals("S00116") || jobCode.Equals("S00118") || jobCode.Equals("S00220") ||
                 jobCode.Equals("S00245") || jobCode.Equals("S00465") || jobCode.Equals("S01079") ||
                 jobCode.Equals("S11100") || jobCode.Equals("S85026") &&
-                (deptID >= 101000 && deptID <= 101199 || deptID >= 101000 && deptID <= 101199))
+                (deptID >= 101000 && deptID <= 101199 || deptID >= 101700 && deptID <= 101999))
                 return "LEA Administrator";
 
             if (jobCode.Equals("S00065") || jobCode.Equals("S00169") || jobCode.Equals("S00183") ||
@@ -101,7 +101,7 @@ namespace BPS.EdOrg.Loader
                 jobCode.Equals("S00406") || jobCode.Equals("S00407") || jobCode.Equals("S00413") ||
                 jobCode.Equals("S01070") || jobCode.Equals("S20113") || jobCode.Equals("S20201") ||
                 jobCode.Equals("S20267") || jobCode.Equals("S20302") &&
-                (deptID >= 101000 && deptID <= 101199 || deptID >= 101000 && deptID <= 101199))
+                (deptID >= 101000 && deptID <= 101199 || deptID >= 101700 && deptID <= 101999))
                 return "LEA Specialist";
 
             var strings = new List<string> { "S20113", "S20100", "S20100", "S20315", "S20310", "S01080" };
