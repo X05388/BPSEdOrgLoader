@@ -162,9 +162,8 @@ namespace BPS.EdOrg.Loader.Controller
                 XmlDocument xmlDoc = _prseXML.LoadStaffXml();
                 //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
                 //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
-
                 
-                var nodeList = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationAssociation").Cast<XmlNode>().OrderBy(element => element.SelectSingleNode("EmploymentPeriod/EndDate").InnerText).ThenBy(o => o.SelectSingleNode("EmploymentPeriod/EndDate") == null).ToList();
+                var nodeList = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationAssociation").Cast<XmlNode>().OrderBy(element => element.SelectSingleNode("EmploymentPeriod/EndDate").InnerText).ToList();
                 
                 var schoolDeptids = GetDeptList(configuration);
                 foreach (XmlNode node in nodeList)
@@ -203,6 +202,7 @@ namespace BPS.EdOrg.Loader.Controller
 
 
                 }
+
 
                 if (File.Exists(Constants.LOG_FILE))
                     _notification.SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
@@ -256,6 +256,7 @@ namespace BPS.EdOrg.Loader.Controller
         private string GetAssignmentEndDate(string token, StaffEmploymentAssociationData staffData)
         {
             string endDate = null;
+            DateTime maxValue = default(DateTime); 
             try
             {
                 IRestResponse response = null;
@@ -266,12 +267,27 @@ namespace BPS.EdOrg.Loader.Controller
                 {
                     if (response.Content.Length > 2)
                     {
-                        var original = JsonConvert.DeserializeObject<List<UpdateEndDate>>(response.Content).OrderBy(x => x.BeginDate);
+                        
+                        var original = JsonConvert.DeserializeObject<List<UpdateEndDate>>(response.Content);
+
                         foreach (var data in original)
                         {
-                            endDate = data.EndDate ?? null;                    
+                            if (string.IsNullOrEmpty(data.EndDate))
+                            {
+                                endDate = null;
+                                break;
+                            }
+                            
+                            DateTime inputDateTime;                            
+                            DateTime.TryParse(data.EndDate, out inputDateTime);
+                            int result = DateTime.Compare(inputDateTime, maxValue);
+                            if (result >= 0)
+                            {
+                                maxValue = inputDateTime;
+                                endDate = maxValue.ToString();
+                            }
+                                
                         }
-                       
                     }
 
                 }
@@ -663,11 +679,13 @@ namespace BPS.EdOrg.Loader.Controller
                     month = DateTime.Parse(endDate).Month;
                     year = DateTime.Parse(endDate).Year;
                 }
-                            
-                if (month <= 6)
-                    year = DateTime.Parse(endDate).Year;
                 else
-                    year = DateTime.Parse(endDate).Year + 1;
+                {
+                    month = date.Month;
+                    year = date.Year;
+                }        
+                if (month > 6)                    
+                    year = year + 1;
             }
             catch (Exception ex)
             {

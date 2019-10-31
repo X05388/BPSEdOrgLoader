@@ -226,7 +226,7 @@ namespace BPS.EdOrg.Loader.Models
     }
     public class UpdateEndDate
     {
-        public string StaffUSI { get; set; }
+        public string StaffUniqueId { get; set; }
         public string BeginDate { get; set; }
         public string EndDate { get; set; }
     }
