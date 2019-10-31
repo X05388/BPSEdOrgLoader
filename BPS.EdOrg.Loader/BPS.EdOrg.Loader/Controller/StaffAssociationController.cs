@@ -162,7 +162,7 @@ namespace BPS.EdOrg.Loader.Controller
                 XmlDocument xmlDoc = _prseXML.LoadStaffXml();
                 //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
                 //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
-                XmlNodeList nodeList = xmlDoc.SelectNodes("//InterchangeStaffAssociation/StaffEducationOrganizationAssociation");
+                var nodeList = xmlDoc.SelectNodes("//InterchangeStaffAssociation/StaffEducationOrganizationAssociation").Cast<XmlNode>().OrderByDescending(element => element.SelectSingleNode("EmploymentPeriod/EndDate").InnerText).ToList();
                 var schoolDeptids = GetDeptList(configuration);
                 foreach (XmlNode node in nodeList)
                 {
