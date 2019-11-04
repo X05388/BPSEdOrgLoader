@@ -12,6 +12,7 @@ namespace BPS.EdOrg.Loader.Models
 
             public string StaffUniqueId { get; set; }            
             public string FirstName { get; set; }
+            public string MiddleName { get; set; }
             public string LastSurname { get; set; }
             public string BirthDate { get; set; }
 
@@ -218,7 +219,7 @@ namespace BPS.EdOrg.Loader.Models
     public class StaffData
     {
         public string firstName { get; set; }
-
+        public string middleName { get; set; }
         public string lastName { get; set; }
 
         public string birthDate { get; set; }
@@ -244,7 +245,7 @@ namespace BPS.EdOrg.Loader.Models
 
         public string jobCode { get; set; }
         public string jobTitle { get; set; }
-
+        public string actionDate { get; set; }
         public string entryDate { get; set; }
         public string unionCode { get; set; }
         public string empClass { get; set; }
@@ -256,7 +257,7 @@ namespace BPS.EdOrg.Loader.Models
         public string status { get; set; }
         public string firstName { get; set; }
         public string lastName { get; set; }
-
+        public string middleName { get; set; }
         public string birthDate { get; set; }
 
         public string location { get; set; }

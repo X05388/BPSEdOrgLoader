@@ -96,9 +96,9 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                
                 string dataFilePath = _configuration.DataFilePathJob;
                 string[] lines = File.ReadAllLines(dataFilePath);
-                int i = 0;
+                int i = 0; int actionDtIndex = 0; int actionIndex = 0;
                 int deptIdIndex = 0; int unionCodeIndex = 0; int emplClassIndex = 0; int jobIndicatorIndex = 0; int statusIndex = 0;
-                int actionIndex = 0; int actionDateIndex = 0; int hireDateIndex = 0; int jobCodeIndex = 0; int jobTitleIndex = 0;
+                int middleNameIndex = 0; int actionDateIndex = 0; int hireDateIndex = 0; int jobCodeIndex = 0; int jobTitleIndex = 0;
                 int entryDateIndex = 0; int firstNameIndex = 0; int lastNameIndex = 0; int birthDateIndex = 0;
                 int numberOfRecordsCreatedInXml = 0, numberOfRecordsSkipped = 0; int empIdIndex = 0; int locationIndex = 0;
                 foreach (string line in lines)
@@ -110,6 +110,7 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                         empIdIndex = Array.IndexOf(header, "ID");
                         deptIdIndex = Array.IndexOf(header, "Deptid");
                         actionIndex = Array.IndexOf(header, "Action");
+                        actionDtIndex = Array.IndexOf(header, "Action Dt");
                         actionDateIndex = Array.IndexOf(header, "Eff Date");
                         hireDateIndex = Array.IndexOf(header, "Orig Hire Date");
                         jobCodeIndex = Array.IndexOf(header, "Job Code");
@@ -120,6 +121,7 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                         jobIndicatorIndex = Array.IndexOf(header, "Job Indicator");
                         statusIndex = Array.IndexOf(header, "Status");
                         firstNameIndex = Array.IndexOf(header, "First Name");
+                        middleNameIndex = Array.IndexOf(header, "Middle Name");
                         lastNameIndex = Array.IndexOf(header, "Last Name");
                         birthDateIndex = Array.IndexOf(header, "Birthdate");
                         locationIndex = Array.IndexOf(header, "Location");
@@ -140,6 +142,7 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                             staffId = fields[empIdIndex]?.Trim(),
                             deptId = fields[deptIdIndex]?.Trim(),
                             action = fields[actionIndex]?.Trim(),
+                            actionDate = fields[actionDtIndex]?.Trim(),
                             endDate = fields[actionDateIndex]?.Trim(),
                             hireDate = fields[hireDateIndex]?.Trim(),
                             jobCode = fields[jobCodeIndex]?.Trim(),
@@ -150,6 +153,7 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                             jobIndicator = fields[jobIndicatorIndex]?.Trim(),
                             status = fields[statusIndex]?.Trim(),
                             firstName = fields[firstNameIndex]?.Trim(),
+                            middleName = fields[middleNameIndex]?.Trim(),
                             lastName = fields[lastNameIndex]?.Trim(),
                             birthDate = fields[birthDateIndex]?.Trim(),
                             location = fields[locationIndex]?.Trim()
@@ -231,6 +235,9 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 writer.WriteStartElement("FirstName");
                 writer.WriteString(staffData.firstName);
                 writer.WriteEndElement();
+                writer.WriteStartElement("MiddleName");
+                writer.WriteString(staffData.middleName);
+                writer.WriteEndElement();
                 writer.WriteStartElement("LastName");
                 writer.WriteString(staffData.lastName);
                 writer.WriteEndElement();
@@ -276,6 +283,10 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
 
                 writer.WriteStartElement("BeginDate");
                 writer.WriteString(staffData.entryDate);
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("ActionDate");
+                writer.WriteString(staffData.actionDate);
                 writer.WriteEndElement();
 
                 writer.WriteStartElement("PostionTitle");
