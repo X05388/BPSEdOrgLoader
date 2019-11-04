@@ -46,7 +46,7 @@ namespace BPS.EdOrg.Loader
         public static string StaffAssignmentUrl { get; set; } = @"2019/staffEducationOrganizationAssignmentAssociations";
         public static string API_Program { get; set; } = @"2019/programs";
         public static string StudentSpecialEducation { get; set; } = @"2019/studentSpecialEducationProgramAssociations";
-
+        public static string API_ServiceDescriptor { get; set; } = @"api/v2.0/2018/serviceDescriptors";
         public static string StaffAssociationUrl { get; set; } = @"2019/staffSchoolAssociations";
        
        public static string EmpClassCode(string empCode)
@@ -93,7 +93,7 @@ namespace BPS.EdOrg.Loader
             if (jobCode.Equals("S00116") || jobCode.Equals("S00118") || jobCode.Equals("S00220") ||
                 jobCode.Equals("S00245") || jobCode.Equals("S00465") || jobCode.Equals("S01079") ||
                 jobCode.Equals("S11100") || jobCode.Equals("S85026") &&
-                (deptID >= 101000 && deptID <= 101199 || deptID >= 101000 && deptID <= 101199))
+                (deptID >= 101000 && deptID <= 101199 || deptID >= 101700 && deptID <= 101999))
                 return "LEA Administrator";
 
             if (jobCode.Equals("S00065") || jobCode.Equals("S00169") || jobCode.Equals("S00183") ||
@@ -101,7 +101,7 @@ namespace BPS.EdOrg.Loader
                 jobCode.Equals("S00406") || jobCode.Equals("S00407") || jobCode.Equals("S00413") ||
                 jobCode.Equals("S01070") || jobCode.Equals("S20113") || jobCode.Equals("S20201") ||
                 jobCode.Equals("S20267") || jobCode.Equals("S20302") &&
-                (deptID >= 101000 && deptID <= 101199 || deptID >= 101000 && deptID <= 101199))
+                (deptID >= 101000 && deptID <= 101199 || deptID >= 101700 && deptID <= 101999))
                 return "LEA Specialist";
 
             var strings = new List<string> { "S20113", "S20100", "S20100", "S20315", "S20310", "S01080" };
@@ -155,8 +155,24 @@ namespace BPS.EdOrg.Loader
             else
                     return "Other";
             }
-
-        public static string getSpecialEducationSetting(int? descSetting)
+        /// <summary>
+        /// Gets the sei program by seicode.
+        /// </summary>
+        /// <param name="transCode"></param>
+        /// <returns></returns>
+        public static string GetTransportationEligibility(string transCode)
+        {
+            switch (transCode?.Trim())
+            {
+               
+                case "Transportation - Door to Door":
+                    return @"Transportation - Door to Door";
+                
+                default:
+                    return @"Not Eligible";
+            }
+        }
+        public static string GetSpecialEducationSetting(int? descSetting)
         {
             switch (descSetting)
             {

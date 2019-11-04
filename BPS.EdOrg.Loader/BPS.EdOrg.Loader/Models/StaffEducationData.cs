@@ -224,7 +224,12 @@ namespace BPS.EdOrg.Loader.Models
         public string birthDate { get; set; }
 
     }
-
+    public class UpdateEndDate
+    {
+        public string StaffUniqueId { get; set; }
+        public string BeginDate { get; set; }
+        public string EndDate { get; set; }
+    }
     public class StaffAssociationData
     {
         public string staffId { get; set; }
@@ -257,6 +262,11 @@ namespace BPS.EdOrg.Loader.Models
         public string location { get; set; }
 
     }
-   
+    public class StaffAssociationReference
+    {
+        public string id { get; set; }
+    }
+
+
 }
 

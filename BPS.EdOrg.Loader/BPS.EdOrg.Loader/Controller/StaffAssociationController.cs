@@ -54,7 +54,7 @@ namespace BPS.EdOrg.Loader.Controller
                 //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
                 var existingStaffIds = _restServiceManager.GetStaffList();
                 var nodeList = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationAssociation").Cast<XmlNode>().OrderBy(element => element.SelectSingleNode("EmploymentPeriod/EndDate").InnerText).ToList();
-
+                List<string> staffList = new List<string>();
                 foreach (XmlNode node in nodeList)
                 {
                     // Extracting the data froom the XMl file
@@ -82,11 +82,15 @@ namespace BPS.EdOrg.Loader.Controller
                         {
                             string id = GetEmploymentAssociationId(token, staffEmploymentNodeList);
                             if (id != null)
-                            {
-                                string endDate = GetAssignmentEndDate(token, staffEmploymentNodeList);
-                                //Setting the Enddate with the one from AssignmentAssociation
-                                if (endDate != null)
-                                    staffEmploymentNodeList.endDateValue = endDate;
+                            {                     
+                                if(!staffList.Any(stringToCheck => stringToCheck.Contains(staffEmploymentNodeList.staffUniqueIdValue)))
+                                {
+                                    string endDate = GetAssignmentEndDate(token, staffEmploymentNodeList.staffUniqueIdValue, staffEmploymentNodeList.empDesc, null);
+                                    staffList.Add(staffEmploymentNodeList.staffUniqueIdValue);
+                                    //Setting the Enddate with the one from AssignmentAssociation
+                                    if (endDate != null)
+                                        staffEmploymentNodeList.endDateValue = endDate;
+                                }                                
                                 UpdateEndDate(token, id, staffEmploymentNodeList);
                             }
 
@@ -162,7 +166,9 @@ namespace BPS.EdOrg.Loader.Controller
                 XmlDocument xmlDoc = _prseXML.LoadStaffXml();
                 //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
                 //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
-                var nodeList = xmlDoc.SelectNodes("//InterchangeStaffAssociation/StaffEducationOrganizationAssociation").Cast<XmlNode>().OrderByDescending(element => element.SelectSingleNode("EmploymentPeriod/EndDate").InnerText).ToList();
+                
+                var nodeList = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationAssociation").Cast<XmlNode>().OrderBy(element => element.SelectSingleNode("EmploymentPeriod/EndDate").InnerText).ToList();
+                
                 var schoolDeptids = GetDeptList(configuration);
                 foreach (XmlNode node in nodeList)
                 {
@@ -182,6 +188,7 @@ namespace BPS.EdOrg.Loader.Controller
                                 if (educationOrganizationId != null) schoolid = educationOrganizationId.SchoolId;
                                 if (!string.IsNullOrEmpty(schoolid))
                                 {
+                                    //Update StaffSchoolAssociation for staff schools
                                     UpdateStaffSchoolAssociation(token, schoolid, staffAssignmentNodeList);
                                     //Inserting new Assignments and updating the postioTitle with JobCode - JobDesc
                                     if (!string.IsNullOrEmpty(staffAssignmentNodeList.StaffUniqueIdValue) && !string.IsNullOrEmpty(staffAssignmentNodeList.BeginDateValue) && !string.IsNullOrEmpty(staffAssignmentNodeList.StaffClassification) && !string.IsNullOrEmpty(staffAssignmentNodeList.PositionCodeDescription))
@@ -199,6 +206,7 @@ namespace BPS.EdOrg.Loader.Controller
 
 
                 }
+
 
                 if (File.Exists(Constants.LOG_FILE))
                     _notification.SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
@@ -248,29 +256,41 @@ namespace BPS.EdOrg.Loader.Controller
             }
 
         }
-        private string GetAssignmentEndDate(string token, StaffEmploymentAssociationData staffData)
+        
+        private string GetAssignmentEndDate(string token, string staffUniqueId,string empDesc, string schoolId)
         {
-            string date = null;
+            string endDate = null;
+            DateTime maxValue = default(DateTime); 
             try
             {
                 IRestResponse response = null;
 
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl + Constants.staffUniqueId1 + staffData.staffUniqueIdValue + Constants.employmentStatusDescriptor + staffData.empDesc);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl +  Constants.educationOrganizationId + schoolId + Constants.staffUniqueId + staffUniqueId + Constants.employmentStatusDescriptor + empDesc);
                 response = _edfiApi.GetData(client, token);
                 if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
                 {
                     if (response.Content.Length > 2)
-                    {
-                        dynamic original = JsonConvert.DeserializeObject(response.Content);
+                    {                        
+                        var original = JsonConvert.DeserializeObject<List<UpdateEndDate>>(response.Content);
+
                         foreach (var data in original)
                         {
-                            var endDate = Convert.ToString(data.endDate) ?? null;
-                            if (endDate != null)
-                                date = endDate;
-
-                            else break;
+                            if (string.IsNullOrEmpty(data.EndDate))
+                            {
+                                endDate = null;
+                                break;
+                            }
+                            
+                            DateTime inputDateTime;                            
+                            DateTime.TryParse(data.EndDate, out inputDateTime);
+                            int result = DateTime.Compare(inputDateTime, maxValue);
+                            if (result >=0)
+                            {
+                                maxValue = inputDateTime;
+                                endDate = maxValue.ToString();
+                            }
+                                
                         }
-
                     }
 
                 }
@@ -279,7 +299,7 @@ namespace BPS.EdOrg.Loader.Controller
             {
                 _log.Error(ex.Message);
             }
-            return date;
+            return endDate;
         }
 
         private void UpdatingNewStaffData(string token, string staffUniqueIdValue, string fname, string lname, string birthDate)
@@ -577,19 +597,19 @@ namespace BPS.EdOrg.Loader.Controller
         }
 
 
-        private void UpdateStaffSchoolAssociation(string token, string schoolid, StaffAssignmentAssociationData staffData)
+        private void UpdateStaffSchoolAssociation(string token, string schoolId, StaffAssignmentAssociationData staffData)
         {
             IRestResponse response = null;
             try
             {
-
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssociationUrl + Constants.programAssignmentDescriptor + Constants.schoolId + schoolid + Constants.staffUniqueId + staffData.StaffUniqueIdValue);
+                var endDate = GetAssignmentEndDate(token, staffData.StaffUniqueIdValue, staffData.EmpDesc, schoolId);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssociationUrl + Constants.programAssignmentDescriptor + Constants.schoolId + schoolId + Constants.staffUniqueId + staffData.StaffUniqueIdValue);
                 response = _edfiApi.GetData(client, token);
                 var rootObject = new StaffSchoolAssociation
                 {
                     SchoolReference = new EdFiSchoolReference
                     {
-                        schoolId = schoolid,
+                        schoolId = schoolId,
                         Link = new Link()
                         {
                             Rel = string.Empty,
@@ -598,7 +618,7 @@ namespace BPS.EdOrg.Loader.Controller
                     },
                     SchoolYearTypeReference = new EdFiSchoolYearTypeReference
                     {
-                        SchoolYear = GetSchoolYear().ToString(),
+                        SchoolYear = GetSchoolYear(endDate).ToString(),
 
                         Link = new Link
                         {
@@ -621,33 +641,54 @@ namespace BPS.EdOrg.Loader.Controller
 
                 if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
                 {
+                   
+                    string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
                     if (response.Content.Length <= 2)
+                        response= _edfiApi.PostData(json, client, token);
+                    else
                     {
-                        string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
-                        response = _edfiApi.PostData(json, client, token);
+                        var data = JsonConvert.DeserializeObject<List<StaffAssociationReference>>(response.Content);
+                        foreach(var item in data)
+                        {
+                            var id = item.id;
+                            response = _edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssociationUrl + "/" + id), token);
+                        }
+                        
+                       
+                        
                     }
-                    _log.Info("Updating  edfi.StaffAssociation for Schoolid : " + schoolid);
+                       
                 }
-            }
+                _log.Info("Updating  edfi.StaffAssociation for Schoolid : " + schoolId);
+                }
+            
             catch (Exception ex)
             {
-                _log.Error("Error updating  edfi.StaffAssociation for Schoolid : " + schoolid + " Exception : " + ex.Message);
+                _log.Error("Error updating  edfi.StaffAssociation for Schoolid : " + schoolId + " Exception : " + ex.Message);
                 _log.Error(ex.Message);
             }
 
         }
 
-        private  int GetSchoolYear()
+        private  int GetSchoolYear(string endDate)
         {
-            var date = DateTime.Today;
-            var month = date.Month;
+            DateTime date = DateTime.Today;
+            int month = date.Month;
             int year = date.Year;
             try
             {
-                if (month <= 6)
-                    year = date.Year;
+                if (!string.IsNullOrEmpty(endDate))
+                {
+                    month = DateTime.Parse(endDate).Month;
+                    year = DateTime.Parse(endDate).Year;
+                }
                 else
-                    year = date.Year + 1;
+                {
+                    month = date.Month;
+                    year = date.Year;
+                }        
+                if (month > 6)                    
+                    year = year + 1;
             }
             catch (Exception ex)
             {

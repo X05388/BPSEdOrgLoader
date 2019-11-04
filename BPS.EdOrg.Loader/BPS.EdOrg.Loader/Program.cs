@@ -182,7 +182,7 @@ namespace BPS.EdOrg.Loader
             if (token != null)
             {
                 studentSpecController.UpdateAlertSpecialEducationData(token, parseXmls);
-                studentSpecController.UpdateIEPSpecialEducationProgramAssociationData(token, parseXmls);
+                //studentSpecController.UpdateIEPSpecialEducationProgramAssociationData(token, parseXmls);
             }
             else Log.Error("Token is not generated, ODS not updated");
 
