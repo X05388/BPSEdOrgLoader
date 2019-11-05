@@ -329,12 +329,10 @@ namespace BPS.EdOrg.Loader.Controller
                 }
                 else
                 {
-                    var data = JsonConvert.DeserializeObject<List<StaffAssociationReference>>(response.Content);
-                    foreach (var item in data)
-                    {
-                        var id = item.id;
-                        response = _edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + "/" + id), token);
-                    }
+                    StaffAssociationReference data = JsonConvert.DeserializeObject<StaffAssociationReference>(response.Content);                                      
+                    var id = data.id;
+                    response = _edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + "/" + id), token);
+                  
                     _log.Info("Updating  edfi.staff for Staff Id : " + staffUniqueIdValue);
                 }
             }
