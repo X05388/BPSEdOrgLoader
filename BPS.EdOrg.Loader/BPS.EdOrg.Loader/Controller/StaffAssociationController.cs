@@ -72,7 +72,7 @@ namespace BPS.EdOrg.Loader.Controller
                         // Adding new staff from peoplesoft file.
                         if (!string.IsNullOrEmpty(staffEmploymentNodeList.staffUniqueIdValue) && !string.IsNullOrEmpty(staffEmploymentNodeList.staff.firstName) && !string.IsNullOrEmpty(staffEmploymentNodeList.staff.lastName) && !string.IsNullOrEmpty(staffEmploymentNodeList.staff.birthDate))
                         {
-                            //if (!existingStaffIds.Any(p => p == staffEmploymentNodeList.staffUniqueIdValue))
+                            if (!existingStaffIds.Any(p => p == staffEmploymentNodeList.staffUniqueIdValue))
                                 UpdatingNewStaffData(token, staffEmploymentNodeList.staffUniqueIdValue, staffEmploymentNodeList.staff.firstName, staffEmploymentNodeList.staff.middleName, staffEmploymentNodeList.staff.lastName, staffEmploymentNodeList.staff.birthDate);
                         }
 
