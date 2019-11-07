@@ -3,6 +3,7 @@ using log4net;
 using System.Collections.Generic;
 using System.Xml;
 using System.IO;
+using System.IO.Compression;
 using System.Configuration;
 using Newtonsoft.Json;
 using RestSharp;
@@ -29,7 +30,7 @@ namespace BPS.EdOrg.Loader.Controller
                 string typeValue = null;
                 string nameValue = null;
                 string educationOrganizationIdValue = null;
-                string studentUniqueIdValue = null; 
+                string studentUniqueIdValue = null;
                 string serviceDescriptorValue = null;
 
                 var fragments = File.ReadAllText(ConfigurationManager.AppSettings["XMLDeploymentPath"] + $"/504inXML.xml").Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
@@ -115,78 +116,87 @@ namespace BPS.EdOrg.Loader.Controller
         {
             try
             {
-                var fragments = File.ReadAllText(ConfigurationManager.AppSettings["XMLDeploymentPath"] + $"Aspen_in_XML.xml").Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
-                fragments = fragments.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>", "");
-                var doc = XDocument.Parse(fragments);
-                XmlDocument xmlDoc = prseXMl.ToXmlDocument(doc);
-                XmlNodeList nodeList = xmlDoc.SelectNodes("//root/iep");
-                foreach (XmlNode node in nodeList)
+                if (!Directory.Exists(ConfigurationManager.AppSettings["XMLExtractedPath"]))
+                    Directory.CreateDirectory(ConfigurationManager.AppSettings["XMLExtractedPath"]);
+                string[] filePaths = Directory.GetFiles(ConfigurationManager.AppSettings["XMLExtractedPath"]);
+                foreach (System.IO.FileInfo file in new DirectoryInfo(ConfigurationManager.AppSettings["XMLExtractedPath"]).GetFiles())
+                    file.Delete();
+                ZipFile.ExtractToDirectory(ConfigurationManager.AppSettings["XMLDeploymentPath"] + $"Aspen_in_XML.zip", ConfigurationManager.AppSettings["XMLExtractedPath"]);
+                foreach (FileInfo file in new DirectoryInfo(ConfigurationManager.AppSettings["XMLExtractedPath"]).GetFiles())
                 {
-                    SpecialEducationReference spEducation = new SpecialEducationReference();
-                    spEducation.educationOrganizationReference = new EdFiEducationReference();
-                    spEducation.studentReference = new StudentReference();
-                    spEducation.programReference = new ProgramReference();
-                    spEducation.educationOrganizationReference.educationOrganizationId = Constants.educationOrganizationIdValue;
-                    spEducation.educationOrganizationReference.Link = new Link()
+                    var fragments = File.ReadAllText(file.FullName).Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+                    fragments = fragments.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>", "");
+                    var doc = XDocument.Parse(fragments);
+                    XmlDocument xmlDoc = prseXMl.ToXmlDocument(doc);
+                    XmlNodeList nodeList = xmlDoc.SelectNodes("//root/iep");
+                    foreach (XmlNode node in nodeList)
                     {
-                        Rel = string.Empty,
-                        Href = string.Empty
-                    };
-                    XmlNode ProgramNode = node.SelectSingleNode("programReference");
-                    if (ProgramNode != null)
-                    {
-                        spEducation.programReference.educationOrganizationId = ProgramNode.SelectSingleNode("educationOrganizationId").InnerText ?? null;
-                        spEducation.programReference.type = ProgramNode.SelectSingleNode("type").InnerText.ToString() ?? null;
-                        spEducation.programReference.name = ProgramNode.SelectSingleNode("name").InnerText.ToString() ?? null;
-                        spEducation.programReference.Link = new Link()
+                        SpecialEducationReference spEducation = new SpecialEducationReference();
+                        spEducation.educationOrganizationReference = new EdFiEducationReference();
+                        spEducation.studentReference = new StudentReference();
+                        spEducation.programReference = new ProgramReference();
+                        spEducation.educationOrganizationReference.educationOrganizationId = Constants.educationOrganizationIdValue;
+                        spEducation.educationOrganizationReference.Link = new Link()
                         {
                             Rel = string.Empty,
                             Href = string.Empty
                         };
-                    }
-                    XmlNode studentNode = node.SelectSingleNode("studentReference");
-                    if (studentNode != null)
-                    {
-                        spEducation.studentReference.studentUniqueId = studentNode.SelectSingleNode("studentUniqueId").InnerText.ToString() ?? null;
-                        spEducation.studentReference.Link = new Link()
+                        XmlNode ProgramNode = node.SelectSingleNode("programReference");
+                        if (ProgramNode != null)
                         {
-                            Rel = string.Empty,
-                            Href = string.Empty
-                        };
+                            spEducation.programReference.educationOrganizationId = ProgramNode.SelectSingleNode("educationOrganizationId").InnerText ?? null;
+                            spEducation.programReference.type = ProgramNode.SelectSingleNode("type").InnerText.ToString() ?? null;
+                            spEducation.programReference.name = ProgramNode.SelectSingleNode("name").InnerText.ToString() ?? null;
+                            spEducation.programReference.Link = new Link()
+                            {
+                                Rel = string.Empty,
+                                Href = string.Empty
+                            };
+                        }
+                        XmlNode studentNode = node.SelectSingleNode("studentReference");
+                        if (studentNode != null)
+                        {
+                            spEducation.studentReference.studentUniqueId = studentNode.SelectSingleNode("studentUniqueId").InnerText.ToString() ?? null;
+                            spEducation.studentReference.Link = new Link()
+                            {
+                                Rel = string.Empty,
+                                Href = string.Empty
+                            };
+                        }
+                        string beginDate = node.SelectSingleNode("beginDate").InnerText ?? null;
+                        if (string.IsNullOrEmpty(beginDate))
+                            beginDate = ConfigurationManager.AppSettings["SchoolStartDate"];
+                        spEducation.beginDate = beginDate;
+                        spEducation.endDate = node.SelectSingleNode("endDate").InnerText ?? null;
+                        //spEducation.ideaEligibility = node.SelectSingleNode("ideaEligiblity").InnerText.Equals("true") ? true : false;
+                        spEducation.iepBeginDate = node.SelectSingleNode("iepBeginDate").InnerText.ToString() ?? null;
+                        spEducation.iepEndDate = node.SelectSingleNode("iepEndDate").InnerText.ToString() ?? null;
+                        spEducation.iepReviewDate = node.SelectSingleNode("iepReviewDate").InnerText.ToString() ?? null;
+                        spEducation.lastEvaluationDate = node.SelectSingleNode("lastEvaluationDate").InnerText.ToString() ?? null;
+                        //spEducation.medicallyFragile = null;
+                        //spEducation.multiplyDisabled = null;
+                        spEducation.reasonExitedDescriptor = node.SelectSingleNode("reasonExitedDescriptor").InnerText.ToString() ?? null;
+                        if (node.SelectSingleNode("schoolHoursPerWeek").InnerText.Trim().Length > 0)
+                            spEducation.schoolHoursPerWeek = Convert.ToDouble(node.SelectSingleNode("schoolHoursPerWeek").InnerText.ToString()); // Null Check req need to Modify
+                        if (node.SelectSingleNode("specialEducationHoursPerWeek").InnerText.Trim().Length > 0)
+                            spEducation.specialEducationHoursPerWeek = Convert.ToDouble(node.SelectSingleNode("specialEducationHoursPerWeek").InnerText.ToString()); // Null Check req need to Modify
+                        if (node.SelectSingleNode("SpecialEducationSetting").InnerText.Trim().Length > 0)
+                            spEducation.specialEducationSettingDescriptor = Constants.GetSpecialEducationSetting(Int32.Parse(node.SelectSingleNode("SpecialEducationSetting").InnerText.ToString())); // Null Check req need to Modify
+                                                                                                                                                                                                      //Check required fied exist in XML source 
+                        if (!string.IsNullOrEmpty(spEducation.programReference.educationOrganizationId) && !string.IsNullOrEmpty(spEducation.programReference.name) && !string.IsNullOrEmpty(spEducation.programReference.type) && !string.IsNullOrEmpty(spEducation.beginDate) && !string.IsNullOrEmpty(spEducation.studentReference.studentUniqueId)) // 
+                        {
+                            // Check if the Program already exists in the ODS if not first enter the Progam.
+                            VerifyProgramData(token, spEducation.programReference.educationOrganizationId, spEducation.programReference.name, spEducation.programReference.type);
+                            InsertIEPStudentSpecialEducation(token, spEducation);
+                        }
+                        else
+                        {
+                            Log.Info("Required fields are empty for studentUniqueId:" + spEducation.studentReference.studentUniqueId);
+                        }
                     }
-                    string beginDate = node.SelectSingleNode("beginDate").InnerText ?? null;
-                    if (string.IsNullOrEmpty(beginDate))
-                        beginDate = ConfigurationManager.AppSettings["SchoolStartDate"];
-                    spEducation.beginDate = beginDate;
-                    spEducation.endDate = node.SelectSingleNode("endDate").InnerText ?? null;
-                    //spEducation.ideaEligibility = node.SelectSingleNode("ideaEligiblity").InnerText.Equals("true") ? true : false;
-                    spEducation.iepBeginDate = node.SelectSingleNode("iepBeginDate").InnerText.ToString() ?? null;
-                    spEducation.iepEndDate = node.SelectSingleNode("iepEndDate").InnerText.ToString() ?? null;
-                    spEducation.iepReviewDate = node.SelectSingleNode("iepReviewDate").InnerText.ToString() ?? null;
-                    spEducation.lastEvaluationDate = node.SelectSingleNode("lastEvaluationDate").InnerText.ToString() ?? null;
-                    //spEducation.medicallyFragile = null;
-                    //spEducation.multiplyDisabled = null;
-                    spEducation.reasonExitedDescriptor = node.SelectSingleNode("reasonExitedDescriptor").InnerText.ToString() ?? null;
-                    if (node.SelectSingleNode("schoolHoursPerWeek").InnerText.Trim().Length > 0)
-                        spEducation.schoolHoursPerWeek = Convert.ToDouble(node.SelectSingleNode("schoolHoursPerWeek").InnerText.ToString()); // Null Check req need to Modify
-                    if (node.SelectSingleNode("specialEducationHoursPerWeek").InnerText.Trim().Length > 0)
-                        spEducation.specialEducationHoursPerWeek = Convert.ToDouble(node.SelectSingleNode("specialEducationHoursPerWeek").InnerText.ToString()); // Null Check req need to Modify
-                    if (node.SelectSingleNode("SpecialEducationSetting").InnerText.Trim().Length > 0)
-                        spEducation.specialEducationSettingDescriptor = Constants.GetSpecialEducationSetting(Int32.Parse(node.SelectSingleNode("SpecialEducationSetting").InnerText.ToString())); // Null Check req need to Modify
-                    //Check required fied exist in XML source 
-                    if (!string.IsNullOrEmpty(spEducation.programReference.educationOrganizationId) && !string.IsNullOrEmpty(spEducation.programReference.name) && !string.IsNullOrEmpty(spEducation.programReference.type) && !string.IsNullOrEmpty(spEducation.beginDate) && !string.IsNullOrEmpty(spEducation.studentReference.studentUniqueId)) // 
-                    {
-                        // Check if the Program already exists in the ODS if not first enter the Progam.
-                        VerifyProgramData(token, spEducation.programReference.educationOrganizationId, spEducation.programReference.name, spEducation.programReference.type);
-                        InsertIEPStudentSpecialEducation(token, spEducation);
-                    }
-                    else
-                    {
-                        Log.Info("Required fields are empty for studentUniqueId:" + spEducation.studentReference.studentUniqueId);
-                    }
+                    if (File.Exists(Constants.LOG_FILE))
+                        notification.SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
                 }
-                if (File.Exists(Constants.LOG_FILE))
-                    notification.SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
             }
             catch (Exception ex)
             {
@@ -238,7 +248,7 @@ namespace BPS.EdOrg.Loader.Controller
 
         }
 
-        
+
 
         private static bool IsSuccessStatusCode(int statusCode)
         {
@@ -425,7 +435,7 @@ namespace BPS.EdOrg.Loader.Controller
             {
                 //Log the Error
                 Log.Error("Something went wrong while updating the Service Descriptor in ODS, check the XML values" + response.Content.ToString());
-                
+
             }
             return isPosted;
 
