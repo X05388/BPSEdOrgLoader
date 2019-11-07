@@ -101,8 +101,8 @@ namespace BPS.EdOrg.Loader.Models
              public bool servedOutsideOfRegularSession{ get; set; }
              public double specialEducationHoursPerWeek { get; set; }
              public string specialEducationSettingDescriptor{ get; set; }
+             public List<Service> Services { get; set; }
 
-            
         }   
         
         public class EdFiEducationReference

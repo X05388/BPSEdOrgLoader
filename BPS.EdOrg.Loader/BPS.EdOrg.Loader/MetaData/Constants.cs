@@ -46,7 +46,7 @@ namespace BPS.EdOrg.Loader
         public static string StaffAssignmentUrl { get; set; } = @"2019/staffEducationOrganizationAssignmentAssociations";
         public static string API_Program { get; set; } = @"2019/programs";
         public static string StudentSpecialEducation { get; set; } = @"2019/studentSpecialEducationProgramAssociations";
-        public static string API_ServiceDescriptor { get; set; } = @"api/v2.0/2018/serviceDescriptors";
+        public static string API_ServiceDescriptor { get; set; } = @"2019/serviceDescriptors";
         public static string StaffAssociationUrl { get; set; } = @"2019/staffSchoolAssociations";
        
        public static string EmpClassCode(string empCode)
@@ -166,7 +166,7 @@ namespace BPS.EdOrg.Loader
             {
                
                 case "Transportation - Door to Door":
-                    return @"Transportation - Door to Door";
+                    return @"Door to Door";
                 
                 default:
                     return @"Not Eligible";
