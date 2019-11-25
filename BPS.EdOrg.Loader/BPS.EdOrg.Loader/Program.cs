@@ -57,7 +57,7 @@ namespace BPS.EdOrg.Loader
                     LogConfiguration(param.Object);
 
                     // creating the xml and executing the file through command line parser
-                    //RunAlertIEPFile(param);
+                    RunAlertIEPFile(param);
                     RunDeptFile(param);
                     RunJobCodeFile(param);
                     RunTransferCasesFile(param);
@@ -169,7 +169,7 @@ namespace BPS.EdOrg.Loader
             if (token != null)
             {
                 staffController = new StaffAssociationController(token, param.Object, Log);
-               //staffController.UpdateStaffEmploymentAssociationData(token, param.Object);               
+                staffController.UpdateStaffEmploymentAssociationData(token, param.Object);               
                 staffController.UpdateStaffAssignmentAssociationData(token, param.Object);
             }
 

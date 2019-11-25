@@ -254,7 +254,7 @@ namespace BPS.EdOrg.Loader.Controller
                                 {
                                     StaffAssignmentAssociationData assignmentData = GetAssignmentAssociationIdTransfer(token, schoolid, staffAssignmentNodeList);
                                     if (assignmentData != null)                                     
-                                        UpdateAssignmentAssociationTransfer(token, assignmentData, schoolid, staffAssignmentNodeList);                              
+                                        UpdateAssignmentAssociationTransfer(token, assignmentData, staffAssignmentNodeList.EndDateValue);                              
                                         
                                 }
                                    
@@ -697,7 +697,7 @@ namespace BPS.EdOrg.Loader.Controller
         /// Updates the Position title in  [StaffEducationOrganizationAssignmentAssociation] table.
         /// </summary>
         /// <returns></returns>
-        private void UpdateAssignmentAssociationTransfer(string token, StaffAssignmentAssociationData assignmentData, string educationOrganizationId, StaffAssignmentAssociationData staffData)
+        private void UpdateAssignmentAssociationTransfer(string token, StaffAssignmentAssociationData assignmentData,string endDate)
         {
             try
             {
@@ -706,17 +706,54 @@ namespace BPS.EdOrg.Loader.Controller
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl + "/" + assignmentData.Id);
                 var rootObject = new StaffAssignmentDescriptor
                 {
-                    EndDate = staffData.EndDateValue
+
+                    EducationOrganizationReference = new EdFiEducationReference
+                    {
+                        educationOrganizationId = assignmentData.EducationOrganizationIdValue,
+                        Link = new Link()
+                        {
+                            Rel = string.Empty,
+                            Href = string.Empty
+                        }
+                    },
+                    StaffReference = new EdFiStaffReference
+                    {
+                        staffUniqueId = assignmentData.StaffUniqueIdValue,
+
+                        Link = new Link
+                        {
+                            Rel = string.Empty,
+                            Href = string.Empty
+                        }
+                    },
+                    EmploymentStaffEducationOrganizationEmploymentAssociationReference = new EdfiEmploymentAssociationReference
+                    {
+                        educationOrganizationId = Constants.educationOrganizationIdValue,
+                        staffUniqueId = assignmentData.StaffUniqueIdValue,
+                        employmentStatusDescriptor = assignmentData.EmpDesc,
+                        hireDate = assignmentData.HireDateValue,
+                        Link = new Link
+                        {
+                            Rel = string.Empty,
+                            Href = string.Empty
+                        }
+                    },
+
+                    StaffClassificationDescriptor = assignmentData.StaffClassification,
+                    BeginDate = assignmentData.BeginDateValue,
+                    EndDate = endDate,
+                    OrderOfAssignment = assignmentData.JobOrderAssignment,
+                    PositionTitle = assignmentData.PositionCodeDescription
                 };
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
                 response = _edfiApi.PutData(json, client, token);
-                _log.Info("Updating  StaffEducationOrganizationAssignmentAssociation for Staff Id : " + staffData.StaffUniqueIdValue);
+                _log.Info("Updating  StaffEducationOrganizationAssignmentAssociation for Staff Id : " + assignmentData.StaffUniqueIdValue);
 
             }
 
             catch (Exception ex)
             {
-                _log.Error(" Error updating  StaffEducationOrganizationAssignmentAssociation for Staff Id : " + staffData.StaffUniqueIdValue + ex.Message);
+                _log.Error(" Error updating  StaffEducationOrganizationAssignmentAssociation for Staff Id : " + assignmentData.StaffUniqueIdValue + ex.Message);
 
             }
 
