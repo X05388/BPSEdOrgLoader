@@ -61,6 +61,13 @@ namespace BPS.EdOrg.Loader.MetaData
                 ConfigurationManager.AppSettings["DataFilePathJob"],
                 Directory.GetCurrentDirectory()));
 
+            Setup(arg => arg.DataFilePathJobTransfer).As('e', "DataFilePathJobTransfer")
+            .WithDescription("Path to folder containing the input text data files to be loaded")
+            .SetDefault(GetFirstValue(
+                ConfigurationManager.AppSettings["DataFilePathJobTransfer"],
+                Directory.GetCurrentDirectory()));
+
+
             Setup(arg => arg.CrossWalkFilePath).As('c', "CrossWalkFilePath")
           .WithDescription("Path to folder containing the input text crosswalk files to be loaded")
           .SetDefault(GetFirstValue(
