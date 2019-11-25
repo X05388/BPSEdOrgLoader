@@ -747,13 +747,13 @@ namespace BPS.EdOrg.Loader.Controller
                 };
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
                 response = _edfiApi.PutData(json, client, token);
-                _log.Info("Updating  StaffEducationOrganizationAssignmentAssociation for Staff Id : " + assignmentData.StaffUniqueIdValue);
+                _log.Info("Updating  StaffEducationOrganizationAssignmentAssociation for Staff Id Transfer and Retirement Case: " + assignmentData.StaffUniqueIdValue);
 
             }
 
             catch (Exception ex)
             {
-                _log.Error(" Error updating  StaffEducationOrganizationAssignmentAssociation for Staff Id : " + assignmentData.StaffUniqueIdValue + ex.Message);
+                _log.Error(" Error updating  StaffEducationOrganizationAssignmentAssociation for Staff Id Transfer and Retirement Case: " + assignmentData.StaffUniqueIdValue + ex.Message);
 
             }
 
