@@ -115,7 +115,7 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                         hireDateIndex = Array.IndexOf(header, "Orig Hire Date");
                         jobCodeIndex = Array.IndexOf(header, "Job Code");
                         jobTitleIndex = Array.IndexOf(header, "Job Title");
-                        entryDateIndex = Array.IndexOf(header, "Entry Date");
+                        entryDateIndex = Array.IndexOf(header, "Job Entry Date");
                         unionCodeIndex = Array.IndexOf(header, "Union Code");
                         emplClassIndex = Array.IndexOf(header, "Empl Class");
                         jobIndicatorIndex = Array.IndexOf(header, "Job Indicator");
