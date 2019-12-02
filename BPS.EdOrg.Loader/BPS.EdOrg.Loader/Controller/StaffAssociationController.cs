@@ -48,7 +48,7 @@ namespace BPS.EdOrg.Loader.Controller
         {
             try
             {
-                XmlDocument xmlDoc = _prseXML.LoadStaffXml();
+                XmlDocument xmlDoc = _prseXML.LoadXml("StaffAssociation");
                 _restServiceManager = new RestServiceManager(configuration, token, _log);
                 //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
                 //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
@@ -164,7 +164,7 @@ namespace BPS.EdOrg.Loader.Controller
         {
             try
             {
-                XmlDocument xmlDoc = _prseXML.LoadStaffXml();
+                XmlDocument xmlDoc = _prseXML.LoadXml("StaffAssociation");
                 //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
                 //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
                 
@@ -194,7 +194,7 @@ namespace BPS.EdOrg.Loader.Controller
                                     {
                                         string id = GetAssignmentAssociationId(token, schoolid, staffAssignmentNodeList);
                                         if (id != null)
-                                            UpdatePostionTitle(token, id, schoolid, staffAssignmentNodeList);
+                                            UpdateAssignmentAssociation(token, id, schoolid, staffAssignmentNodeList);
                                     }
                                     //Update StaffSchoolAssociation for staff schools
                                     UpdateStaffSchoolAssociation(token, schoolid, staffAssignmentNodeList);
@@ -203,6 +203,66 @@ namespace BPS.EdOrg.Loader.Controller
                             }
 
                         }
+                    }
+
+
+                }
+
+
+                if (File.Exists(Constants.LOG_FILE))
+                    _notification.SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex.Message);
+            }
+
+        }
+        /// <summary>
+        /// Gets the data from the xml and updates StaffEducationOrganizationAssignmentAssociation table for Transfer Cases.
+        /// </summary>
+        /// <returns></returns>
+        public void UpdateStaffAssignmentDataTransferCases(string token, EdorgConfiguration configuration)
+        {
+            try
+            {
+                XmlDocument xmlDoc = _prseXML.LoadXml("TransferCases");
+                //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
+                //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
+
+                var nodeList = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationAssociation");
+
+                var schoolDeptids = GetDeptList(configuration);
+                foreach (XmlNode node in nodeList)
+                {
+                    // Extracting the data froom the XMl file
+                    var staffAssignmentNodeList = GetAssignmentAssociationTransferXml(node);
+                    if (staffAssignmentNodeList != null)
+                    {
+                        if (schoolDeptids.Count > 0)
+                        {
+                            string schoolid = null;
+                            // Getting the EdOrgId for the Department ID 
+                            var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(staffAssignmentNodeList.EducationOrganizationIdValue) && x.OperationalStatus.Equals("Active")).FirstOrDefault();
+
+                            // setting the DeptId as EdOrgId for the staff, if no corresponding school is found
+                            if (educationOrganizationId != null) schoolid = educationOrganizationId.SchoolId;
+                            if (!string.IsNullOrEmpty(schoolid))
+                            {
+                                //Inserting new Assignments and updating the postioTitle with JobCode - JobDesc
+                                if (!string.IsNullOrEmpty(staffAssignmentNodeList.StaffUniqueIdValue) && !string.IsNullOrEmpty(staffAssignmentNodeList.BeginDateValue) && !string.IsNullOrEmpty(staffAssignmentNodeList.StaffClassification))
+                                {
+                                    StaffAssignmentAssociationData assignmentData = GetAssignmentAssociationIdTransfer(token, schoolid, staffAssignmentNodeList);
+                                    if (assignmentData != null)                                     
+                                        UpdateAssignmentAssociationTransfer(token, assignmentData, staffAssignmentNodeList.EndDateValue);                              
+                                        
+                                }
+                                   
+                            }
+
+                        }
+
+                      
                     }
 
 
@@ -257,7 +317,42 @@ namespace BPS.EdOrg.Loader.Controller
             }
 
         }
-        
+
+        private StaffAssignmentAssociationData GetAssignmentAssociationTransferXml(XmlNode node)
+        {
+            try
+            {
+                StaffAssignmentAssociationData staffAssignmentList = null;
+                XmlNode staffNode = node.SelectSingleNode("StaffReference/StaffIdentity");
+                XmlNode EducationNode = node.SelectSingleNode("EducationOrganizationReference/EducationOrganizationIdentity");
+                XmlNode EmploymentNode = node.SelectSingleNode("EmploymentPeriod");
+                if (staffNode == null && EducationNode == null) _log.Error("Nodes not reurning any data for Assignment");
+                XmlNode staffClassificationNode = node.SelectSingleNode("StaffClassification");               
+                if (staffNode != null && EducationNode != null)
+                {
+                    staffAssignmentList = new StaffAssignmentAssociationData
+                    {
+                        StaffUniqueIdValue = staffNode.SelectSingleNode("StaffUniqueId").InnerText ?? null,
+                        EducationOrganizationIdValue = EducationNode.SelectSingleNode("EducationOrganizationId").InnerText ?? null,
+                        EndDateValue = EmploymentNode.SelectSingleNode("EndDate").InnerText ?? null,
+                        BeginDateValue = EmploymentNode.SelectSingleNode("BeginDate").InnerText ?? null,                        
+                        StaffClassification = staffClassificationNode.SelectSingleNode("CodeValue").InnerText ?? null                  
+
+                    };
+
+                }
+                return staffAssignmentList;
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Error extracting data for AssignmentAssociation Exception : " + ex.Message);
+                return null;
+
+            }
+
+        }
+
+
         private string GetAssignmentEndDate(string token, string staffUniqueId,string empDesc, string schoolId)
         {
             string endDate = null;
@@ -486,12 +581,56 @@ namespace BPS.EdOrg.Loader.Controller
             }
             return null;
         }
+        /// <summary>
+        /// Get the Id from the [StaffEducationOrganizationAssignmentAssociation] table.
+        /// </summary>
+        /// <returns></returns>
+        private StaffAssignmentAssociationData GetAssignmentAssociationIdTransfer(string token, string educationOrganizationId, StaffAssignmentAssociationData staffData)
+        {
+            IRestResponse response = null;
+            try
+            {
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl + Constants.educationOrganizationId + educationOrganizationId + Constants.beginDate + staffData.BeginDateValue + Constants.staffClassificationDescriptorId + staffData.StaffClassification + Constants.staffUniqueId + staffData.StaffUniqueIdValue);
+                response = _edfiApi.GetData(client, token);
+                if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
+                {
+                    if (response.Content.Length > 2)
+                    {
+                        //dynamic original = JObject.Parse(response.Content.TrimStart(new char[] { '[' }).TrimEnd(new char[] { ']' }).ToString());
+                        var original = JsonConvert.DeserializeObject<StaffAssignmentDescriptor>(response.Content.TrimStart(new char[] { '[' }).TrimEnd(new char[] { ']' }));
+                        var data = new StaffAssignmentAssociationData
+                        {
+                            Id = original.id,
+                            StaffUniqueIdValue = original.StaffReference.staffUniqueId,
+                            EducationOrganizationIdValue = original.EducationOrganizationReference.educationOrganizationId,
+                            StaffClassification = original.StaffClassificationDescriptor,
+                            BeginDateValue = original.BeginDate,
+                            PositionCodeDescription = original.PositionTitle,
+                            EndDateValue = original.EndDate,
+                            JobOrderAssignment = original.OrderOfAssignment,
+                            EmploymentEducationOrganizationIdValue = original.EmploymentStaffEducationOrganizationEmploymentAssociationReference.educationOrganizationId,
+                            HireDateValue = original.EmploymentStaffEducationOrganizationEmploymentAssociationReference.hireDate,
+                            EmpDesc = original.EmploymentStaffEducationOrganizationEmploymentAssociationReference.employmentStatusDescriptor
 
+                        };
+                        return data;
+                      
+                    }          
+                }
+            }
+
+            catch (Exception ex)
+            {
+                _log.Error(" Error updating  StaffEducationOrganizationAssignmentAssociation for Staff Id : " + staffData.StaffUniqueIdValue + ex.Message);
+
+            }
+            return null;
+        }
         /// <summary>
         /// Updates the Position title in  [StaffEducationOrganizationAssignmentAssociation] table.
         /// </summary>
         /// <returns></returns>
-        private void UpdatePostionTitle(string token, string id, string educationOrganizationId, StaffAssignmentAssociationData staffData)
+        private void UpdateAssignmentAssociation(string token, string id, string educationOrganizationId, StaffAssignmentAssociationData staffData)
         {
             try
             {
@@ -548,6 +687,73 @@ namespace BPS.EdOrg.Loader.Controller
             catch (Exception ex)
             {
                 _log.Error(" Error updating  StaffEducationOrganizationAssignmentAssociation for Staff Id : " + staffData.StaffUniqueIdValue + ex.Message);
+
+            }
+
+        }
+
+
+        /// <summary>
+        /// Updates the Position title in  [StaffEducationOrganizationAssignmentAssociation] table.
+        /// </summary>
+        /// <returns></returns>
+        private void UpdateAssignmentAssociationTransfer(string token, StaffAssignmentAssociationData assignmentData,string endDate)
+        {
+            try
+            {
+
+                IRestResponse response = null;
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl + "/" + assignmentData.Id);
+                var rootObject = new StaffAssignmentDescriptor
+                {
+
+                    EducationOrganizationReference = new EdFiEducationReference
+                    {
+                        educationOrganizationId = assignmentData.EducationOrganizationIdValue,
+                        Link = new Link()
+                        {
+                            Rel = string.Empty,
+                            Href = string.Empty
+                        }
+                    },
+                    StaffReference = new EdFiStaffReference
+                    {
+                        staffUniqueId = assignmentData.StaffUniqueIdValue,
+
+                        Link = new Link
+                        {
+                            Rel = string.Empty,
+                            Href = string.Empty
+                        }
+                    },
+                    EmploymentStaffEducationOrganizationEmploymentAssociationReference = new EdfiEmploymentAssociationReference
+                    {
+                        educationOrganizationId = Constants.educationOrganizationIdValue,
+                        staffUniqueId = assignmentData.StaffUniqueIdValue,
+                        employmentStatusDescriptor = assignmentData.EmpDesc,
+                        hireDate = assignmentData.HireDateValue,
+                        Link = new Link
+                        {
+                            Rel = string.Empty,
+                            Href = string.Empty
+                        }
+                    },
+
+                    StaffClassificationDescriptor = assignmentData.StaffClassification,
+                    BeginDate = assignmentData.BeginDateValue,
+                    EndDate = endDate,
+                    OrderOfAssignment = assignmentData.JobOrderAssignment,
+                    PositionTitle = assignmentData.PositionCodeDescription
+                };
+                string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                response = _edfiApi.PutData(json, client, token);
+                _log.Info("Updating  StaffEducationOrganizationAssignmentAssociation for Staff Id Transfer and Retirement Case: " + assignmentData.StaffUniqueIdValue);
+
+            }
+
+            catch (Exception ex)
+            {
+                _log.Error(" Error updating  StaffEducationOrganizationAssignmentAssociation for Staff Id Transfer and Retirement Case: " + assignmentData.StaffUniqueIdValue + ex.Message);
 
             }
 

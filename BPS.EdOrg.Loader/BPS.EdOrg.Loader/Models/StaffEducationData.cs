@@ -63,7 +63,9 @@ namespace BPS.EdOrg.Loader.Models
             public string EndDate { get; set; }
             public string StaffClassificationDescriptor { get; set; }
             public string OrderOfAssignment { get; set; }
-        
+            public string HireDate { get; set; }
+            public string EmpDescriptor { get; set; }
+
 
         }
         public class EdFiProgram
@@ -179,8 +181,9 @@ namespace BPS.EdOrg.Loader.Models
 
     public class StaffAssignmentAssociationData
     {
+        public string Id { get; set; }
         public string StaffUniqueIdValue { get; set; }
-
+        public string EmploymentEducationOrganizationIdValue { get; set; }
         public string PositionCodeDescription { get; set; }
 
         public string EducationOrganizationIdValue { get; set; }

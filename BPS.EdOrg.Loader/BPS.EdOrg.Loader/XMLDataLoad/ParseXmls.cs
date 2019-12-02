@@ -201,6 +201,80 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 _log.Error($"Error while creating JobCode XML , Exception: {ex.Message}");
             }
         }
+
+        public void CreateXmlTransferCases()
+        {
+            try
+            {
+                string xmlOutPutPath = ConfigurationManager.AppSettings["XMLOutputPath"];
+                string filePath = Path.Combine(xmlOutPutPath, $"TransferCases-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
+                XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
+                CreateXmlGenericStart(writer);
+                writer.WriteStartElement("InterchangeStaffAssociation");
+
+                string dataFilePath = _configuration.DataFilePathJobTransfer;
+                string[] lines = File.ReadAllLines(dataFilePath);
+                int i = 0; int actionIndex = 0;int unionCodeIndex = 0; int entryDateIndex = 0;
+                int numberOfRecordsCreatedInXml = 0;int actionDateIndex = 0; int deptIdPriorIndex = 0;
+                int jobCodeIndex = 0;  int empIdIndex = 0;int  numberOfRecordsSkipped = 0;
+                foreach (string line in lines)
+                {
+                    _log.Debug(line);
+                    if (i++ == 0)
+                    {
+                        string[] header = line.Split('\t');
+                        empIdIndex = Array.IndexOf(header, "ID");                        
+                        actionDateIndex = Array.IndexOf(header, "Effective Date");
+                        actionIndex = Array.IndexOf(header, "Action");
+                        deptIdPriorIndex = Array.IndexOf(header, "DeptID Prior");                     
+                        entryDateIndex = Array.IndexOf(header, "Job Entry Date Prior");
+                        unionCodeIndex = Array.IndexOf(header, "Union Code Prior");                       
+                        jobCodeIndex = Array.IndexOf(header, "Job Code Prior");                       
+
+
+                        if (actionIndex < 0 || empIdIndex < 0 || entryDateIndex < 0)
+                        {
+                            _log.Error($"Input data text file does not contains the ID or JobCode or ActionDt headers");
+                        }
+                        continue;
+                    }
+
+                    string[] fields = line.Split('\t');
+                    if (fields.Length > 0)
+                    {
+                        var staffAssociationData = new StaffAssociationData
+                        {
+                            staffId = fields[empIdIndex]?.Trim(),
+                            deptId = fields[deptIdPriorIndex]?.Trim(),
+                            action = fields[actionIndex]?.Trim(),                            
+                            endDate = fields[actionDateIndex]?.Trim(),
+                            jobCode = fields[jobCodeIndex]?.Trim(),                            
+                            entryDate = fields[entryDateIndex]?.Trim(),
+                            unionCode = fields[unionCodeIndex]?.Trim(),                           
+
+                        };
+
+                        string descCode = Constants.StaffClassificationDescriptorCode(staffAssociationData.jobCode, int.Parse(staffAssociationData.deptId), staffAssociationData.unionCode).ToString().Trim();
+                        _log.Debug($"Creating node for {staffAssociationData.staffId}-{staffAssociationData.deptId}-{staffAssociationData.endDate}");
+                        CreateNodeTransferCases(staffAssociationData, descCode,writer);
+                        numberOfRecordsCreatedInXml++;                        
+                    }
+                }
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
+                writer.Close();
+                if (numberOfRecordsSkipped > 0)
+                {
+                    _log.Info($"Number Of records created In Xml {numberOfRecordsCreatedInXml}");
+                    _log.Info($"Number of records skipped because crosswalk contains the PeopleSoftIds - {numberOfRecordsSkipped}");
+                }
+                _log.Info("CreateXML ended successfully");
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error while creating JobCode XML , Exception: {ex.Message}");
+            }
+        }
         private  XmlNodeList GetDeptforLocation()
         {
             try
@@ -303,6 +377,68 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 else
                     writer.WriteString(null);
 
+                writer.WriteEndElement();
+
+                writer.WriteEndElement();
+                writer.WriteEndElement();
+
+                _log.Info($"CreateNode Ended successfully for jobcode:{staffData.deptId} and EndDate:{staffData.endDate}");
+
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"There is exception while creating Node for jobcode:{staffData.deptId} and EndDate:{staffData.endDate}, Exception  :{ex.Message}");
+            }
+        }
+
+        private void CreateNodeTransferCases(StaffAssociationData staffData, string descCode, XmlTextWriter writer)
+        {
+            try
+            {
+                _log.Info($"CreateNode started for jobcode:{staffData.deptId} and EntryDate:{staffData.entryDate}");
+                writer.WriteStartElement("StaffEducationOrganizationAssociation");
+
+                writer.WriteStartElement("StaffReference");
+                writer.WriteStartElement("StaffIdentity");
+
+                writer.WriteStartElement("StaffUniqueId");
+                writer.WriteString(staffData.staffId);
+                writer.WriteEndElement();
+
+                writer.WriteEndElement();
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("EducationOrganizationReference");
+
+                writer.WriteStartElement("EducationOrganizationIdentity");
+                writer.WriteStartElement("EducationOrganizationId");
+                writer.WriteString(staffData.deptId);
+                writer.WriteEndElement();
+                writer.WriteEndElement();
+
+                writer.WriteEndElement();
+
+
+                writer.WriteStartElement("StaffClassification");
+                writer.WriteStartElement("CodeValue");
+                writer.WriteString(descCode);
+                writer.WriteEndElement();
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("EmploymentPeriod");
+
+                writer.WriteStartElement("BeginDate");
+                writer.WriteString(staffData.entryDate);
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("Action");
+                writer.WriteString(staffData.action);
+                writer.WriteEndElement();             
+
+
+                writer.WriteStartElement("EndDate");
+                writer.WriteString(staffData.endDate);
+                
                 writer.WriteEndElement();
 
                 writer.WriteEndElement();
@@ -509,12 +645,12 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
         /// </summary>
         /// <returns></returns>
 
-        public XmlDocument LoadStaffXml()
+        public XmlDocument LoadXml(string xmlFileName)
         {
             try
             {
                 XmlDocument xmlDoc = new XmlDocument();
-                xmlDoc.Load(ConfigurationManager.AppSettings["XMLOutputPath"] + $"/StaffAssociation-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
+                xmlDoc.Load(ConfigurationManager.AppSettings["XMLOutputPath"] + $"/"+ xmlFileName + $"-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
                 return xmlDoc;
 
             }

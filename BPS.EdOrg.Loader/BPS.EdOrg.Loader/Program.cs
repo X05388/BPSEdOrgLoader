@@ -59,7 +59,8 @@ namespace BPS.EdOrg.Loader
                     // creating the xml and executing the file through command line parser
                     RunAlertIEPFile(param);
                     RunDeptFile(param);
-                    RunJobCodeFile(param);                   
+                    RunJobCodeFile(param);
+                    RunTransferCasesFile(param);
 
                 }
                 catch (Exception ex)
@@ -84,6 +85,7 @@ namespace BPS.EdOrg.Loader
             Log.Info($"Data Folder: {configuration.XMLOutputPath}");
             Log.Info($"Input Data Text File Path:   {configuration.DataFilePath}");
             Log.Info($"Input Data Text File Path Job:   {configuration.DataFilePathJob}");
+            Log.Info($"Input Data Text File Path Job:   {configuration.DataFilePathJobTransfer}");
             Log.Info($"CrossWalk File Path: {configuration.CrossWalkFilePath}");
             Log.Info($"Working Folder: {configuration.WorkingFolder}");
             Log.Info($"Xsd Folder:  {configuration.XsdFolder}");
@@ -169,6 +171,23 @@ namespace BPS.EdOrg.Loader
                 staffController = new StaffAssociationController(token, param.Object, Log);
                 staffController.UpdateStaffEmploymentAssociationData(token, param.Object);               
                 staffController.UpdateStaffAssignmentAssociationData(token, param.Object);
+            }
+
+            else Log.Error("Token is not generated, ODS not updated");
+
+        }
+
+        private static void RunTransferCasesFile(CommandLineParser param)
+        {
+
+            ParseXmls parseXmls = new ParseXmls(param.Object, Log);
+            parseXmls.CreateXmlTransferCases();
+
+            var token = edfiApi.GetAuthToken();
+            if (token != null)
+            {
+                staffController = new StaffAssociationController(token, param.Object, Log);                
+                staffController.UpdateStaffAssignmentDataTransferCases(token, param.Object);
             }
 
             else Log.Error("Token is not generated, ODS not updated");
