@@ -242,7 +242,7 @@ namespace BPS.EdOrg.Loader.Controller
                             Href = string.Empty
                         }
                     },
-                    beginDate = spList.BeginDate,
+                    beginDate = spList.IepBeginDate,
                     ideaEligibility = spList.IdeaEligibility,
                     iepReviewDate = spList.IepReviewDate,
                     iepBeginDate = spList.IepBeginDate,
