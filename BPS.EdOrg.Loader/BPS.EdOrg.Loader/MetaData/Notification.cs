@@ -12,6 +12,19 @@ namespace BPS.EdOrg.Loader.MetaData
 {
     class Notification
     {
+        
+        private readonly string _recipient;
+        private readonly string _subject;
+        private readonly string _body;
+        private readonly string _attachmentFilename;
+
+        public Notification(string recipient, string subject, string body, string attachmentFilename)
+        {
+            _recipient = recipient;
+            _subject = subject;
+            _body = body;
+            _attachmentFilename = attachmentFilename;
+        }
         /// <summary>
         /// Sending the log in the email
         /// </summary>

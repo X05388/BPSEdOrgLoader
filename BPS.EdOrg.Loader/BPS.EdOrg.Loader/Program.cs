@@ -6,15 +6,6 @@ using System.IO;
 using System.Configuration;
 using System.Diagnostics;
 using System.Text;
-using BPS.EdOrg.Loader.ApiClient;
-using Newtonsoft.Json;
-using RestSharp;
-using EdFi.OdsApi.Sdk;
-using System.Xml.Linq;
-using Newtonsoft.Json.Linq;
-using System.Net.Mail;
-using System.Net.Mime;
-using System.Linq;
 using BPS.EdOrg.Loader.Models;
 using BPS.EdOrg.Loader.XMLDataLoad;
 using BPS.EdOrg.Loader.MetaData;
@@ -29,9 +20,9 @@ namespace BPS.EdOrg.Loader
         private static EdFiApiCrud edfiApi = new EdFiApiCrud();
         private static StudentSpecialEducationController studentSpecController = new StudentSpecialEducationController();
         public static ParseXmls parseXmls = null;
-        public static Notification notification = new Notification();
+        public static Notification notification;
         public static StaffAssociationController staffController;
-
+       
         static void Main(string[] args)
         {
             var param = new CommandLineParser();
@@ -67,6 +58,7 @@ namespace BPS.EdOrg.Loader
                 {
                     Log.Error(ex.Message);
                 }
+                Log.Info("Job completed");
             }
         }
 
@@ -179,18 +171,26 @@ namespace BPS.EdOrg.Loader
 
         private static void RunTransferCasesFile(CommandLineParser param)
         {
-
-            ParseXmls parseXmls = new ParseXmls(param.Object, Log);
-            parseXmls.CreateXmlTransferCases();
-
-            var token = edfiApi.GetAuthToken();
-            if (token != null)
+            try
             {
-                staffController = new StaffAssociationController(token, param.Object, Log);                
-                staffController.UpdateStaffAssignmentDataTransferCases(token, param.Object);
-            }
+                ParseXmls parseXmls = new ParseXmls(param.Object, Log);
+                parseXmls.CreateXmlTransferCases();
 
-            else Log.Error("Token is not generated, ODS not updated");
+                var token = edfiApi.GetAuthToken();
+                if (token != null)
+                {
+                    staffController = new StaffAssociationController(token, param.Object, Log);
+                    staffController.UpdateStaffAssignmentDataTransferCases(token, param.Object);
+                }
+
+                else Log.Error("Token is not generated, ODS not updated");
+            }
+            catch(Exception ex)
+            {
+                notification = new Notification(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
+                notification.SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
+            }
+            
 
         }
         private static void RunAlertIEPFile(CommandLineParser param)

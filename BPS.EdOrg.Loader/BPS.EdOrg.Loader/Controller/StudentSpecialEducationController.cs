@@ -21,7 +21,7 @@ namespace BPS.EdOrg.Loader.Controller
     {
         private static readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private static EdFiApiCrud edfiApi = new EdFiApiCrud();
-        private Notification notification = new Notification();
+        private Notification notification;
         public void UpdateAlertSpecialEducationData(string token, ParseXmls prseXMl)
         {
 

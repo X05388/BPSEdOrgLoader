@@ -4,22 +4,16 @@ using System.Collections.Generic;
 using System.Xml;
 using System.IO;
 using System.Configuration;
-using System.Diagnostics;
-using System.Text;
 using BPS.EdOrg.Loader.ApiClient;
 using Newtonsoft.Json;
 using RestSharp;
-using EdFi.OdsApi.Sdk;
-using System.Xml.Linq;
 using Newtonsoft.Json.Linq;
-using System.Net.Mail;
-using System.Net.Mime;
 using System.Linq;
 using BPS.EdOrg.Loader.Models;
 using BPS.EdOrg.Loader.XMLDataLoad;
 using BPS.EdOrg.Loader.MetaData;
 using BPS.EdOrg.Loader.EdFi.Api;
-using BPS.EdOrg.Loader.Controller;
+
 
 namespace BPS.EdOrg.Loader.Controller
 {
@@ -36,8 +30,7 @@ namespace BPS.EdOrg.Loader.Controller
         {
             _log = log;
             _prseXML = new ParseXmls(configuration, _log);
-            _restServiceManager = new RestServiceManager(configuration, token, _log);
-            _notification = new Notification();
+            _restServiceManager = new RestServiceManager(configuration, token, _log);           
             _edfiApi = new EdFiApiCrud();
         }
         /// <summary>
@@ -99,7 +92,11 @@ namespace BPS.EdOrg.Loader.Controller
 
                 }
                 if (File.Exists(Constants.LOG_FILE))
+                {
+                    _notification = new Notification(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
                     _notification.SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
+                }
+                  
             }
             catch (Exception ex)
             {
