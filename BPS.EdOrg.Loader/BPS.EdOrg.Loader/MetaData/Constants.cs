@@ -68,7 +68,28 @@ namespace BPS.EdOrg.Loader
             else
                 return "0";
         }
-
+        public static string GetTelephoneType(string type)
+        {
+            if (type.Equals("HOME") || type.Equals("Home"))
+                return "Home";
+            if (type.Equals("CELL") || type.Equals("Cell"))
+                return "Mobile";
+            if (type.Equals("BUSN") || type.Equals("Busn"))
+                return "Work";
+            if (type.Equals("FAX") || type.Equals("Fax"))
+                return "Fax";
+            if (type.Equals("PGR1") || type.Equals("PAGR"))
+                return "Unlisted";
+            else
+                return "Other";
+        }
+        public static string GetPreferredNumber(string num)
+        {
+            if (num.Equals("Y"))
+                 return "1";
+            else
+                return "2";
+        }
         public static string StaffClassificationDescriptorCode(string jobCode, int deptID, string unionCode)
        {
             if (jobCode.Equals("S00022") || jobCode.Equals("S00023") || jobCode.Equals("S00170") ||

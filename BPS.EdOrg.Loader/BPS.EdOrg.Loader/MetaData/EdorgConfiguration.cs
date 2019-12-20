@@ -23,6 +23,8 @@ namespace BPS.EdOrg.Loader.MetaData
         public string DataFilePath { get; set; }
         public string DataFilePathJob { get; set; }
         public string DataFilePathJobTransfer { get; set; }
+        public string DataFilePathStaffPhoneNumbers { get; set; }
+        
         public string CrossWalkFilePath { get; set; }
         public string WorkingFolder { get; set; }
         public string Profile { get; set; }
@@ -45,6 +47,7 @@ namespace BPS.EdOrg.Loader.MetaData
                         string.IsNullOrEmpty(DataFilePath) || 
                         string.IsNullOrEmpty(DataFilePathJob) ||
                         string.IsNullOrEmpty(DataFilePathJobTransfer) ||
+                        string.IsNullOrEmpty(DataFilePathStaffPhoneNumbers) ||                        
                         string.IsNullOrEmpty(CrossWalkFilePath) ||
                         string.IsNullOrEmpty(XsdFolder) ||
                         string.IsNullOrEmpty(InterchangeOrderFolder) ||
@@ -100,9 +103,12 @@ namespace BPS.EdOrg.Loader.MetaData
                 if (string.IsNullOrEmpty(DataFilePathJob) || !Directory.Exists(DataFilePathJob))
                     sb.AppendLine("Option 'j:data' parse error. Provided value is not a file path.");
 
+                if (string.IsNullOrEmpty(DataFilePathStaffPhoneNumbers) || !Directory.Exists(DataFilePathStaffPhoneNumbers))
+                    sb.AppendLine("Option 'g:data' parse error. Provided value is not a file path.");
+
                 if (string.IsNullOrEmpty(DataFilePathJobTransfer) || !Directory.Exists(DataFilePathJobTransfer))
                     sb.AppendLine("Option 'i:data' parse error. Provided value is not a file path.");
-
+                
                 if (string.IsNullOrEmpty(CrossWalkFilePath) || !Directory.Exists(CrossWalkFilePath))
                     sb.AppendLine("Option 'c:data' parse error. Provided value is not a file path.");
 

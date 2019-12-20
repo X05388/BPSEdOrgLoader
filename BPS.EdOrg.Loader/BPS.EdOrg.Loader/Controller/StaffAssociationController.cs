@@ -215,6 +215,51 @@ namespace BPS.EdOrg.Loader.Controller
             }
 
         }
+        
+
+        /// <summary>
+        /// Gets the data from the xml and updates StaffTelephone table for Staff Phone Numbers Cases.
+        /// </summary>
+        /// <returns></returns>
+        public void UpdateStaffContact(string token, EdorgConfiguration configuration)
+        {
+            try
+            {
+                XmlDocument xmlDoc = _prseXML.LoadXml("StaffContacts");
+                //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
+                //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
+                
+                var nodeList = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationAssociation").Cast<XmlNode>();
+                
+                foreach (XmlNode node in nodeList)
+                {
+                    List<StaffContactData> ContactNodeList = new List<StaffContactData>();
+                    // Extracting the data from the XMl file
+                    var staffContactNodeList = GetStaffContactXml(node);
+                    // Multiple contact numbers for same staffId
+                    var dups = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationAssociation/ContactDetails/StaffUniqueId").Cast<XmlNode>().Where(a => a.InnerText == staffContactNodeList.Id).Select(x=>x.ParentNode).ToList();
+                    foreach (var item in dups)
+                    {
+                        XmlDocument xmltest = new XmlDocument();
+                        xmltest.LoadXml(item.OuterXml);
+                        
+                        var staffContact = GetStaffContactXml(xmltest);
+                        ContactNodeList.Add(staffContact);
+                    }
+                    UpdatingStaffContactData(token, staffContactNodeList.Id, ContactNodeList);                   
+
+                }
+                
+                if (File.Exists(Constants.LOG_FILE))
+                    _notification.SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex.Message);
+            }
+
+        }
+
         /// <summary>
         /// Gets the data from the xml and updates StaffEducationOrganizationAssignmentAssociation table for Transfer Cases.
         /// </summary>
@@ -315,6 +360,37 @@ namespace BPS.EdOrg.Loader.Controller
 
         }
 
+        private StaffContactData GetStaffContactXml(XmlNode node)
+        {
+            try
+            {
+                StaffContactData staffAssignmentList = null;
+               // XmlNode staffNode = node.SelectSingleNode("StaffReference/StaffIdentity");
+                XmlNode StaffContactNode = node.SelectSingleNode("ContactDetails");              
+                               
+                if (StaffContactNode != null)
+                {
+                    staffAssignmentList = new StaffContactData
+                    {
+                        Id = StaffContactNode.SelectSingleNode("StaffUniqueId").InnerText ?? null,
+                        telephoneNumber = StaffContactNode.SelectSingleNode("Phone").InnerText ?? null,
+                        telephoneNumberType = StaffContactNode.SelectSingleNode("Type").InnerText ?? null,
+                        ext = StaffContactNode.SelectSingleNode("Ext").InnerText ?? null,
+                        orderOfPriority = StaffContactNode.SelectSingleNode("Preferred").InnerText ?? null,
+                        textMessageCapabilityIndicator = true
+                    };
+
+                }
+                return staffAssignmentList;
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Error extracting data for AssignmentAssociation Exception : " + ex.Message);
+                return null;
+
+            }
+
+        }
         private StaffAssignmentAssociationData GetAssignmentAssociationTransferXml(XmlNode node)
         {
             try
@@ -324,7 +400,7 @@ namespace BPS.EdOrg.Loader.Controller
                 XmlNode EducationNode = node.SelectSingleNode("EducationOrganizationReference/EducationOrganizationIdentity");
                 XmlNode EmploymentNode = node.SelectSingleNode("EmploymentPeriod");
                 if (staffNode == null && EducationNode == null) _log.Error("Nodes not reurning any data for Assignment");
-                XmlNode staffClassificationNode = node.SelectSingleNode("StaffClassification");               
+                XmlNode staffClassificationNode = node.SelectSingleNode("StaffClassification");
                 if (staffNode != null && EducationNode != null)
                 {
                     staffAssignmentList = new StaffAssignmentAssociationData
@@ -332,8 +408,8 @@ namespace BPS.EdOrg.Loader.Controller
                         StaffUniqueIdValue = staffNode.SelectSingleNode("StaffUniqueId").InnerText ?? null,
                         EducationOrganizationIdValue = EducationNode.SelectSingleNode("EducationOrganizationId").InnerText ?? null,
                         EndDateValue = EmploymentNode.SelectSingleNode("EndDate").InnerText ?? null,
-                        BeginDateValue = EmploymentNode.SelectSingleNode("BeginDate").InnerText ?? null,                        
-                        StaffClassification = staffClassificationNode.SelectSingleNode("CodeValue").InnerText ?? null                  
+                        BeginDateValue = EmploymentNode.SelectSingleNode("BeginDate").InnerText ?? null,
+                        StaffClassification = staffClassificationNode.SelectSingleNode("CodeValue").InnerText ?? null
 
                     };
 
@@ -348,7 +424,6 @@ namespace BPS.EdOrg.Loader.Controller
             }
 
         }
-
 
         private string GetAssignmentEndDate(string token, string staffUniqueId,string empDesc, string schoolId)
         {
@@ -437,11 +512,58 @@ namespace BPS.EdOrg.Loader.Controller
 
 
         }
-        /// <summary>
-        /// Get the Id from the [StaffEducationOrganizationEmploymentAssociation] table.
-        /// </summary>
-        /// <returns></returns>
-        private string GetEmploymentAssociationId(string token, StaffEmploymentAssociationData staffData)
+
+        private void UpdatingStaffContactData(string token,string staffUniqueId, List<StaffContactData> staffData)
+        {
+            try
+            {
+                IRestResponse response = null;
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + Constants.staffUniqueId1 + staffUniqueId);
+                response = _edfiApi.GetData(client, token);
+                StaffDescriptor data = JsonConvert.DeserializeObject<StaffDescriptor>(response.Content);
+
+                if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
+                {
+
+                    StaffReference rootObject = new StaffReference
+                    {
+                        StaffUniqueId = staffUniqueId,
+                        FirstName = data.FirstName,
+                        LastSurname = data.LastSurname,
+
+                        telephones = staffData
+                        //{
+                        //new StaffContactData(){
+                        //    telephoneNumberType = staffData.telephoneNumberType,
+                        //    telephoneNumber = staffData.telephoneNumber,
+                        //    orderOfPriority = staffData.orderOfPriority,
+                        //    textMessageCapabilityIndicator = true
+                        //    },
+
+                        //}
+                    };
+                    string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                    response = _edfiApi.PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl), token);
+                    _log.Info("Updating  edfi.staff for Staff Id : " + staffUniqueId);
+
+                }
+
+          
+            }
+            catch (Exception ex)
+            {
+               _log.Error("Error inserting staff in edfi.staff for Staff Id : " + staffUniqueId + " Exception : " + ex.Message);
+
+            }
+
+        }
+
+            //}
+            /// <summary>
+            /// Get the Id from the [StaffEducationOrganizationEmploymentAssociation] table.
+            /// </summary>
+            /// <returns></returns>
+            private string GetEmploymentAssociationId(string token, StaffEmploymentAssociationData staffData)
         {
             IRestResponse response = null;
 

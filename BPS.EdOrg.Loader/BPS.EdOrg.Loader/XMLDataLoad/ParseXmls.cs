@@ -275,6 +275,83 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 _log.Error($"Error while creating JobCode XML , Exception: {ex.Message}");
             }
         }
+
+        public void CreateXmlStaffContact()
+        {
+            try
+            {
+                string xmlOutPutPath = ConfigurationManager.AppSettings["XMLOutputPath"];
+                string filePath = Path.Combine(xmlOutPutPath, $"StaffContacts-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
+                XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
+                CreateXmlGenericStart(writer);
+                writer.WriteStartElement("InterchangeStaffAssociation");
+
+                string dataFilePath = _configuration.DataFilePathStaffPhoneNumbers;
+                string[] lines = File.ReadAllLines(dataFilePath);
+                int i = 0; int extIndex = 0; int numberOfRecordsCreatedInXml = 0; int phoneIndex = 0;
+                int preferredIndex = 0; int empIdIndex = 0; int numberOfRecordsSkipped = 0; int typeIndex = 0;
+                foreach (string line in lines)
+                {
+                    _log.Debug(line);
+                    if (i++ == 0)
+                    {
+                        string[] header = line.Split('\t');
+                        empIdIndex = Array.IndexOf(header, "ID");
+                        phoneIndex = Array.IndexOf(header, "Phone");
+                        typeIndex = Array.IndexOf(header, "Type");
+                        extIndex = Array.IndexOf(header, "Ext");
+                        preferredIndex = Array.IndexOf(header, "Preferred");
+                        if (empIdIndex < 0)
+                        {
+                            _log.Error($"Input data text file does not contains the ID or JobCode or ActionDt headers");
+                        }
+                        continue;
+                    }
+
+                    string[] fields = line.Split('\t');
+                    if (fields.Length > 0)
+                    {
+                        var staffContactData = new StaffContactData
+                        {
+                            Id = fields[empIdIndex]?.Trim(),                           
+                            telephoneNumber = fields[phoneIndex]?.Trim(),
+                            telephoneNumberType = fields[typeIndex]?.Trim(),
+                            ext = fields[extIndex]?.Trim(),
+                            orderOfPriority = fields[preferredIndex]?.Trim(),
+                            textMessageCapabilityIndicator = true
+                        };
+
+                       
+                        _log.Debug($"Creating node for {staffContactData.Id}-{staffContactData.telephoneNumber}-{staffContactData.telephoneNumberType}");
+                        if (!string.IsNullOrEmpty(staffContactData.telephoneNumberType))
+                        {
+                            var telPhoneType = Constants.GetTelephoneType(staffContactData.telephoneNumberType);
+                            staffContactData.telephoneNumberType = telPhoneType;
+                        }
+                        if (!string.IsNullOrEmpty(staffContactData.telephoneNumberType))
+                        {
+                            var preNum = Constants.GetPreferredNumber(staffContactData.orderOfPriority);
+                            staffContactData.orderOfPriority = preNum;
+                        }
+                        CreateNodeStaffContact(staffContactData, writer);
+                        numberOfRecordsCreatedInXml++;
+                    }
+                }
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
+                writer.Close();
+                if (numberOfRecordsSkipped > 0)
+                {
+                    _log.Info($"Number Of records created In Xml {numberOfRecordsCreatedInXml}");
+                    _log.Info($"Number of records skipped because crosswalk contains the PeopleSoftIds - {numberOfRecordsSkipped}");
+                }
+                _log.Info("CreateXML ended successfully");
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error while creating JobCode XML , Exception: {ex.Message}");
+            }
+        }
         private  XmlNodeList GetDeptforLocation()
         {
             try
@@ -450,6 +527,46 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
             catch (Exception ex)
             {
                 _log.Error($"There is exception while creating Node for jobcode:{staffData.deptId} and EndDate:{staffData.endDate}, Exception  :{ex.Message}");
+            }
+        }
+        private void CreateNodeStaffContact(StaffContactData staffData, XmlTextWriter writer)
+        {
+            try
+            {
+                _log.Info($"CreateNode started for Staff:{staffData.Id} and Work:{staffData.telephoneNumber}");
+                writer.WriteStartElement("StaffEducationOrganizationAssociation");
+                writer.WriteStartElement("ContactDetails");
+                
+                writer.WriteStartElement("StaffUniqueId");
+                writer.WriteString(staffData.Id);
+                writer.WriteEndElement();
+                
+                writer.WriteStartElement("Phone");
+                writer.WriteString(staffData.telephoneNumber);
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("Type");
+                writer.WriteString(staffData.telephoneNumberType);
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("Ext");
+                writer.WriteString(staffData.ext);
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("Preferred");
+                writer.WriteString(staffData.orderOfPriority);
+                writer.WriteEndElement();
+
+                writer.WriteEndElement();
+
+                writer.WriteEndElement();
+
+                _log.Info($"CreateNode Ended successfully for Contact:{staffData.Id} and Phone:{staffData.telephoneNumber}");
+
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"There is exception while creating Node for Contact:{staffData.Id} and Phone:{staffData.telephoneNumber}, Exception  :{ex.Message}");
             }
         }
 
