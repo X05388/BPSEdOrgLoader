@@ -48,11 +48,11 @@ namespace BPS.EdOrg.Loader
                     LogConfiguration(param.Object);
 
                     // creating the xml and executing the file through command line parser
-                      RunAlertIEPFile(param);
-                      RunDeptFile(param);
-                      RunJobCodeFile(param);
-                      RunStaffContactFile(param);
-                      RunTransferCasesFile(param);
+                    RunAlertIEPFile(param);
+                    RunDeptFile(param);
+                    RunJobCodeFile(param);
+                    RunStaffContactFile(param);
+                    RunTransferCasesFile(param);
 
                 }
                 catch (Exception ex)

@@ -233,20 +233,17 @@ namespace BPS.EdOrg.Loader.Controller
                 
                 foreach (XmlNode node in nodeList)
                 {
-                    List<StaffContactData> ContactNodeList = new List<StaffContactData>();
-                    // Extracting the data from the XMl file
-                    var staffContactNodeList = GetStaffContactXml(node);
+                    var id = node.SelectSingleNode(@"ContactDetails/StaffUniqueId").InnerText;
+                    List<StaffContactData> ContactNodeList = new List<StaffContactData>();                    
                     // Multiple contact numbers for same staffId
-                    var dups = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationAssociation/ContactDetails/StaffUniqueId").Cast<XmlNode>().Where(a => a.InnerText == staffContactNodeList.Id).Select(x=>x.ParentNode).ToList();
+                    var dups = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationAssociation/ContactDetails/StaffUniqueId").Cast<XmlNode>().Where(a => a.InnerText == id).Select(x=>x.ParentNode.ParentNode).ToList();
+               
                     foreach (var item in dups)
                     {
-                        XmlDocument xmltest = new XmlDocument();
-                        xmltest.LoadXml(item.OuterXml);
-                        
-                        var staffContact = GetStaffContactXml(xmltest);
+                        var staffContact = GetStaffContactXml(item);
                         ContactNodeList.Add(staffContact);
                     }
-                    UpdatingStaffContactData(token, staffContactNodeList.Id, ContactNodeList);                   
+                    UpdatingStaffContactData(token, id, ContactNodeList);                   
 
                 }
                 
@@ -524,27 +521,21 @@ namespace BPS.EdOrg.Loader.Controller
 
                 if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
                 {
-
-                    StaffReference rootObject = new StaffReference
+                    if(staffData!= null && (!staffData.Any()))
                     {
-                        StaffUniqueId = staffUniqueId,
-                        FirstName = data.FirstName,
-                        LastSurname = data.LastSurname,
+                        StaffReference rootObject = new StaffReference
+                        {
+                            StaffUniqueId = staffUniqueId,
+                            FirstName = data.FirstName,
+                            LastSurname = data.LastSurname,
+                            telephones = staffData
 
-                        telephones = staffData
-                        //{
-                        //new StaffContactData(){
-                        //    telephoneNumberType = staffData.telephoneNumberType,
-                        //    telephoneNumber = staffData.telephoneNumber,
-                        //    orderOfPriority = staffData.orderOfPriority,
-                        //    textMessageCapabilityIndicator = true
-                        //    },
-
-                        //}
-                    };
-                    string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
-                    response = _edfiApi.PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl), token);
-                    _log.Info("Updating  edfi.staff for Staff Id : " + staffUniqueId);
+                        };
+                        string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                        response = _edfiApi.PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl), token);
+                        _log.Info("Updating  edfi.staff for Staff Id : " + staffUniqueId);
+                    }
+                    
 
                 }
 
