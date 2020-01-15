@@ -12,6 +12,7 @@ namespace BPS.EdOrg.Loader
         public static string educationOrganizationId = @"?educationOrganizationId=";
         public static string SpecEduEducationOrganizationId = @"&educationOrganizationId=";
         public static string educationOrganizationIdValue = @"350000";
+        public static string educationOrganizationIdValueCentralStaff = @"9035";
         public static string employmentStatusDescriptor = @"&employmentStatusDescriptor=";
         public static string employmentStatusDescriptorValue = @"Tenured%20or%20permanent";
         public static string staffClassificationDescriptorId = @"&StaffClassificationDescriptorId=";
