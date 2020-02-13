@@ -35,13 +35,11 @@ namespace BPS.EdOrg.Loader.Controller
                 XmlDocument xmlDoc = prseXMl.ToXmlDocument(doc);
                 //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
                 //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
-                XmlNodeList nodeList = xmlDoc.SelectNodes("//roots/root");
-
-               
+                XmlNodeList nodeList = xmlDoc.SelectNodes("//roots/root");               
                 foreach (XmlNode node in nodeList)
                 {
 
-                    var studentSpecialEducationList = GetAlertXml(node);                    
+                    var studentSpecialEducationList = GetAlertXml(node);               
                     
                     if (studentSpecialEducationList.EducationOrganizationId != null && studentSpecialEducationList.Name != null && studentSpecialEducationList.Type != null)
                     {
@@ -82,58 +80,8 @@ namespace BPS.EdOrg.Loader.Controller
                     XmlNodeList nodeList = xmlDoc.SelectNodes("//root/iep");
                     foreach (XmlNode node in nodeList)
                     {
-                        SpecialEducationReference spEducation = new SpecialEducationReference();
-                        spEducation.educationOrganizationReference = new EdFiEducationReference();
-                        spEducation.studentReference = new StudentReference();
-                        spEducation.programReference = new ProgramReference();
-                        spEducation.educationOrganizationReference.educationOrganizationId = Constants.educationOrganizationIdValue;
-                        spEducation.educationOrganizationReference.Link = new Link()
-                        {
-                            Rel = string.Empty,
-                            Href = string.Empty
-                        };
-                        XmlNode ProgramNode = node.SelectSingleNode("programReference");
-                        if (ProgramNode != null)
-                        {
-                            spEducation.programReference.educationOrganizationId = ProgramNode.SelectSingleNode("educationOrganizationId").InnerText ?? null;
-                            spEducation.programReference.type = ProgramNode.SelectSingleNode("type").InnerText.ToString() ?? null;
-                            spEducation.programReference.name = ProgramNode.SelectSingleNode("name").InnerText.ToString() ?? null;
-                            spEducation.programReference.Link = new Link()
-                            {
-                                Rel = string.Empty,
-                                Href = string.Empty
-                            };
-                        }
-                        XmlNode studentNode = node.SelectSingleNode("studentReference");
-                        if (studentNode != null)
-                        {
-                            spEducation.studentReference.studentUniqueId = studentNode.SelectSingleNode("studentUniqueId").InnerText.ToString() ?? null;
-                            spEducation.studentReference.Link = new Link()
-                            {
-                                Rel = string.Empty,
-                                Href = string.Empty
-                            };
-                        }
-                        string beginDate = node.SelectSingleNode("beginDate").InnerText ?? null;
-                        if (string.IsNullOrEmpty(beginDate))
-                            beginDate = ConfigurationManager.AppSettings["SchoolStartDate"];
-                        spEducation.beginDate = beginDate;
-                        spEducation.endDate = node.SelectSingleNode("endDate").InnerText ?? null;
-                        //spEducation.ideaEligibility = node.SelectSingleNode("ideaEligiblity").InnerText.Equals("true") ? true : false;
-                        spEducation.iepBeginDate = node.SelectSingleNode("iepBeginDate").InnerText.ToString() ?? null;
-                        spEducation.iepEndDate = node.SelectSingleNode("iepEndDate").InnerText.ToString() ?? null;
-                        spEducation.iepReviewDate = node.SelectSingleNode("iepReviewDate").InnerText.ToString() ?? null;
-                        spEducation.lastEvaluationDate = node.SelectSingleNode("lastEvaluationDate").InnerText.ToString() ?? null;
-                        //spEducation.medicallyFragile = null;
-                        //spEducation.multiplyDisabled = null;
-                        spEducation.reasonExitedDescriptor = node.SelectSingleNode("reasonExitedDescriptor").InnerText.ToString() ?? null;
-                        if (node.SelectSingleNode("schoolHoursPerWeek").InnerText.Trim().Length > 0)
-                            spEducation.schoolHoursPerWeek = Convert.ToDouble(node.SelectSingleNode("schoolHoursPerWeek").InnerText.ToString()); // Null Check req need to Modify
-                        if (node.SelectSingleNode("specialEducationHoursPerWeek").InnerText.Trim().Length > 0)
-                            spEducation.specialEducationHoursPerWeek = Convert.ToDouble(node.SelectSingleNode("specialEducationHoursPerWeek").InnerText.ToString()); // Null Check req need to Modify
-                        if (node.SelectSingleNode("SpecialEducationSetting").InnerText.Trim().Length > 0)
-                            spEducation.specialEducationSettingDescriptor = Constants.GetSpecialEducationSetting(Int32.Parse(node.SelectSingleNode("SpecialEducationSetting").InnerText.ToString())); // Null Check req need to Modify
-                                                                                                                                                                                                      //Check required fied exist in XML source 
+                        // Null Check req need to Modify
+                        var spEducation = GetSpecialEducationXml(node);                                                                                                                                                                              //Check required fied exist in XML source 
                         if (!string.IsNullOrEmpty(spEducation.programReference.educationOrganizationId) && !string.IsNullOrEmpty(spEducation.programReference.name) && !string.IsNullOrEmpty(spEducation.programReference.type) && !string.IsNullOrEmpty(spEducation.beginDate) && !string.IsNullOrEmpty(spEducation.studentReference.studentUniqueId)) // 
                         {
                             // Check if the Program already exists in the ODS if not first enter the Progam.
@@ -417,6 +365,77 @@ namespace BPS.EdOrg.Loader.Controller
             }
         }
 
+        /// <summary>
+        /// Gets the data from the xml file
+        /// </summary>
+        /// <returns></returns>
+        private SpecialEducationReference GetSpecialEducationXml(XmlNode node)
+        {
+            try
+            {
+                SpecialEducationReference spEducation = new SpecialEducationReference();
+                spEducation.educationOrganizationReference = new EdFiEducationReference();
+                spEducation.studentReference = new StudentReference();
+                spEducation.programReference = new ProgramReference();
+
+                spEducation.educationOrganizationReference.educationOrganizationId = Constants.educationOrganizationIdValue;
+                spEducation.educationOrganizationReference.Link = new Link()
+                {
+                    Rel = string.Empty,
+                    Href = string.Empty
+                };
+                XmlNode ProgramNode = node.SelectSingleNode("programReference");
+                if (ProgramNode != null)
+                {
+                    spEducation.programReference.educationOrganizationId = ProgramNode.SelectSingleNode("educationOrganizationId").InnerText ?? null;
+                    spEducation.programReference.type = ProgramNode.SelectSingleNode("type").InnerText.ToString() ?? null;
+                    spEducation.programReference.name = ProgramNode.SelectSingleNode("name").InnerText.ToString() ?? null;
+                    spEducation.programReference.Link = new Link()
+                    {
+                        Rel = string.Empty,
+                        Href = string.Empty
+                    };
+                }
+                XmlNode studentNode = node.SelectSingleNode("studentReference");
+                if (studentNode != null)
+                {
+                    spEducation.studentReference.studentUniqueId = studentNode.SelectSingleNode("studentUniqueId").InnerText.ToString() ?? null;
+                    spEducation.studentReference.Link = new Link()
+                    {
+                        Rel = string.Empty,
+                        Href = string.Empty
+                    };
+                }
+                string beginDate = node.SelectSingleNode("beginDate").InnerText ?? null;
+                if (string.IsNullOrEmpty(beginDate))
+                    beginDate = ConfigurationManager.AppSettings["SchoolStartDate"];
+                spEducation.beginDate = beginDate;
+                spEducation.endDate = node.SelectSingleNode("endDate").InnerText ?? null;
+                //spEducation.ideaEligibility = node.SelectSingleNode("ideaEligiblity").InnerText.Equals("true") ? true : false;
+                spEducation.iepBeginDate = node.SelectSingleNode("iepBeginDate").InnerText.ToString() ?? null;
+                spEducation.iepEndDate = node.SelectSingleNode("iepEndDate").InnerText.ToString() ?? null;
+                spEducation.iepReviewDate = node.SelectSingleNode("iepReviewDate").InnerText.ToString() ?? null;
+                spEducation.lastEvaluationDate = node.SelectSingleNode("lastEvaluationDate").InnerText.ToString() ?? null;
+                //spEducation.medicallyFragile = null;
+                //spEducation.multiplyDisabled = null;
+                spEducation.reasonExitedDescriptor = node.SelectSingleNode("reasonExitedDescriptor").InnerText.ToString() ?? null;
+                if (node.SelectSingleNode("schoolHoursPerWeek").InnerText.Trim().Length > 0)
+                    spEducation.schoolHoursPerWeek = Convert.ToDouble(node.SelectSingleNode("schoolHoursPerWeek").InnerText.ToString()); // Null Check req need to Modify
+                if (node.SelectSingleNode("specialEducationHoursPerWeek").InnerText.Trim().Length > 0)
+                    spEducation.specialEducationHoursPerWeek = Convert.ToDouble(node.SelectSingleNode("specialEducationHoursPerWeek").InnerText.ToString()); // Null Check req need to Modify
+                if (node.SelectSingleNode("SpecialEducationSetting").InnerText.Trim().Length > 0)
+                    spEducation.specialEducationSettingDescriptor = Constants.GetSpecialEducationSetting(Int32.Parse(node.SelectSingleNode("SpecialEducationSetting").InnerText.ToString()));
+
+                return spEducation;
+            }
+
+            catch (Exception ex)
+            {
+                Log.Error("Error getting Emplyment data from StaffAssociation xml : Exception : " + ex.Message);
+                return null;
+
+            }
+        }
 
         /// <summary>
         /// POST the Data from the BPS Interface View to EdFi ODS
