@@ -521,7 +521,7 @@ namespace BPS.EdOrg.Loader.Controller
 
                 if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
                 {
-                    if(staffData!= null && (!staffData.Any()))
+                    if(staffData!= null)
                     {
                         StaffReference rootObject = new StaffReference
                         {
