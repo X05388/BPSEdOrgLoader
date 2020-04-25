@@ -15,6 +15,7 @@ using BPS.EdOrg.Loader.MetaData;
 using BPS.EdOrg.Loader.EdFi.Api;
 using Formatting = Newtonsoft.Json.Formatting;
 using System.Web;
+using Newtonsoft.Json.Linq;
 
 namespace BPS.EdOrg.Loader.Controller
 {
@@ -39,7 +40,6 @@ namespace BPS.EdOrg.Loader.Controller
                 XmlNodeList nodeList = xmlDoc.SelectNodes("//roots/root");               
                 foreach (XmlNode node in nodeList)
                 {
-
                     var studentSpecialEducationList = GetAlertXml(node);               
                     
                     if (studentSpecialEducationList.EducationOrganizationId != null && studentSpecialEducationList.Name != null && studentSpecialEducationList.Type != null)
@@ -48,8 +48,10 @@ namespace BPS.EdOrg.Loader.Controller
                         VerifyProgramData(token, studentSpecialEducationList.EducationOrganizationId, studentSpecialEducationList.Name, studentSpecialEducationList.Type);
                         if (studentSpecialEducationList.StudentUniqueId != null)
                         {
-                            //InsertAlertDataSpecialEducation(token, studentSpecialEducationList);
-                            SetEndDateProgramAssociation(token, studentSpecialEducationList);
+                            var endDate = GetEndDateProgramAssociation(token, studentSpecialEducationList);
+                            studentSpecialEducationList.EndDate = endDate;
+                            InsertAlertDataSpecialEducation(token, studentSpecialEducationList);
+                            
                         }
                            
 
@@ -159,45 +161,25 @@ namespace BPS.EdOrg.Loader.Controller
             return ((int)statusCode >= 200) && ((int)statusCode <= 204);
         }
         
-        private static void SetEndDateProgramAssociation(string token, SpecialEducation spList)
+        private static string GetEndDateProgramAssociation(string token, SpecialEducation spList)
         {
+            string endDate = DateTime.Now.ToString();
             try
             {
+                
                 IRestResponse response = null;
-
-                var client = new RestClient(Uri.EscapeUriString((ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentProgramAssociation + Constants.studentUniqueId + spList.StudentUniqueId + Constants.program504Plan + "504 Plan")));
-                response = edfiApi.GetData(client, token);
-                dynamic original = JsonConvert.DeserializeObject(response.Content);
-                if (IsSuccessStatusCode((int)response.StatusCode))
-                {
-                    if (response.Content.Length > 2)
-                    {
-                        if (response.Content.Count() > 1)
-                        {
-                            String date = null;
-                            DateTime maxValue = default(DateTime);
-                            foreach (var data in original)
-                            {
-                                DateTime beginDate = data.beginDate;
-                                //DateTime inputDateTime;
-                                //DateTime.TryParse(data.beginDate, out inputDateTime);
-                                int result = DateTime.Compare(beginDate, maxValue);
-                                if (result >= 0)
-                                {
-                                    maxValue = beginDate;
-                                    date = maxValue.ToString();
-                                }
-                            }
-                        }
-                    }
-                        
-                }
+                string url = HttpUtility.UrlEncode(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + Constants.studentUniqueId + spList.StudentUniqueId + Constants.program504Plan + Uri.EscapeDataString(("504 Plan")));
+                var client =new RestClient(url);
+                response = edfiApi.GetData(client, token);  
+               
+                return endDate;
             }
-
+            
 
             catch (Exception ex)
             {
                 Log.Error("Something went wrong while updating the data in ODS, check the XML values" + ex.Message);
+                return endDate;
             }
 
 
@@ -245,7 +227,7 @@ namespace BPS.EdOrg.Loader.Controller
                     iepReviewDate = spList.IepReviewDate,
                     iepBeginDate = spList.IepBeginDate,
                     iepEndDate = spList.IepEndDate,
-                    endDate = spList.IepEndDate,
+                    endDate = spList.EndDate,
                     Services = new List<Service>()
                 };
 
@@ -277,7 +259,7 @@ namespace BPS.EdOrg.Loader.Controller
                         {
                             var id = data.id;
                             string stuId = data.studentReference.studentUniqueId;
-                            DateTime iepDate = data.BeginDate;
+                            var iepDate = data.BeginDate;
 
                             if (id != null)
                             {
