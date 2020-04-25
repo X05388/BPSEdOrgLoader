@@ -31,7 +31,8 @@ namespace BPS.EdOrg.Loader
         public static string programEducationOrganizationId = @"&programEducationOrganizationId=";
         public static string programAssignmentDescriptor = @"?programAssignmentDescriptor = Regular Education ";
         public static string schoolId = @"&schoolId=";
-        public static string program504Plan = @"&programName=";
+        public static string program504PlanValue = Uri.EscapeDataString(@"504 Plan");
+        public static string program504Plan = @"&programName="+program504PlanValue;
 
 
 
