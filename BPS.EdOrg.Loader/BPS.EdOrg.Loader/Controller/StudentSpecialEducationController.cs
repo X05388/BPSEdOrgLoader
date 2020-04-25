@@ -168,7 +168,7 @@ namespace BPS.EdOrg.Loader.Controller
             {
                 
                 IRestResponse response = null;
-                string url = HttpUtility.UrlEncode(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + Constants.studentUniqueId + spList.StudentUniqueId + Constants.program504Plan + Uri.EscapeDataString(("504 Plan")));
+                string url = ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + Constants.studentUniqueId + spList.StudentUniqueId + Constants.program504Plan;
                 var client =new RestClient(url);
                 response = edfiApi.GetData(client, token);  
                
