@@ -50,9 +50,9 @@ namespace BPS.EdOrg.Loader
                     // creating the xml and executing the file through command line parser
                     RunAlertIEPFile(param);
                     RunDeptFile(param);
-                   // RunJobCodeFile(param);
+                    RunJobCodeFile(param);
                     RunStaffContactFile(param);
-                   // RunTransferCasesFile(param);
+                    RunTransferCasesFile(param);
 
                 }
                 catch (Exception ex)
@@ -224,8 +224,9 @@ namespace BPS.EdOrg.Loader
             //For 504xml.xml            
             var token = edfiApi.GetAuthToken();
             if (token != null)
-            {
+            {               
                 studentSpecController.UpdateAlertSpecialEducationData(token, parseXmls);
+                studentSpecController.UpdateEndDateSpecialEducation(token, parseXmls);
                 //studentSpecController.UpdateIEPSpecialEducationProgramAssociationData(token, parseXmls);
             }
             else Log.Error("Token is not generated, ODS not updated");

@@ -16,6 +16,7 @@ using BPS.EdOrg.Loader.EdFi.Api;
 using Formatting = Newtonsoft.Json.Formatting;
 using System.Web;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 namespace BPS.EdOrg.Loader.Controller
 {
@@ -37,26 +38,20 @@ namespace BPS.EdOrg.Loader.Controller
                 XmlDocument xmlDoc = prseXMl.ToXmlDocument(doc);
                 //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
                 //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
-                XmlNodeList nodeList = xmlDoc.SelectNodes("//roots/root");               
+                XmlNodeList nodeList = xmlDoc.SelectNodes("//roots/root");
                 foreach (XmlNode node in nodeList)
                 {
-                    var studentSpecialEducationList = GetAlertXml(node);               
-                    
+                    var studentSpecialEducationList = GetAlertXml(node);
+
                     if (studentSpecialEducationList.EducationOrganizationId != null && studentSpecialEducationList.Name != null && studentSpecialEducationList.Type != null)
                     {
                         // Check if the Program already exists in the ODS if not first enter the Progam.
                         VerifyProgramData(token, studentSpecialEducationList.EducationOrganizationId, studentSpecialEducationList.Name, studentSpecialEducationList.Type);
                         if (studentSpecialEducationList.StudentUniqueId != null)
                         {
-                            var endDate = GetEndDateProgramAssociation(token, studentSpecialEducationList);
-                            studentSpecialEducationList.EndDate = endDate;
                             InsertAlertDataSpecialEducation(token, studentSpecialEducationList);
-                            
                         }
-                           
-
                     }
-
                 }
 
                 if (File.Exists(Constants.LOG_FILE))
@@ -67,6 +62,62 @@ namespace BPS.EdOrg.Loader.Controller
                 Log.Error(ex.Message);
             }
 
+        }
+        public void UpdateEndDateSpecialEducation(string token, ParseXmls prseXMl)
+        {
+            try {
+                int offset = 0;
+                List<SpecialEducationReference> studentSpecialEducations = null;
+                studentSpecialEducations = GetStudentSpecialEducation(token, offset);
+                while (studentSpecialEducations != null && studentSpecialEducations.Any())
+                {
+                    foreach (var item in studentSpecialEducations)
+                    {
+                        var endDate = GetEndDateProgramAssociation(token, item);
+                        item.endDate = endDate;
+                        SetEndDate(token, item);
+                    }
+
+                    offset = offset + 100;
+                    studentSpecialEducations = GetStudentSpecialEducation(token, offset);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+            }
+
+        }
+
+
+       
+
+
+        public List<SpecialEducationReference> GetStudentSpecialEducation(string token,int offset = 0)
+        {
+            List<SpecialEducationReference> data =  null;
+            try
+            {
+                if (token != null)
+                {
+                    var client = offset == 0 ? new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducationLimit+ Constants.program504Plan)
+                                           : new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducationLimit+ Constants.program504Plan + "&offset=" + offset);
+                    var response = edfiApi.GetData(client, token);
+
+                    if (IsSuccessStatusCode((int)response.StatusCode))
+                    {
+                        //formattedResponse = JArray.Parse(response.Content.ToString());
+                         data = JsonConvert.DeserializeObject<List<SpecialEducationReference>>(response.Content);
+                    }
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);                
+            }
+            return data;
         }
         public void UpdateIEPSpecialEducationProgramAssociationData(string token, ParseXmls prseXMl)
         {
@@ -161,20 +212,141 @@ namespace BPS.EdOrg.Loader.Controller
             return ((int)statusCode >= 200) && ((int)statusCode <= 204);
         }
         
-        private static string GetEndDateProgramAssociation(string token, SpecialEducation spList)
+        private static string GetEndDateProgramAssociation(string token, SpecialEducationReference spList)
         {
             string endDate = DateTime.Now.ToString();
             try
             {
                 
-                IRestResponse response = null;
-                string url = ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + Constants.studentUniqueId + spList.StudentUniqueId + Constants.program504Plan;
-                var client =new RestClient(url);
-                response = edfiApi.GetData(client, token);  
-               
+                IRestResponse response = null;                 
+                var client =new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation+ Constants.studentUniqueId + spList.studentReference.studentUniqueId+ Constants.program504Plan);
+                response = edfiApi.GetData(client, token);
+                if (response.Content.Length > 2)
+                {
+                    List<SpecialEducationReference> data = JsonConvert.DeserializeObject<List<SpecialEducationReference>>(response.Content);
+                    if (data.Count() >= 2)
+                    {
+                        DateTime beginDate;
+                        DateTime.TryParse(spList.beginDate, out beginDate);
+                        DateTime maxValue = default(DateTime);
+                        foreach (var item in data)
+                        {
+                            DateTime inputDateTime;
+                            DateTime.TryParse(item.beginDate, out inputDateTime);
+                            int result = DateTime.Compare(inputDateTime, maxValue);
+                            if (result >= 0)                            
+                                maxValue = inputDateTime;                            
+                                                       
+                        }
+                        //Compare BeginDate
+                        int resultDate = DateTime.Compare(beginDate, maxValue);
+                        if (resultDate >= 0)
+                            endDate = null;
+                        else
+                            endDate = maxValue.ToString();
+                    }
+                
+                    else
+                        endDate = null;
+                }
+                   
+
                 return endDate;
             }
             
+
+            catch (Exception ex)
+            {
+                Log.Error("Something went wrong while updating the data in ODS, check the XML values" + ex.Message);
+                return endDate;
+            }
+
+
+        }
+
+
+        private static void SetEndDate(string token, SpecialEducationReference spItem)
+        {           
+            try
+            {    IRestResponse response = null;                
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + Constants.studentUniqueId + spItem.studentReference.studentUniqueId + Constants.program504Plan+ Constants.beginDate+ spItem.beginDate);
+                response = edfiApi.GetData(client, token);
+                //dynamic original = JsonConvert.DeserializeObject(response.Content);
+                List<SpecialEducationReference> original = JsonConvert.DeserializeObject<List<SpecialEducationReference>>(response.Content);
+                if (response.Content.Length > 2)
+                {
+                    foreach (var data in original)
+                    {
+                        var rootObject = new SpecialEducationReference
+                        {
+
+                            endDate = spItem.endDate,
+                            iepEndDate = data.iepReviewDate,
+                            lastEvaluationDate = data.lastEvaluationDate,
+                            iepReviewDate = data.iepReviewDate,
+                            iepBeginDate = data.iepBeginDate
+
+                        };
+
+                        string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                        var id = data.id;
+                        var resp = edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + "/" + id), token);
+                    }
+                }
+            }
+
+
+            catch (Exception ex)
+            {
+                Log.Error("Something went wrong while updating the data in ODS, check the XML values" + ex.Message);
+                
+            }
+
+
+        }
+
+        private static string GetEndDateProgramAssociation1(string token, SpecialEducation spList)
+        {
+            string endDate = spList.IepSignatureDate;
+            try
+            {
+
+                IRestResponse response = null;
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + Constants.studentUniqueId + spList.StudentUniqueId + Constants.program504Plan);
+                response = edfiApi.GetData(client, token);
+                if (response.Content.Length > 2)
+                {
+                    List<SpecialEducationReference> data = JsonConvert.DeserializeObject<List<SpecialEducationReference>>(response.Content);
+                    if (data.Count() >= 2)
+                    {
+                        DateTime beginDate;
+                        DateTime.TryParse(spList.IepSignatureDate, out beginDate);
+                        DateTime maxValue = default(DateTime);
+                        foreach (var item in data)
+                        {
+                            DateTime inputDateTime;
+                            DateTime.TryParse(item.beginDate, out inputDateTime);
+                            int result = DateTime.Compare(inputDateTime, maxValue);
+                            if (result >= 0)
+                                maxValue = inputDateTime;
+
+                        }
+                        //Compare BeginDate
+                        int resultDate = DateTime.Compare(beginDate, maxValue);
+                        if (resultDate >= 0)
+                            endDate = null;
+                        else
+                            endDate = spList.BeginDate;
+                    }
+
+                    else
+                        endDate = null;
+                }
+
+
+                return endDate;
+            }
+
 
             catch (Exception ex)
             {
@@ -226,8 +398,7 @@ namespace BPS.EdOrg.Loader.Controller
                     ideaEligibility = spList.IdeaEligibility,
                     iepReviewDate = spList.IepReviewDate,
                     iepBeginDate = spList.IepBeginDate,
-                    iepEndDate = spList.IepEndDate,
-                    endDate = spList.EndDate,
+                    iepEndDate = spList.IepEndDate,                    
                     Services = new List<Service>()
                 };
 
@@ -259,7 +430,9 @@ namespace BPS.EdOrg.Loader.Controller
                         {
                             var id = data.id;
                             string stuId = data.studentReference.studentUniqueId;
-                            var iepDate = data.BeginDate;
+                            DateTime iepDate ;
+                            DateTime.TryParse(data.beginDate.ToString("dd/MM/yyyy"), out iepDate) ;                        
+                                
 
                             if (id != null)
                             {

@@ -49,6 +49,7 @@ namespace BPS.EdOrg.Loader
         public static string StaffAssignmentUrl { get; set; } = @"2019/staffEducationOrganizationAssignmentAssociations";
         public static string API_Program { get; set; } = @"2019/programs";
         public static string StudentSpecialEducation { get; set; } = @"2019/studentSpecialEducationProgramAssociations";
+        public static string StudentSpecialEducationLimit { get; set; } = @"2019/studentSpecialEducationProgramAssociations?limit=100";
         public static string StudentProgramAssociation { get; set; } = @"2019/studentProgramAssociations";
 
         public static string API_ServiceDescriptor { get; set; } = @"2019/serviceDescriptors";
