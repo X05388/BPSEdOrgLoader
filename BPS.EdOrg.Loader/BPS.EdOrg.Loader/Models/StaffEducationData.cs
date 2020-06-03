@@ -15,7 +15,15 @@ namespace BPS.EdOrg.Loader.Models
         public string MiddleName { get; set; }
         public string LastSurname { get; set; }
         public string BirthDate { get; set; }
+        public EdFiIdentificationCode identificationCodes { get; set; }
 
+    }
+
+    public class EdFiIdentificationCode
+    {
+        public string StaffIdentificationSystemDescriptor { get; set; }
+        public string IdentificationCode { get; set; }
+        public string AssigningOrganizationIdentificationCode { get; set; }
     }
     public class StaffEmploymentDescriptor
     {
@@ -103,7 +111,7 @@ namespace BPS.EdOrg.Loader.Models
         public double specialEducationHoursPerWeek { get; set; }
         public string specialEducationSettingDescriptor { get; set; }
         public List<Service> Services { get; set; }
-
+        
     }
 
     public class EdFiEducationReference

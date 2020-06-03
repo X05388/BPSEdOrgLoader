@@ -15,7 +15,7 @@ namespace BPS.EdOrg.Loader
         public static string educationOrganizationIdValueCentralStaff = @"9035";
         public static string employmentStatusDescriptor = @"&employmentStatusDescriptor=";
         public static string employmentStatusDescriptorValue = @"Tenured%20or%20permanent";
-        public static string staffClassificationDescriptorId = @"&StaffClassificationDescriptorId=";
+        public static string staffClassificationDescriptorId = @"&StaffClassificationDescriptor=";
         public static string hireDate = @"&hireDate=";
         public static string beginDate = @"&beginDate=";
         public static string SpecEduBeginDate = @"?beginDate=";
@@ -33,6 +33,7 @@ namespace BPS.EdOrg.Loader
         public static string schoolId = @"&schoolId=";
         public static string program504PlanValue = Uri.EscapeDataString(@"504 Plan");
         public static string program504Plan = @"&programName="+program504PlanValue;
+        public static string StaffIdentificationSystemDescriptor = "School";
 
 
 
@@ -57,12 +58,21 @@ namespace BPS.EdOrg.Loader
        
        public static string EmpClassCode(string empCode)
        {
-            if (empCode.Equals("4") || empCode.Equals("P"))
-                return "Tenured or permanent";
-            if (empCode.Equals("Q") || empCode.Equals("2") || empCode.Equals("3"))
-                return "Substitute/temporary";
-            else
-                return "Other";
+                if (empCode.Equals("4") || empCode.Equals("P"))
+                    return "Permanent Academic";
+                if (empCode.Equals("Q") || empCode.Equals("2") || empCode.Equals("3"))
+                    return "Substitute";
+                if (empCode.Equals("U"))
+                    return "1st Year Provisional";
+                if (empCode.Equals("V"))
+                    return "2nd Year Provisional";
+                if (empCode.Equals("W"))
+                    return "3rd Year Provisional";
+                if (empCode.Equals("X"))
+                    return "4th Year Provisional";
+                else
+                    return "Other";
+            
         }
 
         public static string JobOrderAssignment(string jobcode)

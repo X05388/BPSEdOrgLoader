@@ -47,12 +47,12 @@ namespace BPS.EdOrg.Loader
                     parseXmls.Archive(param.Object);
                     LogConfiguration(param.Object);
 
-                    // creating the xml and executing the file through command line parser
-                    RunAlertIEPFile(param);
+                    // creating the xml and executing the file through command line parser                    
                     RunDeptFile(param);
                     RunJobCodeFile(param);
                     RunStaffContactFile(param);
                     RunTransferCasesFile(param);
+                    RunAlertIEPFile(param);
 
                 }
                 catch (Exception ex)

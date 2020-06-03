@@ -281,7 +281,7 @@ namespace BPS.EdOrg.Loader.Controller
                         {
 
                             endDate = spItem.endDate,
-                            iepEndDate = data.iepReviewDate,
+                            iepEndDate = data.iepEndDate,
                             lastEvaluationDate = data.lastEvaluationDate,
                             iepReviewDate = data.iepReviewDate,
                             iepBeginDate = data.iepBeginDate
