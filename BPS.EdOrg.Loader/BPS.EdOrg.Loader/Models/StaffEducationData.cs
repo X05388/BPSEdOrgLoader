@@ -15,7 +15,7 @@ namespace BPS.EdOrg.Loader.Models
         public string MiddleName { get; set; }
         public string LastSurname { get; set; }
         public string BirthDate { get; set; }
-        public EdFiIdentificationCode identificationCodes { get; set; }
+        public List<EdFiIdentificationCode> IdentificationCodes { get; set; }
 
     }
 

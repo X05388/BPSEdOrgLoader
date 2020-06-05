@@ -33,7 +33,7 @@ namespace BPS.EdOrg.Loader
         public static string schoolId = @"&schoolId=";
         public static string program504PlanValue = Uri.EscapeDataString(@"504 Plan");
         public static string program504Plan = @"&programName="+program504PlanValue;
-        public static string StaffIdentificationSystemDescriptor = "School";
+        public static string StaffIdentificationSystemDescriptor = "State";
 
 
 

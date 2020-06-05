@@ -54,7 +54,7 @@ namespace BPS.EdOrg.Loader.Controller
                     if (staffEmploymentNodeList != null)
                     {
                         // Add new staff from peoplesoft file.
-                        //UpdateStaff(token,staffEmploymentNodeList);
+                        UpdateStaff(token,staffEmploymentNodeList);
                         
                         //If there are more than one records,set enDate to null     
                         if (staffEmploymentNodeList.status == "T")
@@ -485,6 +485,9 @@ namespace BPS.EdOrg.Loader.Controller
                 IRestResponse response = null;
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + Constants.staffUniqueId1 + staffUniqueIdValue);
                 response = _edfiApi.GetData(client, token);
+                
+                
+
                 var rootObject = new StaffDescriptor
                 {
                     StaffUniqueId = staffUniqueIdValue,
@@ -492,16 +495,18 @@ namespace BPS.EdOrg.Loader.Controller
                     MiddleName = mname,
                     LastSurname = lname,
                     BirthDate = birthDate,
-                    identificationCodes = new EdFiIdentificationCode
+                    IdentificationCodes =  new List<EdFiIdentificationCode> {
+                    new EdFiIdentificationCode
                     {
                         AssigningOrganizationIdentificationCode = null,
                         StaffIdentificationSystemDescriptor = Constants.StaffIdentificationSystemDescriptor,
                         IdentificationCode = staffUniqueIdValue
-                        
 
-                    }
 
-                };
+                    }}
+
+
+            };
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
                 if (!_restServiceManager.IsSuccessStatusCode((int)response.StatusCode) || (int)response.StatusCode == 404)
                 {
