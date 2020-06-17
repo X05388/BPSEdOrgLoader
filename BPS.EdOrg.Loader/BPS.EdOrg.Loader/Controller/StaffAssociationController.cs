@@ -54,7 +54,7 @@ namespace BPS.EdOrg.Loader.Controller
                     if (staffEmploymentNodeList != null)
                     {
                         // Add new staff from peoplesoft file.
-                        UpdateStaff(token,staffEmploymentNodeList);
+                        //UpdateStaff(token,staffEmploymentNodeList);
                         
                         //If there are more than one records,set enDate to null     
                         if (staffEmploymentNodeList.status == "T")
@@ -651,64 +651,64 @@ namespace BPS.EdOrg.Loader.Controller
                     {
                         //dynamic original = JObject.Parse(response.Content.TrimStart(new char[] { '[' }).TrimEnd(new char[] { ']' }).ToString());
                         var data = JsonConvert.DeserializeObject<StaffAssignmentDescriptor>(response.Content);
-                        
-                            var id = data.id;
-                            if (id != null)
-                                return id.ToString();
-                        
+
+                        var id = data.id;
+                        if (id != null)
+                            return id.ToString();
+
                     }
-                    else
+                }
+                else
+                {
+                    //Insert Data 
+                    var rootObject = new StaffAssignmentDescriptor
                     {
-                        //Insert Data 
-                        var rootObject = new StaffAssignmentDescriptor
+
+                        EducationOrganizationReference = new EdFiEducationReference
                         {
-
-                            EducationOrganizationReference = new EdFiEducationReference
+                            educationOrganizationId = educationOrganizationId,
+                            Link = new Link()
                             {
-                                educationOrganizationId = educationOrganizationId,
-                                Link = new Link()
-                                {
-                                    Rel = string.Empty,
-                                    Href = string.Empty
-                                }
-                            },
-                            StaffReference = new EdFiStaffReference
+                                Rel = string.Empty,
+                                Href = string.Empty
+                            }
+                        },
+                        StaffReference = new EdFiStaffReference
+                        {
+                            staffUniqueId = staffData.StaffUniqueIdValue,
+
+                            Link = new Link
                             {
-                                staffUniqueId = staffData.StaffUniqueIdValue,
-
-                                Link = new Link
-                                {
-                                    Rel = string.Empty,
-                                    Href = string.Empty
-                                }
-                            },
-                            EmploymentStaffEducationOrganizationEmploymentAssociationReference = new EdfiEmploymentAssociationReference
+                                Rel = string.Empty,
+                                Href = string.Empty
+                            }
+                        },
+                        EmploymentStaffEducationOrganizationEmploymentAssociationReference = new EdfiEmploymentAssociationReference
+                        {
+                            educationOrganizationId = Constants.educationOrganizationIdValue,
+                            staffUniqueId = staffData.StaffUniqueIdValue,
+                            employmentStatusDescriptor = staffData.EmpDesc,
+                            hireDate = staffData.HireDateValue,
+                            Link = new Link
                             {
-                                educationOrganizationId = Constants.educationOrganizationIdValue,
-                                staffUniqueId = staffData.StaffUniqueIdValue,
-                                employmentStatusDescriptor = staffData.EmpDesc,
-                                hireDate = staffData.HireDateValue,
-                                Link = new Link
-                                {
-                                    Rel = string.Empty,
-                                    Href = string.Empty
-                                }
-                            },
+                                Rel = string.Empty,
+                                Href = string.Empty
+                            }
+                        },
 
-                            StaffClassificationDescriptor = staffData.StaffClassification,
-                            BeginDate = staffData.BeginDateValue,
-                            EndDate = staffData.EndDateValue,
-                            OrderOfAssignment = staffData.JobOrderAssignment,
-                            PositionTitle = staffData.PositionCodeDescription
-                        };
+                        StaffClassificationDescriptor = staffData.StaffClassification,
+                        BeginDate = staffData.BeginDateValue,
+                        EndDate = staffData.EndDateValue,
+                        OrderOfAssignment = staffData.JobOrderAssignment,
+                        PositionTitle = staffData.PositionCodeDescription
+                    };
 
-                        string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
-                        response = _edfiApi.PostData(json, client, token);
-
-                    }
-
+                    string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                    response = _edfiApi.PostData(json, client, token);
 
                 }
+
+                
             }
 
             catch (Exception ex)
