@@ -16,6 +16,8 @@ namespace BPS.EdOrg.Loader.Models
         public string LastSurname { get; set; }
         public string BirthDate { get; set; }
         public List<EdFiIdentificationCode> IdentificationCodes { get; set; }
+        public List<StaffContactData> Telephones { get; set; }
+        public List<StaffElectronicMailsData> ElectronicMails { get; set; }
 
     }
 
@@ -206,6 +208,15 @@ namespace BPS.EdOrg.Loader.Models
         public string orderOfPriority { get; set; }
 
     }
+    public class StaffElectronicMailsData
+    {
+        public string Id { get; set; }
+        public string electronicMailAddress { get; set; }
+        public string electronicMailType { get; set; }       
+        public bool primaryEmailAddressIndicator { get; set; }
+       
+
+    }
     public class StaffEmploymentAssociationData
     {
 
@@ -265,13 +276,7 @@ namespace BPS.EdOrg.Loader.Models
     {
         public string id { get; set; }
     }
-    public class StaffReference
-    {
-        public string StaffUniqueId { get; set; }
-        public string FirstName { get; set; }
-        public string LastSurname { get; set; }
-        public List<StaffContactData> telephones { get; set; }
-    }
+   
 
 }
 

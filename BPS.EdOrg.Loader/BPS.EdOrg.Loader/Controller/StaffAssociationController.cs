@@ -54,7 +54,7 @@ namespace BPS.EdOrg.Loader.Controller
                     if (staffEmploymentNodeList != null)
                     {
                         // Add new staff from peoplesoft file.
-                        //UpdateStaff(token,staffEmploymentNodeList);
+                        UpdateStaff(token,staffEmploymentNodeList);
                         
                         //If there are more than one records,set enDate to null     
                         if (staffEmploymentNodeList.status == "T")
@@ -108,7 +108,7 @@ namespace BPS.EdOrg.Loader.Controller
         // Insert or update staff from PeopleSoft
         private void UpdateStaff(string token, StaffEmploymentAssociationData staffEmploymentNodeList)
         {
-           // var existingStaffIds = _restServiceManager.GetStaffList();
+            //var existingStaffIds = _restServiceManager.GetStaffList();
             if (!string.IsNullOrEmpty(staffEmploymentNodeList.staffUniqueIdValue) && !string.IsNullOrEmpty(staffEmploymentNodeList.staff.firstName) && !string.IsNullOrEmpty(staffEmploymentNodeList.staff.lastName) && !string.IsNullOrEmpty(staffEmploymentNodeList.staff.birthDate))
             {
                 //if (!existingStaffIds.Any(p => p == staffEmploymentNodeList.staffUniqueIdValue))
@@ -485,16 +485,16 @@ namespace BPS.EdOrg.Loader.Controller
                 IRestResponse response = null;
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + Constants.staffUniqueId1 + staffUniqueIdValue);
                 response = _edfiApi.GetData(client, token);
-                
-                
-
+                StaffDescriptor data = JsonConvert.DeserializeObject<StaffDescriptor>(response.Content);
                 var rootObject = new StaffDescriptor
                 {
                     StaffUniqueId = staffUniqueIdValue,
                     FirstName = fname,
                     MiddleName = mname,
                     LastSurname = lname,
-                    BirthDate = birthDate,
+                    BirthDate = birthDate,       
+                    ElectronicMails = data.ElectronicMails,
+                    Telephones = data.Telephones,
                     IdentificationCodes =  new List<EdFiIdentificationCode> {
                     new EdFiIdentificationCode
                     {
@@ -512,15 +512,15 @@ namespace BPS.EdOrg.Loader.Controller
                 {
                     
                     response = _edfiApi.PostData(json, client, token);
-                    _log.Info("Updating  edfi.staff for Staff Id : " + staffUniqueIdValue);
+                    _log.Info("Inserting  edfi.staff for Staff Id : " + staffUniqueIdValue);
 
                 }
                 else
                 {
-                    StaffAssociationReference data = JsonConvert.DeserializeObject<StaffAssociationReference>(response.Content);                                      
-                    var id = data.id;
+                    //StaffAssociationReference data = JsonConvert.DeserializeObject<StaffAssociationReference>(response.Content);
+                    var id = data.Id;
                     response = _edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + "/" + id), token);
-                  
+
                     _log.Info("Updating  edfi.staff for Staff Id : " + staffUniqueIdValue);
                 }
             }
@@ -547,12 +547,15 @@ namespace BPS.EdOrg.Loader.Controller
                 {
                     if(staffData!= null)
                     {
-                        StaffReference rootObject = new StaffReference
+                        StaffDescriptor rootObject = new StaffDescriptor
                         {
                             StaffUniqueId = staffUniqueId,
                             FirstName = data.FirstName,
-                            LastSurname = data.LastSurname,
-                            telephones = staffData
+                            MiddleName = data.MiddleName,
+                            LastSurname = data.LastSurname,                            
+                            Telephones = staffData,
+                            ElectronicMails = data.ElectronicMails
+
 
                         };
                         string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
@@ -627,7 +630,7 @@ namespace BPS.EdOrg.Loader.Controller
                 };
 
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
-                _edfiApi.PostData(json, client, token);
+                var resp = _edfiApi.PostData(json, client, token);
                 _log.Info("Inserted into StaffEducationOrganizationEmploymentAssociation for Staff Id : " + staffData.staffUniqueIdValue);
             }
 
