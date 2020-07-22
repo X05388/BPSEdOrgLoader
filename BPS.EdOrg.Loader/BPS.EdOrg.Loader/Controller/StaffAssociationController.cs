@@ -510,7 +510,6 @@ namespace BPS.EdOrg.Loader.Controller
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
                 if (!_restServiceManager.IsSuccessStatusCode((int)response.StatusCode) || (int)response.StatusCode == 404)
                 {
-                    
                     response = _edfiApi.PostData(json, client, token);
                     _log.Info("Inserting  edfi.staff for Staff Id : " + staffUniqueIdValue);
 
@@ -520,7 +519,6 @@ namespace BPS.EdOrg.Loader.Controller
                     //StaffAssociationReference data = JsonConvert.DeserializeObject<StaffAssociationReference>(response.Content);
                     var id = data.Id;
                     response = _edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + "/" + id), token);
-
                     _log.Info("Updating  edfi.staff for Staff Id : " + staffUniqueIdValue);
                 }
             }
