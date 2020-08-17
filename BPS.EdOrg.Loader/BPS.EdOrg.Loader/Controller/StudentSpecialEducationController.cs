@@ -611,9 +611,9 @@ namespace BPS.EdOrg.Loader.Controller
                         Href = string.Empty
                     };
                 }
-                string beginDate = node.SelectSingleNode("beginDate").InnerText ?? null;
-                if (string.IsNullOrEmpty(beginDate))
-                    beginDate = ConfigurationManager.AppSettings["SchoolStartDate"];
+                string beginDate = node.SelectSingleNode("dateSigned").InnerText ?? null;
+                //if (string.IsNullOrEmpty(beginDate))
+                //    beginDate = ConfigurationManager.AppSettings["SchoolStartDate"];
                 spEducation.beginDate = beginDate;
                 spEducation.endDate = node.SelectSingleNode("endDate").InnerText ?? null;
                 //spEducation.ideaEligibility = node.SelectSingleNode("ideaEligiblity").InnerText.Equals("true") ? true : false;
