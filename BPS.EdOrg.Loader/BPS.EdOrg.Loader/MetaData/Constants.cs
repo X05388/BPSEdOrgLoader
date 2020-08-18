@@ -45,16 +45,16 @@ namespace BPS.EdOrg.Loader
         public static string LOG_FILE_BODY { get; set; } = @"EndDateDataReview Log File";
 
         public static string SmtpServerHost = ConfigurationManager.AppSettings["SmtpServerHost"];
-        public static string StaffUrl { get; set; } = @"2019/staffs";
-        public static string StaffEmploymentUrl { get; set; } = @"2019/staffEducationOrganizationEmploymentAssociations";
-        public static string StaffAssignmentUrl { get; set; } = @"2019/staffEducationOrganizationAssignmentAssociations";
-        public static string API_Program { get; set; } = @"2019/programs";
-        public static string StudentSpecialEducation { get; set; } = @"2019/studentSpecialEducationProgramAssociations";
-        public static string StudentSpecialEducationLimit { get; set; } = @"2019/studentSpecialEducationProgramAssociations?limit=100";
-        public static string StudentProgramAssociation { get; set; } = @"2019/studentProgramAssociations";
+        public static string StaffUrl { get; set; } = @"ed-fi/staffs";
+        public static string StaffEmploymentUrl { get; set; } = @"ed-fi/staffEducationOrganizationEmploymentAssociations";
+        public static string StaffAssignmentUrl { get; set; } = @"ed-fi/staffEducationOrganizationAssignmentAssociations";
+        public static string API_Program { get; set; } = @"ed-fi/programs";
+        public static string StudentSpecialEducation { get; set; } = @"ed-fi/studentSpecialEducationProgramAssociations";
+        public static string StudentSpecialEducationLimit { get; set; } = @"ed-fi/studentSpecialEducationProgramAssociations?limit=100";
+        public static string StudentProgramAssociation { get; set; } = @"ed-fi/studentProgramAssociations";
 
-        public static string API_ServiceDescriptor { get; set; } = @"2019/serviceDescriptors";
-        public static string StaffAssociationUrl { get; set; } = @"2019/staffSchoolAssociations";
+        public static string API_ServiceDescriptor { get; set; } = @"ed-fi/serviceDescriptors";
+        public static string StaffAssociationUrl { get; set; } = @"ed-fi/staffSchoolAssociations";
        
        public static string EmpClassCode(string empCode)
        {
