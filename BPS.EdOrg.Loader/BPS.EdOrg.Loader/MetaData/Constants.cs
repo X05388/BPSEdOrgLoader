@@ -13,7 +13,7 @@ namespace BPS.EdOrg.Loader
         public static string SpecEduEducationOrganizationId = @"&educationOrganizationId=";
         public static string educationOrganizationIdValue = @"350000";
         public static string educationOrganizationIdValueCentralStaff = @"9035";
-        public static string employmentStatusDescriptor = @"&employmentStatusDescriptor=";
+        public static string employmentStatusDescriptor = @"&employmentStatusDescriptor=uri://ed-fi.org/EmploymentStatusDescriptor#";
         public static string employmentStatusDescriptorValue = @"Tenured%20or%20permanent";
         public static string staffClassificationDescriptorId = @"&StaffClassificationDescriptor=";
         public static string hireDate = @"&hireDate=";
@@ -33,7 +33,7 @@ namespace BPS.EdOrg.Loader
         public static string schoolId = @"&schoolId=";
         public static string program504PlanValue = Uri.EscapeDataString(@"504 Plan");
         public static string program504Plan = @"&programName="+program504PlanValue;
-        public static string StaffIdentificationSystemDescriptor = "State";
+        public static string StaffIdentificationSystemDescriptor = "uri://ed-fi.org/StaffIdentificationSystemDescriptor#State";
 
 
 
