@@ -485,41 +485,45 @@ namespace BPS.EdOrg.Loader.Controller
                 IRestResponse response = null;
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + Constants.staffUniqueId1 + staffUniqueIdValue);
                 response = _edfiApi.GetData(client, token);
-                StaffDescriptor data = JsonConvert.DeserializeObject<StaffDescriptor>(response.Content);
-                var rootObject = new StaffDescriptor
+                if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
                 {
-                    StaffUniqueId = staffUniqueIdValue,
-                    FirstName = fname,
-                    MiddleName = mname,
-                    LastSurname = lname,
-                    BirthDate = birthDate,       
-                    ElectronicMails = data.ElectronicMails,
-                    Telephones = data.Telephones,
-                    IdentificationCodes =  new List<EdFiIdentificationCode> {
-                    new EdFiIdentificationCode
+                    var rootObject = new StaffDescriptor
                     {
-                        AssigningOrganizationIdentificationCode = null,
-                        StaffIdentificationSystemDescriptor = Constants.StaffIdentificationSystemDescriptor,
-                        IdentificationCode = staffUniqueIdValue
+                        StaffUniqueId = staffUniqueIdValue,
+                        FirstName = fname,
+                        MiddleName = mname,
+                        LastSurname = lname,
+                        BirthDate = birthDate,
+                        //ElectronicMails = data.ElectronicMails,
+                        //Telephones = data.Telephones,
+                        IdentificationCodes = new List<EdFiIdentificationCode> {
+                        new EdFiIdentificationCode
+                        {
+                            AssigningOrganizationIdentificationCode = null,
+                            StaffIdentificationSystemDescriptor = Constants.StaffIdentificationSystemDescriptor,
+                            IdentificationCode = staffUniqueIdValue
 
 
-                    }}
+                        }
+                        }
 
 
-            };
-                string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
-                if (!_restServiceManager.IsSuccessStatusCode((int)response.StatusCode) || (int)response.StatusCode == 404)
-                {
-                    response = _edfiApi.PostData(json, client, token);
-                    _log.Info("Inserting  edfi.staff for Staff Id : " + staffUniqueIdValue);
-
-                }
-                else
-                {
-                    //StaffAssociationReference data = JsonConvert.DeserializeObject<StaffAssociationReference>(response.Content);
-                    var id = data.Id;
-                    response = _edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + "/" + id), token);
-                    _log.Info("Updating  edfi.staff for Staff Id : " + staffUniqueIdValue);
+                    };
+                    string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                    if (response.Content.Length > 2)
+                    {
+                        StaffDescriptor data = JsonConvert.DeserializeObject<StaffDescriptor>(response.Content);
+                        //StaffAssociationReference data = JsonConvert.DeserializeObject<StaffAssociationReference>(response.Content);
+                        var id = data.Id;
+                        response = _edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + "/" + id), token);
+                       _log.Info("Updating  edfi.staff for Staff Id : " + staffUniqueIdValue);
+                        
+                    }
+                    else
+                    {                     
+                        response = _edfiApi.PostData(json, client, token);
+                        _log.Info("Inserting  edfi.staff for Staff Id : " + staffUniqueIdValue);                        
+                    }
                 }
             }
             catch (Exception ex)
@@ -622,7 +626,7 @@ namespace BPS.EdOrg.Loader.Controller
                             Href = string.Empty
                         }
                     },
-                    employmentStatusDescriptor = staffData.empDesc,
+                    employmentStatusDescriptor = "uri://ed-fi.org/EmploymentStatusDescriptor#"+staffData.empDesc,
                     hireDate = staffData.hireDateValue,
                     endDate = staffData.endDateValue
                 };
