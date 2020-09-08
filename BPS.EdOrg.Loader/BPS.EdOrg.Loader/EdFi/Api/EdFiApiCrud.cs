@@ -19,6 +19,7 @@ namespace BPS.EdOrg.Loader.EdFi.Api
         /// <returns></returns>
         public IRestResponse PostData(string jsonData, RestClient client, string token)
         {
+            if (token == null) token = GetAuthToken();
             var request = new RestRequest(Method.POST);
             request.AddHeader("Authorization", "Bearer  " + token);
             request.AddParameter("application/json; charset=utf-8", jsonData, ParameterType.RequestBody);
@@ -33,6 +34,7 @@ namespace BPS.EdOrg.Loader.EdFi.Api
         /// <returns></returns>
         public IRestResponse PutData(string jsonData, RestClient client, string token)
         {
+            if (token == null) token = GetAuthToken();
             var request = new RestRequest(Method.PUT);
             request.AddHeader("Authorization", "Bearer  " + token);
             request.AddParameter("application/json; charset=utf-8", jsonData, ParameterType.RequestBody);
@@ -47,11 +49,18 @@ namespace BPS.EdOrg.Loader.EdFi.Api
         /// <returns></returns>
         public IRestResponse GetData(RestClient client, string token)
         {
-            var request = new RestRequest(Method.GET);
-            request.AddHeader("Authorization", "Bearer  " + token);
-            request.AddParameter("application/json; charset=utf-8", ParameterType.RequestBody);
-            request.RequestFormat = DataFormat.Json;
-            return client.Execute(request);
+            if (token == null) token = GetAuthToken();
+            if (token != null)
+            {
+                var request = new RestRequest(Method.GET);
+                request.AddHeader("Authorization", "Bearer  " + token);
+                request.AddParameter("application/json; charset=utf-8", ParameterType.RequestBody);
+                request.RequestFormat = DataFormat.Json;
+                var response = client.Execute(request);
+                return response;
+            }
+            else
+                return null;
         }
     }
 }

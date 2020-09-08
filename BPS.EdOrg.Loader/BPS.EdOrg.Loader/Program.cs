@@ -78,8 +78,8 @@ namespace BPS.EdOrg.Loader
             Log.Info($"Data Folder: {configuration.XMLOutputPath}");
             Log.Info($"Input Data Text File Path:   {configuration.DataFilePath}");
             Log.Info($"Input Data Text File Path Job:   {configuration.DataFilePathJob}");
-            Log.Info($"Input Data Text File Path Job:   {configuration.DataFilePathJobTransfer}");
-            Log.Info($"Input Data Text File Path Job:   {configuration.DataFilePathStaffPhoneNumbers}");            
+            Log.Info($"Input Data Text File Path DataFilePathJobTransfer:   {configuration.DataFilePathJobTransfer}");
+            Log.Info($"Input Data Text File Path DataFilePathStaffPhoneNumbers:   {configuration.DataFilePathStaffPhoneNumbers}");            
             Log.Info($"CrossWalk File Path: {configuration.CrossWalkFilePath}");
             Log.Info($"Working Folder: {configuration.WorkingFolder}");
             Log.Info($"Xsd Folder:  {configuration.XsdFolder}");
@@ -163,7 +163,7 @@ namespace BPS.EdOrg.Loader
             if (token != null)
             {
                 staffController = new StaffAssociationController(token, param.Object, Log);
-                staffController.UpdateStaffEmploymentAssociationData(token, param.Object);               
+                //staffController.UpdateStaffEmploymentAssociationData(token, param.Object);               
                 staffController.UpdateStaffAssignmentAssociationData(token, param.Object);
             }
 

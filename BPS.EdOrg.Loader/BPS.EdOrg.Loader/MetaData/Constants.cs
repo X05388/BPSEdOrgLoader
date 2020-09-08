@@ -12,10 +12,9 @@ namespace BPS.EdOrg.Loader
         public static string educationOrganizationId = @"?educationOrganizationId=";
         public static string SpecEduEducationOrganizationId = @"&educationOrganizationId=";
         public static string educationOrganizationIdValue = @"350000";
-        public static string educationOrganizationIdValueCentralStaff = @"9035";
-        public static string employmentStatusDescriptor = @"&employmentStatusDescriptor=uri://ed-fi.org/EmploymentStatusDescriptor#";
+        public static string educationOrganizationIdValueCentralStaff = @"9035";        
         public static string employmentStatusDescriptorValue = @"Tenured%20or%20permanent";
-        public static string staffClassificationDescriptorId = @"&StaffClassificationDescriptor=";
+        public static string staffClassificationDescriptorId = @"&StaffClassificationDescriptor="+StaffClassificationDescriptor;
         public static string hireDate = @"&hireDate=";
         public static string beginDate = @"&beginDate=";
         public static string SpecEduBeginDate = @"?beginDate=";
@@ -28,15 +27,19 @@ namespace BPS.EdOrg.Loader
         public static string SpecEduProgramType = @"&programType=";
         public static string studentUniqueId = @"?studentUniqueId=";
         public static string SpecEduStudentUniqueId = @"&studentUniqueId=";
-        public static string programEducationOrganizationId = @"&programEducationOrganizationId=";
-        public static string programAssignmentDescriptor = @"?programAssignmentDescriptor = Regular Education ";
+        public static string programEducationOrganizationId = @"&programEducationOrganizationId=";        
         public static string schoolId = @"&schoolId=";
         public static string program504PlanValue = Uri.EscapeDataString(@"504 Plan");
         public static string program504Plan = @"&programName="+program504PlanValue;
+
+
         public static string StaffIdentificationSystemDescriptor = "uri://ed-fi.org/StaffIdentificationSystemDescriptor#State";
-
-
-
+        public static string ProgramAssignmentDescriptor = @"?programAssignmentDescriptor =" + Uri.EscapeDataString("uri://ed-fi.org/ProgramAssignmentDescriptor#Regular Education ");
+        public static string EmploymentStatusDescriptor = @"&employmentStatusDescriptor=" + Uri.EscapeDataString("uri://mybps.org/EmploymentStatusDescriptor#");
+        public static string StaffClassificationDescriptor = @"uri://ed-fi.org/StaffClassificationDescriptor#";
+        public static string EmploymentStatusDescriptorField = "uri://mybps.org/EmploymentStatusDescriptor#";
+        public static string StaffClassificationDescriptorField = "uri://ed-fi.org/StaffClassificationDescriptor#";
+        public static string ProgramAssignmentDescriptorField = "uri://ed-fi.org/ProgramAssignmentDescriptor#Regular Education";
         public static string LOG_FILE { get; set; } = ConfigurationManager.AppSettings["LogFileDrive"] + DateTime.Today.ToString("yyyyMMdd") + ".csv";
         public static string LOG_FILE_ATT { get; set; } = @"Log File";
         public static string EmailFromAddress = ConfigurationManager.AppSettings["EmailFromAddr"];
