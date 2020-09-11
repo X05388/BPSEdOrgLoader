@@ -24,7 +24,14 @@ namespace BPS.EdOrg.Loader.EdFi.Api
             request.AddHeader("Authorization", "Bearer  " + token);
             request.AddParameter("application/json; charset=utf-8", jsonData, ParameterType.RequestBody);
             request.RequestFormat = DataFormat.Json;
-            return client.Execute(request);
+            var response = client.Execute(request);
+            if ((int)response.StatusCode == 401)
+            {
+                token = GetAuthToken();
+                return PostData(jsonData, client, token);
+            }
+            return response;
+           
 
         }
 
@@ -39,7 +46,13 @@ namespace BPS.EdOrg.Loader.EdFi.Api
             request.AddHeader("Authorization", "Bearer  " + token);
             request.AddParameter("application/json; charset=utf-8", jsonData, ParameterType.RequestBody);
             request.RequestFormat = DataFormat.Json;
-            return client.Execute(request);
+            var response = client.Execute(request);
+            if ((int)response.StatusCode == 401)
+            {
+                token = GetAuthToken();
+                return PutData(jsonData,client, token);
+            }
+            return response;
 
         }
 
@@ -49,18 +62,20 @@ namespace BPS.EdOrg.Loader.EdFi.Api
         /// <returns></returns>
         public IRestResponse GetData(RestClient client, string token)
         {
-            if (token == null) token = GetAuthToken();
-            if (token != null)
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("Authorization", "Bearer  " + token);
+            request.AddParameter("application/json; charset=utf-8", ParameterType.RequestBody);
+            request.RequestFormat = DataFormat.Json;
+            var response = client.Execute(request);
+            if ((int)response.StatusCode == 401)
             {
-                var request = new RestRequest(Method.GET);
-                request.AddHeader("Authorization", "Bearer  " + token);
-                request.AddParameter("application/json; charset=utf-8", ParameterType.RequestBody);
-                request.RequestFormat = DataFormat.Json;
-                var response = client.Execute(request);
-                return response;
+                token = GetAuthToken();
+                return GetData(client, token);
             }
-            else
-                return null;
+                
+            return response;
+
+
         }
     }
 }
