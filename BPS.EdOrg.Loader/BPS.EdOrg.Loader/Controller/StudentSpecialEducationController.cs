@@ -546,7 +546,7 @@ namespace BPS.EdOrg.Loader.Controller
                         Name = ProgramNode.SelectSingleNode("name").InnerText ?? null,
                         StudentUniqueId = studentNode.SelectSingleNode("studentUniqueId").InnerText ?? null,
                         ServiceDescriptor = ServiceDesc,
-                        BeginDate = node.SelectSingleNode("beginDate").InnerText ?? null,
+                        BeginDate = node.SelectSingleNode("iepSignatureDate").InnerText ?? null,
                         EndDate = node.SelectSingleNode("endDate").InnerText ?? null,
                         IdeaEligibility = node.SelectSingleNode("ideaEligiblity").InnerText.Equals("true") ? true : false,
                         IepBeginDate = node.SelectSingleNode("iepBeginDate").InnerText ?? null,
