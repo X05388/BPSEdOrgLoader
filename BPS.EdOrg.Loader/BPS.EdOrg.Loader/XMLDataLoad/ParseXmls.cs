@@ -168,22 +168,22 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                         CreateNodeJob(staffAssociationData, descCode, empClassCode, jobOrderAssignment, writer);
                         numberOfRecordsCreatedInXml++;
 
-                        XmlNodeList nodeList = GetDeptforLocation();
-                        if (nodeList.Count > 0)
-                        {
-                            var deptIdLocation = nodeList.Cast<XmlNode>().Where(n => n["Location"].InnerText == staffAssociationData.location).Select(x => x["StateOrganizationId"].InnerText).FirstOrDefault();
-                            if (deptIdLocation != null)
-                            {
-                                // If departments are different that means Physical location is different so  we have 2 assignments for the staff
-                                if (!staffAssociationData.deptId.Equals(deptIdLocation))
-                                {
-                                    staffAssociationData.deptId = deptIdLocation;
-                                    _log.Debug($"Creating node for {staffAssociationData.staffId}-{staffAssociationData.deptId}-{staffAssociationData.endDate}");
-                                    CreateNodeJob(staffAssociationData, descCode, empClassCode, jobOrderAssignment, writer);
-                                    numberOfRecordsCreatedInXml++;
-                                }
-                            }
-                        }
+                        //XmlNodeList nodeList = GetDeptforLocation();
+                        //if (nodeList.Count > 0)
+                        //{
+                        //    var deptIdLocation = nodeList.Cast<XmlNode>().Where(n => n["Location"].InnerText == staffAssociationData.location).Select(x => x["StateOrganizationId"].InnerText).FirstOrDefault();
+                        //    if (deptIdLocation != null)
+                        //    {
+                        //        // If departments are different that means Physical location is different so  we have 2 assignments for the staff
+                        //        if (!staffAssociationData.deptId.Equals(deptIdLocation))
+                        //        {
+                        //            staffAssociationData.deptId = deptIdLocation;
+                        //            _log.Debug($"Creating node for {staffAssociationData.staffId}-{staffAssociationData.deptId}-{staffAssociationData.endDate}");
+                        //            CreateNodeJob(staffAssociationData, descCode, empClassCode, jobOrderAssignment, writer);
+                        //            numberOfRecordsCreatedInXml++;
+                        //        }
+                        //    }
+                        //}
                     }
                 }
                 writer.WriteEndElement();
@@ -577,19 +577,13 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 _log.Info($"CreateNode started for DeptId:{deptId} and DeptTitle:{deptTitle}");
                 writer.WriteStartElement("EducationServiceCenter");
 
-                writer.WriteStartElement("StateOrganizationId");
-                writer.WriteString(deptId);
-                writer.WriteEndElement();
-
                 writer.WriteStartElement("EducationOrganizationIdentificationCode");
                 writer.WriteStartElement("IdentificationCode");
                 writer.WriteString(deptId);
                 writer.WriteEndElement();
 
-                writer.WriteStartElement("EducationOrganizationIdentificationSystem");
-                writer.WriteStartElement("CodeValue");
-                writer.WriteString("School");
-                writer.WriteEndElement();
+                writer.WriteStartElement("educationOrganizationIdentificationSystemDescriptor");
+                writer.WriteString("uri://ed-fi.org/EducationOrganizationIdentificationSystemDescriptor#School");
                 writer.WriteEndElement();
                 writer.WriteEndElement();
 
@@ -601,8 +595,8 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 writer.WriteString(location);
                 writer.WriteEndElement();
 
-                writer.WriteStartElement("EducationOrganizationCategory");
-                writer.WriteString("Education Service Center");
+                writer.WriteStartElement("EducationOrganizationCategoryDescriptor");
+                writer.WriteString("uri://ed-fi.org/EducationOrganizationCategoryDescriptor#Education Service Center");
                 writer.WriteEndElement();
 
                 writer.WriteStartElement("Address");
@@ -614,16 +608,16 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 writer.WriteString("Roxbury");
                 writer.WriteEndElement();
 
-                writer.WriteStartElement("StateAbbreviation");
-                writer.WriteString("MA");
+                writer.WriteStartElement("StateAbbreviationDescriptor");
+                writer.WriteString("uri://ed-fi.org/StateAbbreviationDescriptor#MA");
                 writer.WriteEndElement();
 
                 writer.WriteStartElement("PostalCode");
                 writer.WriteString("02119");
                 writer.WriteEndElement();
 
-                writer.WriteStartElement("AddressType");
-                writer.WriteString("Physical");
+                writer.WriteStartElement("AddressTypeDescriptor");
+                writer.WriteString("uri://ed-fi.org/AddressTypeDescriptor#Physical");
                 writer.WriteEndElement();
 
                 writer.WriteEndElement();

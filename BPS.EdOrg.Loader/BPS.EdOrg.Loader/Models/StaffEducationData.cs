@@ -20,13 +20,13 @@ namespace BPS.EdOrg.Loader.Models
         public List<StaffElectronicMailsData> ElectronicMails { get; set; }
 
     }
-
     public class EdFiIdentificationCode
     {
         public string StaffIdentificationSystemDescriptor { get; set; }
         public string IdentificationCode { get; set; }
         public string AssigningOrganizationIdentificationCode { get; set; }
     }
+   
     public class StaffEmploymentDescriptor
     {
 
@@ -197,6 +197,39 @@ namespace BPS.EdOrg.Loader.Models
         public string StaffClassification { get; set; }
         public string EmpDesc { get; set; }
         public string JobOrderAssignment { get; set; }
+    }
+
+    public class EducationServiceCenterData
+    {
+        public string Id { get; set; }
+        public string NameOfInstitution { get; set; }
+        public string ShortNameOfInstitution { get; set; }
+        public List<ServiceCategoryDescriptor> Categories { get; set; }
+        public List<ServiceAddresses> Addresses { get; set; }
+        public List<ServiceIdentificationCode> IdentificationCodes { get; set; }      
+        public string EducationServiceCenterId { get; set; }
+       
+    }
+
+    public class ServiceAddresses
+    {
+        public string StreetNumberName { get; set; }
+        public string PostalCode { get; set; }
+        public string City { get; set; }
+        public string StateAbbreviationDescriptor { get; set; }
+        public string AddressTypeDescriptor { get; set; }
+
+    }
+    public class ServiceIdentificationCode
+    {
+        public string IdentificationCode { get; set; }
+        public string EducationOrganizationIdentificationSystemDescriptor { get; set; }
+
+    }
+    public class ServiceCategoryDescriptor
+    {
+        public string EducationOrganizationCategoryDescriptor { get; set; }
+
     }
     public class StaffContactData
     {

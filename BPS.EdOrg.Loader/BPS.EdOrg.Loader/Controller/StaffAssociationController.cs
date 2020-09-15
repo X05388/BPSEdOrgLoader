@@ -228,7 +228,59 @@ namespace BPS.EdOrg.Loader.Controller
             }
 
         }
-        
+
+        /// <summary>
+        /// Gets the data from the xml and updates Department table.
+        /// </summary>
+        /// <returns></returns>
+        public void UpdateEducationServiceCenter(string token, EdorgConfiguration configuration)
+        {
+            try
+            {
+                XmlDocument xmlDoc = _prseXML.LoadXml("EducationOrganization");
+                var nodeList = xmlDoc.SelectNodes(@"//InterchangeEducationOrganization/EducationServiceCenter");
+                
+                foreach (XmlNode node in nodeList)
+                {
+                    // Extracting the data froom the XMl file
+                    var serviceCenterNodeList = GetEducationServiceCenterXml(node);
+                    if (serviceCenterNodeList != null)
+                    {
+                        IRestResponse response = null;
+                        var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.EducationServiceCenter);
+                        var rootObject = new EducationServiceCenterData
+                        {
+                            Categories = serviceCenterNodeList.Categories,
+                            EducationServiceCenterId  = serviceCenterNodeList.EducationServiceCenterId,
+                            Addresses = serviceCenterNodeList.Addresses,
+                            IdentificationCodes = serviceCenterNodeList.IdentificationCodes,
+                            NameOfInstitution = serviceCenterNodeList.NameOfInstitution,
+                            ShortNameOfInstitution = serviceCenterNodeList.ShortNameOfInstitution
+
+                        };
+
+                        string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                        response = _edfiApi.PostData(json, client, token);
+                        _log.Info("Updated EducationServiceCenter for Staff Id : " );
+
+                    }
+
+
+
+                }
+
+
+                if (File.Exists(Constants.LOG_FILE))
+                    _notification.SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex.Message);
+            }
+
+        }
+
+
 
         /// <summary>
         /// Gets the data from the xml and updates StaffTelephone table for Staff Phone Numbers Cases.
@@ -369,7 +421,72 @@ namespace BPS.EdOrg.Loader.Controller
             }
 
         }
+        private EducationServiceCenterData GetEducationServiceCenterXml(XmlNode node)
+        {
+            try
+            {
+                EducationServiceCenterData serviceCenterList = null;
+                XmlNode EducationOrgNode = node.SelectSingleNode("EducationOrganizationIdentificationCode");
+                //XmlNode InstitutionNameNode = node.SelectSingleNode("NameOfInstitution");
+                //XmlNode ShortInstitutionNameNode = node.SelectSingleNode("NameOfInstitution");                
+               // XmlNode EducationOrganizationCategoryDescriptorNode = node.SelectSingleNode("EducationOrganizationCategoryDescriptor");
+                XmlNode AddressNode = node.SelectSingleNode("Address");
+                //XmlNode EducationServiceCenterNode = node.SelectSingleNode("EducationServiceCenterId");
 
+               // if (EducationOrganizationCategoryDescriptorNode == null && EducationServiceCenterNode == null) _log.Error("Nodes not reurning any data for Assignment");
+
+               
+                if (AddressNode != null && EducationOrgNode != null)
+                {
+                    serviceCenterList = new EducationServiceCenterData
+                    {
+                        Categories = new List<ServiceCategoryDescriptor>
+                        {
+                            new ServiceCategoryDescriptor{
+                            EducationOrganizationCategoryDescriptor = node.SelectSingleNode("EducationOrganizationCategoryDescriptor").InnerText ?? null,
+                            }
+                        },
+                       
+                        EducationServiceCenterId = node.SelectSingleNode("EducationServiceCenterId").InnerText ?? null,
+
+                        Addresses = new List<ServiceAddresses>
+                        {
+                            new ServiceAddresses
+                            {
+                            AddressTypeDescriptor = AddressNode.SelectSingleNode("AddressTypeDescriptor").InnerText ?? null,
+                            StateAbbreviationDescriptor = AddressNode.SelectSingleNode("StateAbbreviationDescriptor").InnerText ?? null,
+                            City = AddressNode.SelectSingleNode("City").InnerText ?? null,
+                            StreetNumberName = AddressNode.SelectSingleNode("StreetNumberName").InnerText ?? null,
+                            PostalCode = AddressNode.SelectSingleNode("PostalCode").InnerText ?? null,
+                            }
+                           
+                        },
+                       
+                        IdentificationCodes = new List<ServiceIdentificationCode>
+                        {
+                            new ServiceIdentificationCode
+                            {
+                            EducationOrganizationIdentificationSystemDescriptor = EducationOrgNode.SelectSingleNode("educationOrganizationIdentificationSystemDescriptor").InnerText ?? null,
+                            IdentificationCode = EducationOrgNode.SelectSingleNode("IdentificationCode").InnerText ?? null,
+
+                            }
+
+                        },
+                         NameOfInstitution = node.SelectSingleNode("NameOfInstitution").InnerText ?? null,
+                         ShortNameOfInstitution = node.SelectSingleNode("NameOfInstitution").InnerText ?? null,
+                    };
+
+                }
+                return serviceCenterList;
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Error extracting data for AssignmentAssociation Exception : " + ex.Message);
+                return null;
+
+            }
+
+        }
         private StaffContactData GetStaffContactXml(XmlNode node)
         {
             try

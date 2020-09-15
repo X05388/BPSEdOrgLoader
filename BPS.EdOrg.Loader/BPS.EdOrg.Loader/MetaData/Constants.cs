@@ -50,6 +50,7 @@ namespace BPS.EdOrg.Loader
         public static string SmtpServerHost = ConfigurationManager.AppSettings["SmtpServerHost"];
         public static string StaffUrl { get; set; } = @"ed-fi/staffs";
         public static string StaffEmploymentUrl { get; set; } = @"ed-fi/staffEducationOrganizationEmploymentAssociations";
+        public static string EducationServiceCenter { get; set; } = @"ed-fi/educationServiceCenters";
         public static string StaffAssignmentUrl { get; set; } = @"ed-fi/staffEducationOrganizationAssignmentAssociations";
         public static string API_Program { get; set; } = @"ed-fi/programs";
         public static string StudentSpecialEducation { get; set; } = @"ed-fi/studentSpecialEducationProgramAssociations";

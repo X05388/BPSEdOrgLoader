@@ -147,8 +147,14 @@ namespace BPS.EdOrg.Loader
 
             //For Dept_tbl.txt           
             ParseXmls parseXmls = new ParseXmls(param.Object, Log);
-            parseXmls.CreateXml();
-            LoadXml(param.Object);
+            parseXmls.CreateXml();           
+            var token = edfiApi.GetAuthToken();
+            if (token != null)
+            {
+                staffController = new StaffAssociationController(token, param.Object, Log);
+                staffController.UpdateEducationServiceCenter(token, param.Object);
+
+            }
 
         }
         private static void RunJobCodeFile(CommandLineParser param)
