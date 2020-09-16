@@ -501,7 +501,7 @@ namespace BPS.EdOrg.Loader.Controller
                     {
                         Id = StaffContactNode.SelectSingleNode("StaffUniqueId").InnerText ?? null,
                         telephoneNumber = StaffContactNode.SelectSingleNode("Phone").InnerText ?? null,
-                        telephoneNumberType = StaffContactNode.SelectSingleNode("Type").InnerText ?? null,
+                        telephoneNumberTypeDescriptor = StaffContactNode.SelectSingleNode("Type").InnerText ?? null,
                         ext = StaffContactNode.SelectSingleNode("Ext").InnerText ?? null,
                         orderOfPriority = StaffContactNode.SelectSingleNode("Preferred").InnerText ?? null,
                         textMessageCapabilityIndicator = true
@@ -662,30 +662,35 @@ namespace BPS.EdOrg.Loader.Controller
                 IRestResponse response = null;
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + Constants.staffUniqueId1 + staffUniqueId);
                 response = _edfiApi.GetData(client, token);
-                StaffDescriptor data = JsonConvert.DeserializeObject<StaffDescriptor>(response.Content);
-
-                if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
-                {
-                    if(staffData!= null)
+                //StaffDescriptor data = JsonConvert.DeserializeObject<StaffDescriptor>(response.Content);
+                var original = JsonConvert.DeserializeObject<List<StaffDescriptor>>(response.Content);
+                foreach (var data in original)
                     {
-                        StaffDescriptor rootObject = new StaffDescriptor
+                    if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
+                    {
+                        if (staffData != null)
                         {
-                            StaffUniqueId = staffUniqueId,
-                            FirstName = data.FirstName,
-                            MiddleName = data.MiddleName,
-                            LastSurname = data.LastSurname,                            
-                            Telephones = staffData,
-                            ElectronicMails = data.ElectronicMails
+                            StaffDescriptor rootObject = new StaffDescriptor
+                            {
+                                StaffUniqueId = staffUniqueId,
+                                FirstName = data.FirstName,
+                                MiddleName = data.MiddleName,
+                                LastSurname = data.LastSurname,
+                                Telephones = staffData,
+                                ElectronicMails = data.ElectronicMails
 
 
-                        };
-                        string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
-                        response = _edfiApi.PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl), token);
-                        _log.Info("Updating  edfi.staff for Staff Id : " + staffUniqueId);
+                            };
+                            string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                            response = _edfiApi.PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl), token);
+                            _log.Info("Updating  edfi.staff for Staff Id : " + staffUniqueId);
+                        }
+
+
                     }
-                    
 
                 }
+                
 
           
             }
@@ -771,7 +776,7 @@ namespace BPS.EdOrg.Loader.Controller
             IRestResponse response = null;
             try
             {
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl + Constants.educationOrganizationId + educationOrganizationId + Constants.beginDate + staffData.BeginDateValue + Constants.staffClassificationDescriptorId + staffData.StaffClassification + Constants.staffUniqueId + staffData.StaffUniqueIdValue);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl + Constants.educationOrganizationId + educationOrganizationId + Constants.beginDate + staffData.BeginDateValue + Constants.StaffClassificationDescriptor + staffData.StaffClassification + Constants.staffUniqueId + staffData.StaffUniqueIdValue);
                 response = _edfiApi.GetData(client, token);
                 if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
                 {
@@ -785,55 +790,56 @@ namespace BPS.EdOrg.Loader.Controller
                             return id.ToString();
 
                     }
-                }
-                else
-                {
-                    //Insert Data 
-                    var rootObject = new StaffAssignmentDescriptor
+
+                    else
                     {
-
-                        EducationOrganizationReference = new EdFiEducationReference
+                        //Insert Data 
+                        var rootObject = new StaffAssignmentDescriptor
                         {
-                            educationOrganizationId = educationOrganizationId,
-                            Link = new Link()
+
+                            EducationOrganizationReference = new EdFiEducationReference
                             {
-                                Rel = string.Empty,
-                                Href = string.Empty
-                            }
-                        },
-                        StaffReference = new EdFiStaffReference
-                        {
-                            staffUniqueId = staffData.StaffUniqueIdValue,
-
-                            Link = new Link
+                                educationOrganizationId = educationOrganizationId,
+                                Link = new Link()
+                                {
+                                    Rel = string.Empty,
+                                    Href = string.Empty
+                                }
+                            },
+                            StaffReference = new EdFiStaffReference
                             {
-                                Rel = string.Empty,
-                                Href = string.Empty
-                            }
-                        },
-                        EmploymentStaffEducationOrganizationEmploymentAssociationReference = new EdfiEmploymentAssociationReference
-                        {
-                            educationOrganizationId = Constants.educationOrganizationIdValue,
-                            staffUniqueId = staffData.StaffUniqueIdValue,
-                            employmentStatusDescriptor = Constants.EmploymentStatusDescriptorField+staffData.EmpDesc,
-                            hireDate = staffData.HireDateValue,
-                            Link = new Link
+                                staffUniqueId = staffData.StaffUniqueIdValue,
+
+                                Link = new Link
+                                {
+                                    Rel = string.Empty,
+                                    Href = string.Empty
+                                }
+                            },
+                            EmploymentStaffEducationOrganizationEmploymentAssociationReference = new EdfiEmploymentAssociationReference
                             {
-                                Rel = string.Empty,
-                                Href = string.Empty
-                            }
-                        },
+                                educationOrganizationId = Constants.educationOrganizationIdValue,
+                                staffUniqueId = staffData.StaffUniqueIdValue,
+                                employmentStatusDescriptor = Constants.EmploymentStatusDescriptorField + staffData.EmpDesc,
+                                hireDate = staffData.HireDateValue,
+                                Link = new Link
+                                {
+                                    Rel = string.Empty,
+                                    Href = string.Empty
+                                }
+                            },
 
-                        StaffClassificationDescriptor = Constants.StaffClassificationDescriptorField+staffData.StaffClassification,
-                        BeginDate = staffData.BeginDateValue,
-                        EndDate = staffData.EndDateValue,
-                        OrderOfAssignment = staffData.JobOrderAssignment,
-                        PositionTitle = staffData.PositionCodeDescription
-                    };
+                            StaffClassificationDescriptor = Constants.StaffClassificationDescriptorField + staffData.StaffClassification,
+                            BeginDate = staffData.BeginDateValue,
+                            EndDate = staffData.EndDateValue,
+                            OrderOfAssignment = staffData.JobOrderAssignment,
+                            PositionTitle = staffData.PositionCodeDescription
+                        };
 
-                    string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
-                    response = _edfiApi.PostData(json, client, token);
+                        string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                        response = _edfiApi.PostData(json, client, token);
 
+                    }
                 }
 
                 

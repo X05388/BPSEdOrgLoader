@@ -315,20 +315,20 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                         {
                             Id = fields[empIdIndex]?.Trim(),                           
                             telephoneNumber = fields[phoneIndex]?.Trim(),
-                            telephoneNumberType = fields[typeIndex]?.Trim(),
+                            telephoneNumberTypeDescriptor = fields[typeIndex]?.Trim(),
                             ext = fields[extIndex]?.Trim(),
                             orderOfPriority = fields[preferredIndex]?.Trim(),
                             textMessageCapabilityIndicator = true
                         };
 
                        
-                        _log.Debug($"Creating node for {staffContactData.Id}-{staffContactData.telephoneNumber}-{staffContactData.telephoneNumberType}");
-                        if (!string.IsNullOrEmpty(staffContactData.telephoneNumberType))
+                        _log.Debug($"Creating node for {staffContactData.Id}-{staffContactData.telephoneNumber}-{staffContactData.telephoneNumberTypeDescriptor}");
+                        if (!string.IsNullOrEmpty(staffContactData.telephoneNumberTypeDescriptor))
                         {
-                            var telPhoneType = Constants.GetTelephoneType(staffContactData.telephoneNumberType);
-                            staffContactData.telephoneNumberType = telPhoneType;
+                            var telPhoneType = Constants.GetTelephoneType(staffContactData.telephoneNumberTypeDescriptor);
+                            staffContactData.telephoneNumberTypeDescriptor = telPhoneType;
                         }
-                        if (!string.IsNullOrEmpty(staffContactData.telephoneNumberType))
+                        if (!string.IsNullOrEmpty(staffContactData.telephoneNumberTypeDescriptor))
                         {
                             var preNum = Constants.GetPreferredNumber(staffContactData.orderOfPriority);
                             staffContactData.orderOfPriority = preNum;
@@ -546,7 +546,7 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 writer.WriteEndElement();
 
                 writer.WriteStartElement("Type");
-                writer.WriteString(staffData.telephoneNumberType);
+                writer.WriteString("uri://ed-fi.org/TelephoneNumberTypeDescriptor#" + staffData.telephoneNumberTypeDescriptor);
                 writer.WriteEndElement();
 
                 writer.WriteStartElement("Ext");

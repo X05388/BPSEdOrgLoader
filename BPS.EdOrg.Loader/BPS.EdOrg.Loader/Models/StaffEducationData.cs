@@ -235,7 +235,7 @@ namespace BPS.EdOrg.Loader.Models
     {
         public string Id { get; set; }
         public string telephoneNumber { get; set; }
-        public string telephoneNumberType { get; set; }
+        public string telephoneNumberTypeDescriptor { get; set; }
         public string ext { get; set; }
         public bool textMessageCapabilityIndicator { get; set; }
         public string orderOfPriority { get; set; }

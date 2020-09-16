@@ -47,7 +47,7 @@ namespace BPS.EdOrg.Loader.EdFi.Api
                             foreach (var school in schoolList)
                             {
                                 string deptId = school.IdentificationCodes?
-                                    .Where(x => string.Equals(x.EducationOrganizationIdentificationSystemDescriptor, "school", StringComparison.OrdinalIgnoreCase))
+                                    .Where(x => string.Equals(x.EducationOrganizationIdentificationSystemDescriptor, "uri://ed-fi.org/EducationOrganizationIdentificationSystemDescriptor#School", StringComparison.OrdinalIgnoreCase))
                                     .FirstOrDefault()?.IdentificationCode;
                                 if (deptId == null || deptId.Equals("N/A"))
                                     deptId = school.schoolId;
