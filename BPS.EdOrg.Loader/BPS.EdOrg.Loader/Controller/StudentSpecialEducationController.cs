@@ -398,8 +398,8 @@ namespace BPS.EdOrg.Loader.Controller
                     ideaEligibility = spList.IdeaEligibility,
                     iepReviewDate = spList.IepReviewDate,
                     iepBeginDate = spList.IepBeginDate,
-                    iepEndDate = spList.IepEndDate,                    
-                    Services = new List<Service>()
+                    iepEndDate = spList.IepEndDate,
+                    specialEducationProgramServices = new List<Service>()
                 };
 
                 if (spList.ServiceDescriptor != null)
@@ -408,11 +408,12 @@ namespace BPS.EdOrg.Loader.Controller
                     var transportationCodeService = new Service
                     {
                         PrimaryIndicator = false, // default is false
-                        ServiceDescriptor = $"{Constants.GetTransportationEligibility(spList.ServiceDescriptor)}",
+                        SpecialEducationProgramServiceDescriptor = "uri://mybps.org/TransportationServiceDescriptor#" + $"{Constants.GetTransportationEligibility(spList.ServiceDescriptor)}",
+                        //ServiceDescriptor = $"{Constants.GetTransportationEligibility(spList.ServiceDescriptor)}",
                         ServiceBeginDate = spList.IepBeginDate,
                         ServiceEndDate = spList.IepEndDate
                     };
-                    rootObject.Services.Add(transportationCodeService);
+                    rootObject.specialEducationProgramServices.Add(transportationCodeService);
 
                 }
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
@@ -653,16 +654,17 @@ namespace BPS.EdOrg.Loader.Controller
             IRestResponse response = null;
 
 
-            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_ServiceDescriptor);
+            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_SpecialEdServiceDescriptor);
             var rootObject = new ServiceDescriptor
             {
+                SpecialEducationSettingDescriptorId =  0,
                 CodeValue = string.Concat(Item.ToString().Trim().Take(50)),
                 ShortDescription = string.Concat(Item.ToString().Trim().Take(75)),
                 Description = Item.ToString().Trim(),
                 EffectiveBeginDate = null,
                 EffectiveEndDate = null,
                 //Namespace = "http://ed-fi.org/Descriptor/BPS/SPED/ServiceDescriptor.xml",
-                Namespace = "http://ed-fi.org/Descriptor/BPS/SPEDTransportation/ServiceDescriptor.xml",
+                Namespace = "uri://mybps.org/TransportationServiceDescriptor",
                 PriorDescriptorId = 0
 
 

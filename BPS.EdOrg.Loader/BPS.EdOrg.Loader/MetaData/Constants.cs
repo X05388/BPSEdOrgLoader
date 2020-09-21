@@ -58,6 +58,7 @@ namespace BPS.EdOrg.Loader
         public static string StudentProgramAssociation { get; set; } = @"ed-fi/studentProgramAssociations";
 
         public static string API_ServiceDescriptor { get; set; } = @"ed-fi/serviceDescriptors";
+        public static string API_SpecialEdServiceDescriptor { get; set; } = @"ed -fi/specialEducationSettingDescriptors";
         public static string StaffAssociationUrl { get; set; } = @"ed-fi/staffSchoolAssociations";
        
        public static string EmpClassCode(string empCode)

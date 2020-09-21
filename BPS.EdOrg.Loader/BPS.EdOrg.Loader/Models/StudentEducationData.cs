@@ -18,6 +18,7 @@ namespace BPS.EdOrg.Loader.Models
             public string Namespace { get; set; }
             public int PriorDescriptorId { get; set; }
             public string ShortDescription { get; set; }
+            public int SpecialEducationSettingDescriptorId { get; set; }
          }
 
          /// <summary>
@@ -25,7 +26,7 @@ namespace BPS.EdOrg.Loader.Models
         /// </summary>
         public class Service
         {
-            public string ServiceDescriptor { get; set; }
+            public string SpecialEducationProgramServiceDescriptor { get; set; }
             public bool PrimaryIndicator { get; set; }
             public string ServiceBeginDate { get; set; }
             public string ServiceEndDate { get; set; }
