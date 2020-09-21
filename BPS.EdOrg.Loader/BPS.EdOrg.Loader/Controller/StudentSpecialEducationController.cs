@@ -109,6 +109,7 @@ namespace BPS.EdOrg.Loader.Controller
                     {
                         //formattedResponse = JArray.Parse(response.Content.ToString());
                          data = JsonConvert.DeserializeObject<List<SpecialEducationReference>>(response.Content);
+                           
                     }
                 }
                 
@@ -284,7 +285,9 @@ namespace BPS.EdOrg.Loader.Controller
                             iepEndDate = data.iepEndDate,
                             lastEvaluationDate = data.lastEvaluationDate,
                             iepReviewDate = data.iepReviewDate,
-                            iepBeginDate = data.iepBeginDate
+                            iepBeginDate = data.iepBeginDate,
+                            Services = data.Services
+                            
 
                         };
 
