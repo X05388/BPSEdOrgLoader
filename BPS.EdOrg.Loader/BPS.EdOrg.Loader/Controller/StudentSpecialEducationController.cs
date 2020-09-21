@@ -446,9 +446,17 @@ namespace BPS.EdOrg.Loader.Controller
                                         {
                                             var result = DateTime.Compare(inputDateTime, iepDate);
                                             if (stuId == spList.StudentUniqueId && result == 0)
+                                            {
                                                 response = edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + "/" + id), token);
+                                                Log.Info("Update StudentSpecialEdOrg : " + "studentUniqueId"+ stuId + "IepSignatureDate" + spList.IepSignatureDate);
+                                            }
+                                                
                                             else
+                                            {
                                                 response = edfiApi.PostData(json, client, token);
+                                                Log.Info("Insert StudentSpecialEdOrg : " + "studentUniqueId" + stuId + "IepSignatureDate" + spList.IepSignatureDate);
+                                            }
+                                               
 
                                         }
                                     }
@@ -460,7 +468,11 @@ namespace BPS.EdOrg.Loader.Controller
                     }
 
                     else
-                        response = edfiApi.PostData(json, client, token);                    
+                    {
+                        response = edfiApi.PostData(json, client, token);
+                        Log.Info("Inserting if record doesn't exist StudentSpecialEdOrg : " + "studentUniqueId" + spList.StudentUniqueId);
+                    }
+                                           
                 }
             }
 

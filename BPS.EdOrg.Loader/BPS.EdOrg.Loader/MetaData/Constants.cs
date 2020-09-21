@@ -204,7 +204,16 @@ namespace BPS.EdOrg.Loader
                
                 case "Transportation - Door to Door":
                     return @"Door to Door";
-                
+
+                //case "Transportation - Corner to Corner - Accommodated Corner":
+                //    return @"Accommodated";
+
+                //case "Transportation - Corner to Corner - Existing":
+                //    return @"Corner";
+
+                //case "Transportation - MBTA":
+                //    return @"T-Pass";
+
                 default:
                     return @"Not Eligible";
             }
