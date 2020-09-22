@@ -56,7 +56,7 @@ namespace BPS.EdOrg.Loader.Controller
                     {
                         // Add new staff from peoplesoft file.
                         UpdateStaff(token,staffEmploymentNodeList);
-                        
+
                         //If there are more than one records,set enDate to null     
                         if (staffEmploymentNodeList.status == "T")
                         {
@@ -80,13 +80,13 @@ namespace BPS.EdOrg.Loader.Controller
                             staffEmploymentNodeList.educationOrganizationIdValue = Constants.educationOrganizationIdValue;
                             string id = GetEmploymentAssociationId(token, staffEmploymentNodeList);
                             if (id != null)
-                            {                     
-                                string endDate = GetAssignmentEndDate(token, staffEmploymentNodeList.staffUniqueIdValue, staffEmploymentNodeList.empDesc, null,Constants.StaffAssignmentUrl);
-                                    
-                                    //Setting the Enddate with the one from AssignmentAssociation
-                                    if (endDate != null)
-                                        staffEmploymentNodeList.endDateValue = endDate;
-                                                               
+                            {
+                                string endDate = GetAssignmentEndDate(token, staffEmploymentNodeList.staffUniqueIdValue, staffEmploymentNodeList.empDesc, null, Constants.StaffAssignmentUrl);
+
+                                //Setting the Enddate with the one from AssignmentAssociation
+                                if (endDate != null)
+                                    staffEmploymentNodeList.endDateValue = endDate;
+
                                 UpdateEndDate(token, id, staffEmploymentNodeList);
                             }
 
@@ -602,10 +602,14 @@ namespace BPS.EdOrg.Loader.Controller
             try
             {
                 IRestResponse response = null;
+                List<StaffDescriptor> resp = null;
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + Constants.staffUniqueId1 + staffUniqueIdValue);
                 response = _edfiApi.GetData(client, token);
                 if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
                 {
+                    if (response.ContentLength > 2)                    
+                      resp = JsonConvert.DeserializeObject<List<StaffDescriptor>>(response.Content);
+                    
                     var rootObject = new StaffDescriptor
                     {
                         StaffUniqueId = staffUniqueIdValue,
@@ -613,17 +617,17 @@ namespace BPS.EdOrg.Loader.Controller
                         MiddleName = mname,
                         LastSurname = lname,
                         BirthDate = birthDate,
-                        //ElectronicMails = data.ElectronicMails,
-                        //Telephones = data.Telephones,
+                        ElectronicMails = resp[0].ElectronicMails ?? null,
+                        Telephones = resp[0].Telephones ?? null,
                         IdentificationCodes = new List<EdFiIdentificationCode> {
                         new EdFiIdentificationCode
-                        {
-                            AssigningOrganizationIdentificationCode = null,
-                            StaffIdentificationSystemDescriptor = Constants.StaffIdentificationSystemDescriptor,
-                            IdentificationCode = staffUniqueIdValue
+                            {
+                                AssigningOrganizationIdentificationCode = null,
+                                StaffIdentificationSystemDescriptor = Constants.StaffIdentificationSystemDescriptor,
+                                IdentificationCode = staffUniqueIdValue
 
 
-                        }
+                            }
                         }
 
 
@@ -631,12 +635,13 @@ namespace BPS.EdOrg.Loader.Controller
                     string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
                     if (response.Content.Length > 2)
                     {
-                        StaffDescriptor data = JsonConvert.DeserializeObject<StaffDescriptor>(response.Content);
-                        //StaffAssociationReference data = JsonConvert.DeserializeObject<StaffAssociationReference>(response.Content);
-                        var id = data.Id;
-                        response = _edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + "/" + id), token);
-                       _log.Info("Updating  edfi.staff for Staff Id : " + staffUniqueIdValue);
-                        
+                        List<StaffDescriptor> data = JsonConvert.DeserializeObject<List<StaffDescriptor>>(response.Content);
+                           var id = data[0].Id;
+                            response = _edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + "/" + id), token);
+                            _log.Info("Updating  edfi.staff for Staff Id : " + staffUniqueIdValue);
+
+                       
+
                     }
                     else
                     {                     
