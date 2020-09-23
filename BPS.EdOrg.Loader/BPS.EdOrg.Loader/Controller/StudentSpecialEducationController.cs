@@ -433,10 +433,8 @@ namespace BPS.EdOrg.Loader.Controller
                         {
                             var id = data.id;
                             string stuId = data.studentReference.studentUniqueId;
-                            DateTime iepDate ;
-                            DateTime.TryParse(data.beginDate.ToString("dd/MM/yyyy"), out iepDate) ;                        
-                                
-
+                            DateTime iepDate = Convert.ToDateTime(data.beginDate) ?? null;
+                            
                             if (id != null)
                             {
                                 if (spList.IepSignatureDate != null)
@@ -466,7 +464,10 @@ namespace BPS.EdOrg.Loader.Controller
 
                                 }
 
-                            }
+                            }                  
+                                
+
+                          
                         }
                     }
 
