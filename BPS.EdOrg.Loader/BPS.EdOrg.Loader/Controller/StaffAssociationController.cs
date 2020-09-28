@@ -237,6 +237,7 @@ namespace BPS.EdOrg.Loader.Controller
         {
             try
             {
+                var schoolDeptids = GetDeptList(configuration);
                 XmlDocument xmlDoc = _prseXML.LoadXml("EducationOrganization");
                 var nodeList = xmlDoc.SelectNodes(@"//InterchangeEducationOrganization/EducationServiceCenter");
                 
@@ -244,29 +245,33 @@ namespace BPS.EdOrg.Loader.Controller
                 {
                     // Extracting the data froom the XMl file
                     var serviceCenterNodeList = GetEducationServiceCenterXml(node);
+                    var rootObject = new EducationServiceCenterData
+                    {
+                        Categories = serviceCenterNodeList.Categories,
+                        EducationServiceCenterId = serviceCenterNodeList.EducationServiceCenterId,
+                        Addresses = serviceCenterNodeList.Addresses,
+                        IdentificationCodes = serviceCenterNodeList.IdentificationCodes,
+                        NameOfInstitution = serviceCenterNodeList.NameOfInstitution,
+                        ShortNameOfInstitution = serviceCenterNodeList.ShortNameOfInstitution
+
+                    };
                     if (serviceCenterNodeList != null)
                     {
                         IRestResponse response = null;
                         var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.EducationServiceCenter);
-                        var rootObject = new EducationServiceCenterData
+                        response = _edfiApi.GetData(client, token);
+                        if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
                         {
-                            Categories = serviceCenterNodeList.Categories,
-                            EducationServiceCenterId  = serviceCenterNodeList.EducationServiceCenterId,
-                            Addresses = serviceCenterNodeList.Addresses,
-                            IdentificationCodes = serviceCenterNodeList.IdentificationCodes,
-                            NameOfInstitution = serviceCenterNodeList.NameOfInstitution,
-                            ShortNameOfInstitution = serviceCenterNodeList.ShortNameOfInstitution
-
-                        };
-
-                        string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
-                        response = _edfiApi.PostData(json, client, token);
-                        _log.Info("Updated EducationServiceCenter for Staff Id : " );
+                            if (response.Content.Length <= 2)
+                            {
+                                string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                                response = _edfiApi.PostData(json, client, token);
+                                _log.Info("Updated EducationServiceCenter for Staff Id : ");
+                            }
+                            
+                        }
 
                     }
-
-
-
                 }
 
 

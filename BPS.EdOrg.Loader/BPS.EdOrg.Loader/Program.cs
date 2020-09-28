@@ -49,10 +49,10 @@ namespace BPS.EdOrg.Loader
 
                     // creating the xml and executing the file through command line parser                    
                     RunDeptFile(param);
-                    RunJobCodeFile(param);
+                    //RunJobCodeFile(param);
                     RunStaffContactFile(param);
-                    RunTransferCasesFile(param);
-                    RunAlertIEPFile(param);
+                    //RunTransferCasesFile(param);
+                    //RunAlertIEPFile(param);
 
                 }
                 catch (Exception ex)
