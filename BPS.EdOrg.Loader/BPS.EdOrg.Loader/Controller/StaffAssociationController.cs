@@ -66,7 +66,7 @@ namespace BPS.EdOrg.Loader.Controller
                         }
 
                         //Inserting data for CentralEmployees to Employments Association for 9035
-                        var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(staffEmploymentNodeList.educationOrganizationIdValue) && x.OperationalStatus.Equals("Active")).FirstOrDefault();
+                        var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(staffEmploymentNodeList.educationOrganizationIdValue));
                         //token = _edfiApi.GetAuthToken();
                         if (educationOrganizationId == null)
                         {
@@ -238,6 +238,7 @@ namespace BPS.EdOrg.Loader.Controller
             try
             {
                 var schoolDeptids = GetDeptList(configuration);
+                
                 XmlDocument xmlDoc = _prseXML.LoadXml("EducationOrganization");
                 var nodeList = xmlDoc.SelectNodes(@"//InterchangeEducationOrganization/EducationServiceCenter");
                 
@@ -255,21 +256,27 @@ namespace BPS.EdOrg.Loader.Controller
                         ShortNameOfInstitution = serviceCenterNodeList.ShortNameOfInstitution
 
                     };
+
+                    // Posting the Data if it is not already inserted by Aspen as School
                     if (serviceCenterNodeList != null)
                     {
-                        IRestResponse response = null;
-                        var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.EducationServiceCenter);
-                        response = _edfiApi.GetData(client, token);
-                        if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
+                        // Verifying if the Dept already exist in EducationOrgIdentification code table 
+                        var result = schoolDeptids.Find(x => x.DeptId == serviceCenterNodeList.EducationServiceCenterId);
+                        if (result == null)
                         {
-                            if (response.Content.Length <= 2)
+                            IRestResponse response = null;
+                            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.EducationServiceCenter);
+                            response = _edfiApi.GetData(client, token);
+                            if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
                             {
                                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
                                 response = _edfiApi.PostData(json, client, token);
                                 _log.Info("Updated EducationServiceCenter for Staff Id : ");
+                                
+
                             }
-                            
                         }
+                        
 
                     }
                 }
