@@ -37,7 +37,8 @@ namespace BPS.EdOrg.Loader
         public static string StaffIdentificationSystemDescriptor = "uri://ed-fi.org/StaffIdentificationSystemDescriptor#State";
         public static string ProgramAssignmentDescriptor = @"?programAssignmentDescriptor =" + Uri.EscapeDataString("uri://ed-fi.org/ProgramAssignmentDescriptor#Regular Education ");
         public static string EmploymentStatusDescriptor = @"&employmentStatusDescriptor=" + Uri.EscapeDataString("uri://mybps.org/EmploymentStatusDescriptor#");
-        public static string StaffClassificationDescriptor = @"uri://ed-fi.org/StaffClassificationDescriptor#";
+        public static string StaffClassificationDescriptor1 = @"& StaffClassificationDescriptor = " +Uri.EscapeDataString("uri://ed-fi.org/StaffClassificationDescriptor#");
+        public static string StaffClassificationDescriptor = @"&uri://ed-fi.org/StaffClassificationDescriptor#";
         public static string EmploymentStatusDescriptorField = "uri://mybps.org/EmploymentStatusDescriptor#";
         public static string StaffClassificationDescriptorField = "uri://ed-fi.org/StaffClassificationDescriptor#";
         public static string ProgramAssignmentDescriptorField = "uri://ed-fi.org/ProgramAssignmentDescriptor#Regular Education";
@@ -205,12 +206,21 @@ namespace BPS.EdOrg.Loader
         /// <returns></returns>
         public static string GetTransportationEligibility(string transCode)
         {
-            switch (transCode?.Trim())
+             switch (transCode?.Trim())
             {
                
                 case "Transportation - Door to Door":
                     return @"Door to Door";
-                
+
+                case "Transportation - Corner to Corner - Accommodated Corner":
+                    return @"Accommodated";
+
+                case "Transportation - Corner to Corner - Existing":
+                    return @"Corner";
+
+                case "Transportation - MBTA":
+                    return @"T-Pass";
+
                 default:
                     return @"Not Eligible";
             }

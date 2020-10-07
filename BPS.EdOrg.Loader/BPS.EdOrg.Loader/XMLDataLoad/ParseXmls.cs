@@ -168,22 +168,22 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                         CreateNodeJob(staffAssociationData, descCode, empClassCode, jobOrderAssignment, writer);
                         numberOfRecordsCreatedInXml++;
 
-                        //XmlNodeList nodeList = GetDeptforLocation();
-                        //if (nodeList.Count > 0)
-                        //{
-                        //    var deptIdLocation = nodeList.Cast<XmlNode>().Where(n => n["Location"].InnerText == staffAssociationData.location).Select(x => x["StateOrganizationId"].InnerText).FirstOrDefault();
-                        //    if (deptIdLocation != null)
-                        //    {
-                        //        // If departments are different that means Physical location is different so  we have 2 assignments for the staff
-                        //        if (!staffAssociationData.deptId.Equals(deptIdLocation))
-                        //        {
-                        //            staffAssociationData.deptId = deptIdLocation;
-                        //            _log.Debug($"Creating node for {staffAssociationData.staffId}-{staffAssociationData.deptId}-{staffAssociationData.endDate}");
-                        //            CreateNodeJob(staffAssociationData, descCode, empClassCode, jobOrderAssignment, writer);
-                        //            numberOfRecordsCreatedInXml++;
-                        //        }
-                        //    }
-                        //}
+                        XmlNodeList nodeList = GetDeptforLocation();
+                        if (nodeList.Count > 0)
+                        {
+                            var deptIdLocation = nodeList.Cast<XmlNode>().Where(n => n["Location"].InnerText == staffAssociationData.location).Select(x => x["StateOrganizationId"].InnerText).FirstOrDefault();
+                            if (deptIdLocation != null)
+                            {
+                                // If departments are different that means Physical location is different so  we have 2 assignments for the staff
+                                if (!staffAssociationData.deptId.Equals(deptIdLocation))
+                                {
+                                    staffAssociationData.deptId = deptIdLocation;
+                                    _log.Debug($"Creating node for {staffAssociationData.staffId}-{staffAssociationData.deptId}-{staffAssociationData.endDate}");
+                                    CreateNodeJob(staffAssociationData, descCode, empClassCode, jobOrderAssignment, writer);
+                                    numberOfRecordsCreatedInXml++;
+                                }
+                            }
+                        }
                     }
                 }
                 writer.WriteEndElement();

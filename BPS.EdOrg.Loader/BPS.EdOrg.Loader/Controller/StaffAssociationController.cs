@@ -66,8 +66,7 @@ namespace BPS.EdOrg.Loader.Controller
                         }
 
                         //Inserting data for CentralEmployees to Employments Association for 9035
-                        var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(staffEmploymentNodeList.educationOrganizationIdValue));
-                        //token = _edfiApi.GetAuthToken();
+                        var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(staffEmploymentNodeList.educationOrganizationIdValue)).FirstOrDefault();
                         if (educationOrganizationId == null)
                         {
                             staffEmploymentNodeList.educationOrganizationIdValue = Constants.educationOrganizationIdValueCentralStaff;
@@ -793,18 +792,22 @@ namespace BPS.EdOrg.Loader.Controller
             IRestResponse response = null;
             try
             {
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl + Constants.educationOrganizationId + educationOrganizationId + Constants.beginDate + staffData.BeginDateValue + Constants.StaffClassificationDescriptor + staffData.StaffClassification + Constants.staffUniqueId + staffData.StaffUniqueIdValue);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssignmentUrl + Constants.educationOrganizationId + educationOrganizationId + Constants.beginDate + staffData.BeginDateValue + Constants.staffUniqueId + staffData.StaffUniqueIdValue +  Constants.StaffClassificationDescriptor1 + staffData.StaffClassification );
                 response = _edfiApi.GetData(client, token);
                 if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
                 {
                     if (response.Content.Length > 2)
                     {
-                        //dynamic original = JObject.Parse(response.Content.TrimStart(new char[] { '[' }).TrimEnd(new char[] { ']' }).ToString());
-                        var data = JsonConvert.DeserializeObject<StaffAssignmentDescriptor>(response.Content);
+                        
+                        var data = JsonConvert.DeserializeObject<List<StaffAssignmentDescriptor>>(response.Content);
+                        foreach(var item in data)
+                        {
+                            var id = item.id;
+                            if (id != null)
+                                return id.ToString();
 
-                        var id = data.id;
-                        if (id != null)
-                            return id.ToString();
+                        }
+                       
 
                     }
 
