@@ -20,8 +20,11 @@ namespace BPS.EdOrg.Loader.MetaData
         public string OauthSecret { get; set; }
         public string OauthUrl { get; set; }
         public string XMLOutputPath { get; set; }
+        public string XMLDeploymentPath { get; set; }
+        
         public string DataFilePath { get; set; }
         public string DataFilePathJob { get; set; }
+        public string DataFilePathJobPreviousFile { get; set; }
         public string DataFilePathJobTransfer { get; set; }
         public string DataFilePathStaffPhoneNumbers { get; set; }
         
@@ -44,6 +47,7 @@ namespace BPS.EdOrg.Loader.MetaData
                         string.IsNullOrEmpty(ApiUrl) ||
                         string.IsNullOrEmpty(WorkingFolder) ||
                         string.IsNullOrEmpty(XMLOutputPath) ||
+                        string.IsNullOrEmpty(XMLDeploymentPath) ||
                         string.IsNullOrEmpty(DataFilePath) || 
                         string.IsNullOrEmpty(DataFilePathJob) ||
                         string.IsNullOrEmpty(DataFilePathJobTransfer) ||
@@ -96,6 +100,9 @@ namespace BPS.EdOrg.Loader.MetaData
 
                 if (string.IsNullOrEmpty(XMLOutputPath) || !Directory.Exists(XMLOutputPath))
                     sb.AppendLine("Option 'd:data' parse error. Provided value is not a directory.");
+
+                if (string.IsNullOrEmpty(XMLDeploymentPath) || !Directory.Exists(XMLDeploymentPath))
+                    sb.AppendLine("Option 'u:dataPath' parse error. Provided value is not a directory.");
 
                 if (string.IsNullOrEmpty(DataFilePath) || !Directory.Exists(DataFilePath))
                     sb.AppendLine("Option 'b:data' parse error. Provided value is not a file path.");

@@ -49,6 +49,12 @@ namespace BPS.EdOrg.Loader.MetaData
                     ConfigurationManager.AppSettings["XMLOutputPath"],
                     Directory.GetCurrentDirectory()));
 
+            Setup(arg => arg.XMLDeploymentPath).As('v', "dataPath")
+               .WithDescription("Path to folder containing the txt  files to from PeopleSoft")
+               .SetDefault(GetFirstValue(
+                   ConfigurationManager.AppSettings["XMLDeploymentPath"],
+                   Directory.GetCurrentDirectory()));
+
             Setup(arg => arg.DataFilePath).As('b', "DataFilePath")
             .WithDescription("Path to folder containing the input text data files to be loaded")
             .SetDefault(GetFirstValue(
@@ -59,6 +65,12 @@ namespace BPS.EdOrg.Loader.MetaData
             .WithDescription("Path to folder containing the input text data files to be loaded")
             .SetDefault(GetFirstValue(
                 ConfigurationManager.AppSettings["DataFilePathJob"],
+                Directory.GetCurrentDirectory()));
+
+            Setup(arg => arg.DataFilePathJobPreviousFile).As('z', "DataFilePathJobPreviousFile")
+            .WithDescription("Path to folder containing the input text data files to be loaded")
+            .SetDefault(GetFirstValue(
+                ConfigurationManager.AppSettings["DataFilePathJobPreviousFile"],
                 Directory.GetCurrentDirectory()));
 
             Setup(arg => arg.DataFilePathJobTransfer).As('e', "DataFilePathJobTransfer")

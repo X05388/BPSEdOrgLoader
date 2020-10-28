@@ -140,10 +140,10 @@ namespace BPS.EdOrg.Loader.Controller
                     {
                         // Null Check req need to Modify
                         var spEducation = GetSpecialEducationXml(node);                                                                                                                                                                              //Check required fied exist in XML source 
-                        if (!string.IsNullOrEmpty(spEducation.programReference.educationOrganizationId) && !string.IsNullOrEmpty(spEducation.programReference.name) && !string.IsNullOrEmpty(spEducation.programReference.type) && !string.IsNullOrEmpty(spEducation.beginDate) && !string.IsNullOrEmpty(spEducation.studentReference.studentUniqueId)) // 
+                        if (!string.IsNullOrEmpty(spEducation.programReference.educationOrganizationId) && !string.IsNullOrEmpty(spEducation.programReference.ProgramName) && !string.IsNullOrEmpty(spEducation.programReference.programTypeDescriptor) && !string.IsNullOrEmpty(spEducation.beginDate) && !string.IsNullOrEmpty(spEducation.studentReference.studentUniqueId)) // 
                         {
                             // Check if the Program already exists in the ODS if not first enter the Progam.
-                            VerifyProgramData(token, spEducation.programReference.educationOrganizationId, spEducation.programReference.name, spEducation.programReference.type);
+                            VerifyProgramData(token, spEducation.programReference.educationOrganizationId, spEducation.programReference.ProgramName, spEducation.programReference.programTypeDescriptor);
                             InsertIEPStudentSpecialEducation(token, spEducation);
                         }
                         else
@@ -169,30 +169,34 @@ namespace BPS.EdOrg.Loader.Controller
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program + Constants.educationOrganizationId + educationOrganizationId + Constants.programName + programName + Constants.programType + programType);
 
                 response = edfiApi.GetData(client, token);
-                if (!IsSuccessStatusCode((int)response.StatusCode))
+                if (IsSuccessStatusCode((int)response.StatusCode))
                 {
-                    var rootObject = new EdFiProgram
+                    if (response.Content.Length <= 2)
                     {
-                        EducationOrganizationReference = new EdFiEducationReference
+                        var rootObject = new EdFiProgram
                         {
-                            educationOrganizationId = educationOrganizationId,
-                            Link = new Link()
+                            EducationOrganizationReference = new EdFiEducationReference
                             {
-                                Rel = string.Empty,
-                                Href = string.Empty
-                            }
-                        },
-                        ProgramId = null,
-                        Type = programType,
-                        SponsorType = string.Empty,
-                        Name = programName,
+                                educationOrganizationId = educationOrganizationId,
+                                Link = new Link()
+                                {
+                                    Rel = string.Empty,
+                                    Href = string.Empty
+                                }
+                            },
+                            ProgramId = null,
+                            ProgramTypeDescriptor = "uri://ed-fi.org/ProgramTypeDescriptor#" + programType,
+                            SponsorType = string.Empty,
+                            ProgramName = programName,
 
 
-                    };
+                        };
 
-                    string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
-                    response = edfiApi.PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program), token); // Need to Check - Get requred here 
-                    Log.Info("Check if the program data exists in EdfI Program for programTypeId : " + programType);
+                        string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                        response = edfiApi.PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program), token); // Need to Check - Get requred here 
+                        Log.Info("Check if the program data exists in EdfI Program for programTypeId : " + programType);
+                    }
+                    
                 }
                 return response;
             }
@@ -377,8 +381,8 @@ namespace BPS.EdOrg.Loader.Controller
                     programReference = new ProgramReference
                     {
                         educationOrganizationId = spList.EducationOrganizationId,
-                        type = spList.Type,
-                        name = spList.Name,
+                        programTypeDescriptor = "uri://ed-fi.org/ProgramTypeDescriptor#"+spList.Type,
+                        ProgramName = spList.Name,
                         Link = new Link
                         {
                             Rel = string.Empty,
@@ -482,7 +486,7 @@ namespace BPS.EdOrg.Loader.Controller
                 string json = JsonConvert.SerializeObject(spEducation, Newtonsoft.Json.Formatting.Indented);
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + Constants.SpecEduBeginDate + spEducation.beginDate + Constants.
                     SpecEduEducationOrganizationId + spEducation.educationOrganizationReference.educationOrganizationId + Constants.programEducationOrganizationId + spEducation.programReference.educationOrganizationId +
-                    Constants.SpecEduProgramName + spEducation.programReference.name + Constants.SpecEduProgramType + spEducation.programReference.type + Constants.SpecEduStudentUniqueId + spEducation.studentReference.studentUniqueId);
+                    Constants.SpecEduProgramName + spEducation.programReference.ProgramName + Constants.SpecEduProgramType + spEducation.programReference.programTypeDescriptor + Constants.SpecEduStudentUniqueId + spEducation.studentReference.studentUniqueId);
                 response = edfiApi.GetData(client, token);
                 if (IsSuccessStatusCode((int)response.StatusCode))
                 {
@@ -594,8 +598,8 @@ namespace BPS.EdOrg.Loader.Controller
                 if (ProgramNode != null)
                 {
                     spEducation.programReference.educationOrganizationId = ProgramNode.SelectSingleNode("educationOrganizationId").InnerText ?? null;
-                    spEducation.programReference.type = ProgramNode.SelectSingleNode("type").InnerText.ToString() ?? null;
-                    spEducation.programReference.name = ProgramNode.SelectSingleNode("name").InnerText.ToString() ?? null;
+                    spEducation.programReference.programTypeDescriptor = ProgramNode.SelectSingleNode("type").InnerText.ToString() ?? null;
+                    spEducation.programReference.ProgramName = ProgramNode.SelectSingleNode("name").InnerText.ToString() ?? null;
                     spEducation.programReference.Link = new Link()
                     {
                         Rel = string.Empty,

@@ -54,7 +54,7 @@ namespace BPS.EdOrg.Loader.Controller
 
                     if (staffEmploymentNodeList != null)
                     {
-                        // Add new staff from peoplesoft file.
+                       // Add new staff from peoplesoft file.
                         UpdateStaff(token,staffEmploymentNodeList);
 
                         //If there are more than one records,set enDate to null     
@@ -109,11 +109,10 @@ namespace BPS.EdOrg.Loader.Controller
         // Insert or update staff from PeopleSoft
         private void UpdateStaff(string token, StaffEmploymentAssociationData staffEmploymentNodeList)
         {
-            //var existingStaffIds = _restServiceManager.GetStaffList();
+           
             if (!string.IsNullOrEmpty(staffEmploymentNodeList.staffUniqueIdValue) && !string.IsNullOrEmpty(staffEmploymentNodeList.staff.firstName) && !string.IsNullOrEmpty(staffEmploymentNodeList.staff.lastName) && !string.IsNullOrEmpty(staffEmploymentNodeList.staff.birthDate))
             {
-                //if (!existingStaffIds.Any(p => p == staffEmploymentNodeList.staffUniqueIdValue))
-                    UpdatingNewStaffData(token, staffEmploymentNodeList.staffUniqueIdValue, staffEmploymentNodeList.staff.firstName, staffEmploymentNodeList.staff.middleName, staffEmploymentNodeList.staff.lastName, staffEmploymentNodeList.staff.birthDate);
+                UpdatingNewStaffData(token, staffEmploymentNodeList.staffUniqueIdValue, staffEmploymentNodeList.staff.firstName, staffEmploymentNodeList.staff.middleName, staffEmploymentNodeList.staff.lastName, staffEmploymentNodeList.staff.birthDate);
             }
 
         }
@@ -614,12 +613,24 @@ namespace BPS.EdOrg.Loader.Controller
             {
                 IRestResponse response = null;
                 List<StaffDescriptor> resp = null;
+                List<StaffElectronicMailsData> respEmail= null;
+                List<StaffContactData> respTel = null;
+
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + Constants.staffUniqueId1 + staffUniqueIdValue);
                 response = _edfiApi.GetData(client, token);
                 if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
                 {
-                    if (response.ContentLength > 2)                    
-                      resp = JsonConvert.DeserializeObject<List<StaffDescriptor>>(response.Content);
+                    if (response.ContentLength > 2)
+                    {
+                        resp = JsonConvert.DeserializeObject<List<StaffDescriptor>>(response.Content);
+                        foreach( var item in resp)
+                        {
+                            respEmail = item.ElectronicMails;
+                            respTel = item.Telephones;
+                        }
+                       
+                    }                  
+                      
                     
                     var rootObject = new StaffDescriptor
                     {
@@ -628,8 +639,8 @@ namespace BPS.EdOrg.Loader.Controller
                         MiddleName = mname,
                         LastSurname = lname,
                         BirthDate = birthDate,
-                        ElectronicMails = resp[0].ElectronicMails ?? null,
-                        Telephones = resp[0].Telephones ?? null,
+                        ElectronicMails = respEmail,
+                        Telephones = respTel,
                         IdentificationCodes = new List<EdFiIdentificationCode> {
                         new EdFiIdentificationCode
                             {
@@ -692,6 +703,8 @@ namespace BPS.EdOrg.Loader.Controller
                                 FirstName = data.FirstName,
                                 MiddleName = data.MiddleName,
                                 LastSurname = data.LastSurname,
+                                BirthDate = data.BirthDate,
+                                IdentificationCodes = data.IdentificationCodes,
                                 Telephones = staffData,
                                 ElectronicMails = data.ElectronicMails
 

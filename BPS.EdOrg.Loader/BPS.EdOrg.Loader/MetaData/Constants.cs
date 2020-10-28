@@ -22,8 +22,8 @@ namespace BPS.EdOrg.Loader
         public static string beginDateDefaultValue = @"2017-07-01";
         public static string staffUniqueId = @"&staffUniqueId=";
         public static string staffUniqueId1 = @"?staffUniqueId="; 
-        public static string programName = @"&name=";
-        public static string programType = @"&type=";
+        public static string programName = @"&programName=";
+        public static string programType = @"&programTypeDescriptor="+ Uri.EscapeDataString("uri://ed-fi.org/ProgramTypeDescriptor#");
         public static string SpecEduProgramName = @"&programName=";
         public static string SpecEduProgramType = @"&programType=";
         public static string studentUniqueId = @"?studentUniqueId=";

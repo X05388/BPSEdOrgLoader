@@ -43,15 +43,14 @@ namespace BPS.EdOrg.Loader
             {
                 try
                 {
-                    parseXmls = new ParseXmls(param.Object, Log);
-                    parseXmls.Archive(param.Object);
+                    parseXmls = new ParseXmls(param.Object, Log);                    
                     LogConfiguration(param.Object);
 
                     // creating the xml and executing the file through command line parser                    
-                    //RunDeptFile(param);
-                    //RunJobCodeFile(param);
-                    //RunStaffContactFile(param);
-                    //RunTransferCasesFile(param);
+                    RunDeptFile(param);
+                    RunJobCodeFile(param);
+                    RunStaffContactFile(param);
+                    RunTransferCasesFile(param);
                     RunAlertIEPFile(param);
 
                 }
@@ -59,6 +58,9 @@ namespace BPS.EdOrg.Loader
                 {
                     Log.Error(ex.Message);
                 }
+
+                //Archiving the file for comarison 
+                parseXmls.Archive(param.Object);
                 Log.Info("Job completed");
             }
         }
@@ -76,8 +78,10 @@ namespace BPS.EdOrg.Loader
             Log.Info($"OAuth Secret:   {configuration.OauthSecret}");
             Log.Info($"Metadata Url:    {configuration.MetadataUrl}");
             Log.Info($"Data Folder: {configuration.XMLOutputPath}");
+            Log.Info($"DataPath Folder: {configuration.XMLDeploymentPath}");
             Log.Info($"Input Data Text File Path:   {configuration.DataFilePath}");
             Log.Info($"Input Data Text File Path Job:   {configuration.DataFilePathJob}");
+            Log.Info($"Input Data Text File Path Job:   {configuration.DataFilePathJobPreviousFile}");
             Log.Info($"Input Data Text File Path DataFilePathJobTransfer:   {configuration.DataFilePathJobTransfer}");
             Log.Info($"Input Data Text File Path DataFilePathStaffPhoneNumbers:   {configuration.DataFilePathStaffPhoneNumbers}");            
             Log.Info($"CrossWalk File Path: {configuration.CrossWalkFilePath}");
@@ -115,6 +119,7 @@ namespace BPS.EdOrg.Loader
             {
                 argumentBuilder.Append($"/a {configuration.ApiUrl} ");
                 argumentBuilder.Append($"/d {configuration.XMLOutputPath} ");
+                argumentBuilder.Append($"/v {configuration.XMLDeploymentPath} ");
                 argumentBuilder.Append($"/k {configuration.OauthKey} ");
                 argumentBuilder.Append($"/s {configuration.OauthSecret} ");
                 argumentBuilder.Append($"/m {configuration.MetadataUrl} ");

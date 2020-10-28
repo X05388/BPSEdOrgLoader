@@ -94,8 +94,17 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 CreateXmlGenericStart(writer);
                 writer.WriteStartElement("InterchangeStaffAssociation");
                
+                // Comapring Previous and current files
+                string dataFilePathPreviousFile = _configuration.DataFilePathJobPreviousFile;
+                string dataFilePathCurrentFile = _configuration.DataFilePathJob;
                 string dataFilePath = _configuration.DataFilePathJob;
-                string[] lines = File.ReadAllLines(dataFilePath);
+                string[] file1Lines = null;
+                if (dataFilePathPreviousFile != null)
+                    file1Lines = File.ReadAllLines(dataFilePathPreviousFile).Skip(1).ToArray();                
+                string[] file2Lines = File.ReadAllLines(dataFilePathCurrentFile);
+                IEnumerable<String> lines =file2Lines.Except(file1Lines);
+
+                // Creating xml for only the currnet fields
                 int i = 0; int actionDtIndex = 0; int actionIndex = 0;
                 int deptIdIndex = 0; int unionCodeIndex = 0; int emplClassIndex = 0; int jobIndicatorIndex = 0; int statusIndex = 0;
                 int middleNameIndex = 0; int actionDateIndex = 0; int hireDateIndex = 0; int jobCodeIndex = 0; int jobTitleIndex = 0;
@@ -171,7 +180,7 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                         XmlNodeList nodeList = GetDeptforLocation();
                         if (nodeList.Count > 0)
                         {
-                            var deptIdLocation = nodeList.Cast<XmlNode>().Where(n => n["Location"].InnerText == staffAssociationData.location).Select(x => x["StateOrganizationId"].InnerText).FirstOrDefault();
+                            var deptIdLocation = nodeList.Cast<XmlNode>().Where(n => n["Location"].InnerText == staffAssociationData.location).Select(x => x["EducationServiceCenterId"].InnerText).FirstOrDefault();
                             if (deptIdLocation != null)
                             {
                                 // If departments are different that means Physical location is different so  we have 2 assignments for the staff
@@ -640,8 +649,8 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
             try
             {
                 _log.Info("Archiving started");
-                MoveFiles(_configuration);
-                DeleteOldFiles(_configuration);
+                  MoveFiles(_configuration);
+                 //DeleteOldFiles(_configuration);
                 _log.Info("Archiving ended");
             }
             catch (Exception ex)
@@ -692,9 +701,9 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
         {
             try
             {
-                string rootFolderPath = configuration.XMLOutputPath;
-                string backupPath = Path.Combine(rootFolderPath, "Backup");
-                string filesToDelete = @"*.xml";   // Only delete WAV files ending by "_DONE" in their filenames
+                string rootFolderPath = configuration.XMLDeploymentPath;
+                string backupPath = Path.Combine(configuration.XMLOutputPath, "Backup");
+                string filesToDelete = @"R0100156_JOB_W_ORIGHIRDT.txt";   // Only delete WAV files ending by "_DONE" in their filenames
                 string[] fileList = System.IO.Directory.GetFiles(rootFolderPath, filesToDelete);
                 if (!Directory.Exists(backupPath))
                 {
@@ -709,7 +718,7 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                     {
                         File.Delete(moveTo);
                     }
-                    File.Move(fileToMove, moveTo);
+                    File.Copy(fileToMove, moveTo,true);
                 }
             }
             catch (Exception ex)
@@ -729,7 +738,7 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 {
                     FileInfo fi = new FileInfo(file);
 
-                    if (fi.LastAccessTime < DateTime.Now.AddDays(-1 * numberOfBackupDays))
+                    if (fi.CreationTime < DateTime.Now.AddDays(-1 * numberOfBackupDays))
                     {
                         fi.Delete();
                     }

@@ -81,9 +81,9 @@ namespace BPS.EdOrg.Loader.Models
     {
         public EdFiEducationReference EducationOrganizationReference { get; set; }
         public int? ProgramId { get; set; }
-        public string Type { get; set; }
+        public string ProgramTypeDescriptor { get; set; }
         public string SponsorType { get; set; }
-        public string Name { get; set; }
+        public string ProgramName { get; set; }
         public string ProgramEducationOrganizationId { get; set; }
 
     }
@@ -125,8 +125,8 @@ namespace BPS.EdOrg.Loader.Models
     public class ProgramReference
     {
         public string educationOrganizationId { get; set; }
-        public string type { get; set; }
-        public string name { get; set; }
+        public string programTypeDescriptor { get; set; }
+        public string ProgramName { get; set; }
         public Link Link { get; set; }
     }
     public class EdFiStaffReference
@@ -245,7 +245,8 @@ namespace BPS.EdOrg.Loader.Models
     {
         public string Id { get; set; }
         public string electronicMailAddress { get; set; }
-        public string electronicMailType { get; set; }       
+         
+        public string electronicMailTypeDescriptor { get; set; }       
         public bool primaryEmailAddressIndicator { get; set; }
        
 

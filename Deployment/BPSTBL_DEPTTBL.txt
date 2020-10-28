@@ -142,7 +142,7 @@ DeptID	Dept Title	Set ID	Location
 101346	BPS Mason Elementary	BOSTN	BPS136
 101348	BPS Mather Elementary	BOSTN	BPS011
 101350	BPS Mattahunt Elementary	BOSTN	BPS046
-101351	Mattapan Early Elementary	BOSTN	BPS046
+101351	Mattahunt Elementary School	BOSTN	BPS046
 101352	BPS Mckay Elementary	BOSTN	BPS012
 101355	East Boston EEC	BOSTN	BPS023
 101356	BPS Mendell Elementary	BOSTN	BPS014
