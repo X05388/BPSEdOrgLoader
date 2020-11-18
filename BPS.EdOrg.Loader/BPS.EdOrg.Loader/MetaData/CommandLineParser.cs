@@ -49,10 +49,10 @@ namespace BPS.EdOrg.Loader.MetaData
                     ConfigurationManager.AppSettings["XMLOutputPath"],
                     Directory.GetCurrentDirectory()));
 
-            Setup(arg => arg.XMLDeploymentPath).As('v', "dataPath")
+            Setup(arg => arg.JobFilePath).As('v', "jobDataPath")
                .WithDescription("Path to folder containing the txt  files to from PeopleSoft")
                .SetDefault(GetFirstValue(
-                   ConfigurationManager.AppSettings["XMLDeploymentPath"],
+                   ConfigurationManager.AppSettings["JobFilePath"],
                    Directory.GetCurrentDirectory()));
 
             Setup(arg => arg.DataFilePath).As('b', "DataFilePath")

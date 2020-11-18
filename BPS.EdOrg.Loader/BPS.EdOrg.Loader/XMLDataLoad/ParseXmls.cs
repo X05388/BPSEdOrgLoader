@@ -98,11 +98,13 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 string dataFilePathPreviousFile = _configuration.DataFilePathJobPreviousFile;
                 string dataFilePathCurrentFile = _configuration.DataFilePathJob;
                 string dataFilePath = _configuration.DataFilePathJob;
-                string[] file1Lines = null;
+                string[] previousFileLines = null;
                 if (dataFilePathPreviousFile != null)
-                    file1Lines = File.ReadAllLines(dataFilePathPreviousFile).Skip(1).ToArray();                
-                string[] file2Lines = File.ReadAllLines(dataFilePathCurrentFile);
-                IEnumerable<String> lines =file2Lines.Except(file1Lines);
+                    previousFileLines = File.ReadAllLines(dataFilePathPreviousFile).Skip(1).ToArray();                
+                string[] currentFileLines = File.ReadAllLines(dataFilePathCurrentFile);
+                // New records that need to be Updated or Inserted
+                IEnumerable<String> lines = currentFileLines.Except(previousFileLines);
+                
 
                 // Creating xml for only the currnet fields
                 int i = 0; int actionDtIndex = 0; int actionIndex = 0;
@@ -650,7 +652,7 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
             {
                 _log.Info("Archiving started");
                   MoveFiles(_configuration);
-                 //DeleteOldFiles(_configuration);
+                  DeleteOldFiles(_configuration);
                 _log.Info("Archiving ended");
             }
             catch (Exception ex)
@@ -701,10 +703,10 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
         {
             try
             {
-                string rootFolderPath = configuration.XMLDeploymentPath;
+                string rootFolderPath = configuration.JobFilePath;                
                 string backupPath = Path.Combine(configuration.XMLOutputPath, "Backup");
-                string filesToDelete = @"R0100156_JOB_W_ORIGHIRDT.txt";   // Only delete WAV files ending by "_DONE" in their filenames
-                string[] fileList = System.IO.Directory.GetFiles(rootFolderPath, filesToDelete);
+                string filesToMove = Constants.JobFile;   // Only move Job file for com
+                string[] fileList = System.IO.Directory.GetFiles(rootFolderPath, filesToMove);
                 if (!Directory.Exists(backupPath))
                 {
                     Directory.CreateDirectory(backupPath);
@@ -731,8 +733,8 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
         {
             try
             {
-                string backupPath = Path.Combine(configuration.XMLOutputPath, "Backup");
-                string[] files = Directory.GetFiles(backupPath);
+                string outputPath = configuration.XMLOutputPath;
+                string[] files = Directory.GetFiles(outputPath);
                 int numberOfBackupDays = Convert.ToInt16(ConfigurationManager.AppSettings.Get("BackupDays"));
                 foreach (string file in files)
                 {

@@ -191,7 +191,7 @@ namespace BPS.EdOrg.Loader.Controller
                             {
                                 string schoolid = null;
                                 // Getting the EdOrgId for the Department ID 
-                                var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(staffAssignmentNodeList.EducationOrganizationIdValue)).FirstOrDefault();
+                                var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(staffAssignmentNodeList.EducationOrganizationIdValue) && x.OperationalStatus.Equals("Active")).FirstOrDefault();
 
                                 // setting the DeptId as EdOrgId for the staff, if no corresponding school is found
                                 if (educationOrganizationId != null) schoolid = educationOrganizationId.SchoolId;

@@ -9,6 +9,7 @@ namespace BPS.EdOrg.Loader
 {
     class Constants
     {
+        public static string JobFile = @"R0100156_JOB_W_ORIGHIRDT.txt";
         public static string educationOrganizationId = @"?educationOrganizationId=";
         public static string SpecEduEducationOrganizationId = @"&educationOrganizationId=";
         public static string educationServiceCenterId = @"?educationServiceCenterId=";

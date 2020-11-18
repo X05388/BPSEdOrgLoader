@@ -58,9 +58,12 @@ namespace BPS.EdOrg.Loader
                 {
                     Log.Error(ex.Message);
                 }
-
-                //Archiving the file for comarison 
-                parseXmls.Archive(param.Object);
+                finally
+                {
+                    //Archiving the file for comarison 
+                    parseXmls.Archive(param.Object);
+                }
+                
                 Log.Info("Job completed");
             }
         }
@@ -78,7 +81,7 @@ namespace BPS.EdOrg.Loader
             Log.Info($"OAuth Secret:   {configuration.OauthSecret}");
             Log.Info($"Metadata Url:    {configuration.MetadataUrl}");
             Log.Info($"Data Folder: {configuration.XMLOutputPath}");
-            Log.Info($"DataPath Folder: {configuration.XMLDeploymentPath}");
+            Log.Info($"JobFilePath Folder: {configuration.JobFilePath}");
             Log.Info($"Input Data Text File Path:   {configuration.DataFilePath}");
             Log.Info($"Input Data Text File Path Job:   {configuration.DataFilePathJob}");
             Log.Info($"Input Data Text File Path Job:   {configuration.DataFilePathJobPreviousFile}");
@@ -119,7 +122,7 @@ namespace BPS.EdOrg.Loader
             {
                 argumentBuilder.Append($"/a {configuration.ApiUrl} ");
                 argumentBuilder.Append($"/d {configuration.XMLOutputPath} ");
-                argumentBuilder.Append($"/v {configuration.XMLDeploymentPath} ");
+                argumentBuilder.Append($"/v {configuration.JobFilePath} ");
                 argumentBuilder.Append($"/k {configuration.OauthKey} ");
                 argumentBuilder.Append($"/s {configuration.OauthSecret} ");
                 argumentBuilder.Append($"/m {configuration.MetadataUrl} ");
