@@ -31,14 +31,14 @@ namespace BPS.EdOrg.Loader.Controller
             try
             {
                 var fragments = File.ReadAllText(ConfigurationManager.AppSettings["XMLDeploymentPath"] + $"/504inXML.xml").Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
-                fragments = fragments.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>", "");
-                fragments = fragments.Replace("504Eligibility", "_504Eligibility");
-                var myRootedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><roots>" + fragments + "</roots>";
-                var doc = XDocument.Parse(myRootedXml);
+                //fragments = fragments.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>", "");
+                //fragments = fragments.Replace("504Eligibility", "_504Eligibility");
+                //var myRootedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><roots>" + fragments + "</roots>";
+                var doc = XDocument.Parse(fragments);
                 XmlDocument xmlDoc = prseXMl.ToXmlDocument(doc);
                 //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
                 //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
-                XmlNodeList nodeList = xmlDoc.SelectNodes("//roots/root");
+                XmlNodeList nodeList = xmlDoc.SelectNodes("//root/student");
                 foreach (XmlNode node in nodeList)
                 {
                     var studentSpecialEducationList = GetAlertXml(node);
@@ -570,7 +570,7 @@ namespace BPS.EdOrg.Loader.Controller
                         IepReviewDate = node.SelectSingleNode("iepReviewDate").InnerText ?? null,
                         IepParentResponse = node.SelectSingleNode("iepParentResponse").InnerText ?? null,
                         IepSignatureDate = node.SelectSingleNode("iepSignatureDate").InnerText ?? null,
-                        Eligibility504 = node.SelectSingleNode("_504Eligibility").InnerText ?? null
+                        Eligibility504 = node.SelectSingleNode("programEligibility").InnerText ?? null
 
                     };
                 }
