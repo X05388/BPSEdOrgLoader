@@ -109,6 +109,7 @@ namespace BPS.EdOrg.Loader.Controller
                     {
                         //formattedResponse = JArray.Parse(response.Content.ToString());
                          data = JsonConvert.DeserializeObject<List<SpecialEducationReference>>(response.Content);
+                           
                     }
                 }
                 
@@ -288,7 +289,9 @@ namespace BPS.EdOrg.Loader.Controller
                             iepEndDate = data.iepEndDate,
                             lastEvaluationDate = data.lastEvaluationDate,
                             iepReviewDate = data.iepReviewDate,
-                            iepBeginDate = data.iepBeginDate
+                            iepBeginDate = data.iepBeginDate,
+                            Services = data.Services
+                            
 
                         };
 
@@ -435,10 +438,8 @@ namespace BPS.EdOrg.Loader.Controller
                         {
                             var id = data.id;
                             string stuId = data.studentReference.studentUniqueId;
-                            DateTime iepDate ;
-                            DateTime.TryParse(data.beginDate.ToString("dd/MM/yyyy"), out iepDate) ;                        
-                                
-
+                            DateTime iepDate = Convert.ToDateTime(data.beginDate) ?? null;
+                            
                             if (id != null)
                             {
                                 if (spList.IepSignatureDate != null)
@@ -451,21 +452,36 @@ namespace BPS.EdOrg.Loader.Controller
                                         {
                                             var result = DateTime.Compare(inputDateTime, iepDate);
                                             if (stuId == spList.StudentUniqueId && result == 0)
-                                                response = edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + "/" + id), token);
+                                            {
+                                                var updateResponse = edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + "/" + id), token);
+                                                Log.Info("Update StudentSpecialEdOrg : " + "studentUniqueId"+ stuId + "IepSignatureDate" + spList.IepSignatureDate);
+                                            }
+                                                
                                             else
-                                                response = edfiApi.PostData(json, client, token);
+                                            {
+                                                var updateResponse = edfiApi.PostData(json, client, token);
+                                                Log.Info("Insert StudentSpecialEdOrg : " + "studentUniqueId" + stuId + "IepSignatureDate" + spList.IepSignatureDate);
+                                            }
+                                               
 
                                         }
                                     }
 
                                 }
 
-                            }
+                            }                  
+                                
+
+                          
                         }
                     }
 
                     else
-                        response = edfiApi.PostData(json, client, token);                    
+                    {
+                        response = edfiApi.PostData(json, client, token);
+                        Log.Info("Inserting if record doesn't exist StudentSpecialEdOrg : " + "studentUniqueId" + spList.StudentUniqueId);
+                    }
+                                           
                 }
             }
 

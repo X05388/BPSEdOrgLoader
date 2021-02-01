@@ -711,7 +711,7 @@ namespace BPS.EdOrg.Loader.Controller
 
                             };
                             string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
-                            response = _edfiApi.PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl), token);
+                        response = _edfiApi.PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl), token);
                             _log.Info("Updating  edfi.staff for Staff Id : " + staffUniqueId);
                         }
 
