@@ -17,6 +17,7 @@ namespace BPS.EdOrg.Loader
         public static string educationOrganizationIdValueCentralStaff = @"9035";        
         public static string employmentStatusDescriptorValue = @"Tenured%20or%20permanent";
         public static string staffClassificationDescriptorId = @"&StaffClassificationDescriptor="+StaffClassificationDescriptor;
+        public static string orderofAssignment = "&orderofAssignment=";
         public static string hireDate = @"&hireDate=";
         public static string beginDate = @"&beginDate=";
         public static string SpecEduBeginDate = @"?beginDate=";
@@ -31,8 +32,10 @@ namespace BPS.EdOrg.Loader
         public static string SpecEduStudentUniqueId = @"&studentUniqueId=";
         public static string programEducationOrganizationId = @"&programEducationOrganizationId=";        
         public static string schoolId = @"&schoolId=";
+        public static string schoolId1=  @"?schoolId=";
         public static string program504PlanValue = Uri.EscapeDataString(@"504 Plan");
         public static string program504Plan = @"&programName="+program504PlanValue;
+        public static string ProgramName = "Special Education";
 
 
         public static string StaffIdentificationSystemDescriptor = "uri://ed-fi.org/StaffIdentificationSystemDescriptor#State";
@@ -43,6 +46,7 @@ namespace BPS.EdOrg.Loader
         public static string EmploymentStatusDescriptorField = "uri://mybps.org/EmploymentStatusDescriptor#";
         public static string StaffClassificationDescriptorField = "uri://ed-fi.org/StaffClassificationDescriptor#";
         public static string ProgramAssignmentDescriptorField = "uri://ed-fi.org/ProgramAssignmentDescriptor#Regular Education";
+        public static string OperationalStatusActive = "uri://ed-fi.org/OperationalStatusDescriptor#Active";
         public static string LOG_FILE { get; set; } = ConfigurationManager.AppSettings["LogFileDrive"] + DateTime.Today.ToString("yyyyMMdd") + ".csv";
         public static string LOG_FILE_ATT { get; set; } = @"Log File";
         public static string EmailFromAddress = ConfigurationManager.AppSettings["EmailFromAddr"];
@@ -56,11 +60,12 @@ namespace BPS.EdOrg.Loader
         public static string EducationServiceCenter { get; set; } = @"ed-fi/educationServiceCenters";
         public static string StaffAssignmentUrl { get; set; } = @"ed-fi/staffEducationOrganizationAssignmentAssociations";
         public static string API_Program { get; set; } = @"ed-fi/programs";
+        public static string API_ProgramServiceDescriptor { get; set; } = @"ed-fi/specialEducationProgramServiceDescriptors";
         public static string StudentSpecialEducation { get; set; } = @"ed-fi/studentSpecialEducationProgramAssociations";
         public static string StudentSpecialEducationLimit { get; set; } = @"ed-fi/studentSpecialEducationProgramAssociations?limit=100";
         public static string StudentProgramAssociation { get; set; } = @"ed-fi/studentProgramAssociations";
-
         public static string API_ServiceDescriptor { get; set; } = @"ed-fi/serviceDescriptors";
+        public static string SchoolUrl { get; set; } = @"ed-fi/schools";
         public static string API_SpecialEdServiceDescriptor { get; set; } = @"ed -fi/specialEducationSettingDescriptors";
         public static string StaffAssociationUrl { get; set; } = @"ed-fi/staffSchoolAssociations";
        
@@ -226,6 +231,12 @@ namespace BPS.EdOrg.Loader
                     return @"Not Eligible";
             }
         }
+        /// <summary>
+        /// Gets the LRE Setting code DesciptorId .
+        /// </summary>
+        /// <param name="descSetting"></param>
+        /// <returns></returns>
+
         public static string GetSpecialEducationSetting(int? descSetting)
         {
             switch (descSetting)
@@ -233,35 +244,36 @@ namespace BPS.EdOrg.Loader
                 case 30:
                 case 32:
                 case 20:
-                    return @"Inside reg class between 40% and 79% of the day";
+                    return @"uri://ed-fi.org/SpecialEducationSettingDescriptor#Inside reg class between 40-79% of the day";
 
                 case 31:
                 case 34:
                 case 10:
-                    return @"Inside regular class 80% or more of the day";
+                    return @"uri://ed-fi.org/SpecialEducationSettingDescriptor#Inside regular class 80% or more of the day";
                 case 36:
                 case 40:
-                    return @"Inside regular class less than 40% of the day";
+                    return @"uri://ed-fi.org/SpecialEducationSettingDescriptor#Inside regular class less than 40% of the day";
                 case 38:
                 case 42:
                 case 41:
                 case 50:
-                    return @"Separate School";
+                    return @"uri://ed-fi.org/SpecialEducationSettingDescriptor#Separate School";
                 case 44:
                 case 60:
-                    return @"Residential Facility";
+                    return @"uri://ed-fi.org/SpecialEducationSettingDescriptor#Residential Facility";
                 case 45:
                 case 90:
-                    return @"Correctional Facilities";
+                    return @"uri://ed-fi.org/SpecialEducationSettingDescriptor#Correctional Facilities";
                 case 46:
                 case 70:
-                    return @"Homebound/Hospital";
+                    return @"uri://ed-fi.org/SpecialEducationSettingDescriptor#Homebound/Hospital";
                 default:
                     return null;
             }
 
 
         }
+      
     }
 
 }

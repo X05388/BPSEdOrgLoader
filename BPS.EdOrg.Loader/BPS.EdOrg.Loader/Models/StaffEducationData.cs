@@ -36,6 +36,8 @@ namespace BPS.EdOrg.Loader.Models
         public string hireDate { get; set; }
         public string endDate { get; set; }
         public string employmentStatusDescriptor { get; set; }
+        public string department { get; set; }
+
 
     }
 
@@ -56,6 +58,28 @@ namespace BPS.EdOrg.Loader.Models
         public EdFiStaffReference StaffReference { get; set; }
         public string ProgramAssignmentDescriptor { get; set; }
 
+
+    }
+    public partial class StudentSpecialEducationProgramAssociation
+    {
+        public int StdId { get; set; }
+        public string studentUniqueId { get; set; }
+        public string educationOrganizationId { get; set; }
+        public string programTypeDescriptorId { get; set; }
+        public string programName { get; set; }
+        public string programEducationOrganizationId { get; set; }
+        public string beginDate { get; set; }       
+        public string ideaEligibility { get; set; }
+        public string specialEducationSettingDescriptorId { get; set; }
+        public decimal? specialEducationHoursPerWeek { get; set; }
+        public decimal? schoolHoursPerWeek { get; set; }
+        public int? multiplyDisabled { get; set; }
+        public int? medicallyFragile { get; set; }
+        public string lastEvaluationDate { get; set; }        
+        public string iepReviewDate { get; set; }
+        public string iepBeginDate { get; set; }
+        public string iepEndDate { get; set; }
+        public List<Service> relatedServices { get; set; }       
 
     }
 
@@ -87,6 +111,28 @@ namespace BPS.EdOrg.Loader.Models
         public string ProgramEducationOrganizationId { get; set; }
 
     }
+
+    public class EdFiStudentSpecialEducation
+    {
+        public string id { get; set; }
+        public string beginDate { get; set; }
+        public EdFiEducationReference educationOrganizationReference { get; set; }       
+        public ProgramReference programReference { get; set; }
+        public StudentReference studentReference { get; set; }         
+        public string endDate { get; set; }
+        public object ideaEligibility { get; set; }
+        public string lastEvaluationDate { get; set; }
+        public string iepReviewDate { get; set; }
+        public string iepBeginDate { get; set; }
+        public string iepEndDate { get; set; }
+        public object multiplyDisabled { get; set; }
+        public object medicallyFragile { get; set; }
+        public string reasonExitedDescriptor { get; set; }
+        public decimal? schoolHoursPerWeek { get; set; }
+        public object specialEducationSettingDescriptor { get; set; }
+        public decimal? specialEducationHoursPerWeek { get; set; }        
+        public List<Service> specialEducationProgramServices { get; set; }
+    }
     public class SpecialEducationReference
     {
         public SpecialEducationReference()
@@ -108,9 +154,9 @@ namespace BPS.EdOrg.Loader.Models
         public bool medicallyFragile { get; set; }
         public bool multiplyDisabled { get; set; }
         public string reasonExitedDescriptor { get; set; }
-        public double schoolHoursPerWeek { get; set; }
+        public int schoolHoursPerWeek { get; set; }
         public bool servedOutsideOfRegularSession { get; set; }
-        public double specialEducationHoursPerWeek { get; set; }
+        public int specialEducationHoursPerWeek { get; set; }
         public string specialEducationSettingDescriptor { get; set; }
         public List<Service> specialEducationProgramServices { get; set; }
         
@@ -264,7 +310,7 @@ namespace BPS.EdOrg.Loader.Models
         public string status { get; set; }
         public string staffClassification { get; set; }
         public string empDesc { get; set; }
-        public string jobOrderAssignment { get; set; }
+        public string department { get; set; }
     }
 
     public class StaffData

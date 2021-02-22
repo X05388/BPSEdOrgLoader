@@ -18,7 +18,7 @@ namespace BPS.EdOrg.Loader.Models
             public string Namespace { get; set; }
             public int PriorDescriptorId { get; set; }
             public string ShortDescription { get; set; }
-            public int SpecialEducationSettingDescriptorId { get; set; }
+            
          }
 
          /// <summary>

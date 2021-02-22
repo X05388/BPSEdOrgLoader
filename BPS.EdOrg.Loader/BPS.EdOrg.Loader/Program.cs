@@ -160,7 +160,7 @@ namespace BPS.EdOrg.Loader
             if (token != null)
             {
                 staffController = new StaffAssociationController(token, param.Object, Log);
-                staffController.UpdateEducationServiceCenter(token, param.Object);
+                //staffController.UpdateEducationServiceCenter(token, param.Object);
 
             }
 
@@ -241,7 +241,7 @@ namespace BPS.EdOrg.Loader
             {               
                 studentSpecController.UpdateAlertSpecialEducationData(token, parseXmls);
                 studentSpecController.UpdateEndDateSpecialEducation(token, parseXmls);
-                //studentSpecController.UpdateIEPSpecialEducationProgramAssociationData(token, parseXmls);
+                studentSpecController.UpdateIEPSpecialEducationProgramAssociationData(token, parseXmls);
             }
             else Log.Error("Token is not generated, ODS not updated");
 
