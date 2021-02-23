@@ -31,9 +31,6 @@ namespace BPS.EdOrg.Loader.Controller
             try
             {
                 var fragments = File.ReadAllText(ConfigurationManager.AppSettings["XMLDeploymentPath"] + $"/504inXML.xml").Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
-                //fragments = fragments.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>", "");
-                //fragments = fragments.Replace("504Eligibility", "_504Eligibility");
-                //var myRootedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><roots>" + fragments + "</roots>";
                 var doc = XDocument.Parse(fragments);
                 XmlDocument xmlDoc = prseXMl.ToXmlDocument(doc);
                 //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
@@ -415,8 +412,7 @@ namespace BPS.EdOrg.Loader.Controller
                     var transportationCodeService = new Service
                     {
                         PrimaryIndicator = false, // default is false
-                        SpecialEducationProgramServiceDescriptor = "uri://mybps.org/TransportationServiceDescriptor#" + $"{Constants.GetTransportationEligibility(spList.ServiceDescriptor)}",
-                        //ServiceDescriptor = $"{Constants.GetTransportationEligibility(spList.ServiceDescriptor)}",
+                        SpecialEducationProgramServiceDescriptor = "uri://mybps.org/SpecialEducationProgramServiceDescriptor#" + $"{Constants.GetTransportationEligibility(spList.ServiceDescriptor)}",
                         ServiceBeginDate = spList.IepBeginDate,
                         ServiceEndDate = spList.IepEndDate
                     };
