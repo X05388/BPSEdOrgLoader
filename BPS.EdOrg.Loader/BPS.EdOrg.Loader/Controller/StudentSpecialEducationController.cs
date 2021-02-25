@@ -529,7 +529,7 @@ namespace BPS.EdOrg.Loader.Controller
                     lastEvaluationDate = spList.lastEvaluationDate,
                     beginDate = spList.beginDate,                     
                     schoolHoursPerWeek = spList.schoolHoursPerWeek,
-                    //specialEducationHoursPerWeek = spList.specialEducationHoursPerWeek,
+                    specialEducationHoursPerWeek = spList.specialEducationHoursPerWeek,
                     specialEducationSettingDescriptor = spList.specialEducationSettingDescriptorId,
                     specialEducationProgramServices = new List<Service>()
                 };
@@ -709,10 +709,11 @@ namespace BPS.EdOrg.Loader.Controller
                     spEducation.beginDate = beginDate;
                 spEducation.medicallyFragile = null;
                 spEducation.multiplyDisabled = null;               
-                if (node.SelectSingleNode("schoolHoursPerWeek").InnerText.Trim().Length > 0)
+                if (node.SelectSingleNode("schoolHoursPerWeek").InnerText.Trim().Length > 0)                    
                     spEducation.schoolHoursPerWeek = Convert.ToDecimal(node.SelectSingleNode("schoolHoursPerWeek").InnerText.ToString()); // Null Check req need to Modify
                 if (node.SelectSingleNode("specialEducationHoursPerWeek").InnerText.Trim().Length > 0)
-                    spEducation.specialEducationHoursPerWeek = Convert.ToDecimal(node.SelectSingleNode("specialEducationHoursPerWeek").InnerText.ToString()); // Null Check req need to Modify
+                    if (Convert.ToDecimal(node.SelectSingleNode("specialEducationHoursPerWeek").InnerText.ToString()) < Convert.ToDecimal(999.99))
+                        spEducation.specialEducationHoursPerWeek = Convert.ToDecimal(node.SelectSingleNode("specialEducationHoursPerWeek").InnerText.ToString()); // Null Check req need to Modify
                 if (node.SelectSingleNode("SpecialEducationSetting").InnerText.Trim().Length > 0)
                     spEducation.specialEducationSettingDescriptorId = Constants.GetSpecialEducationSetting(Int32.Parse(node.SelectSingleNode("SpecialEducationSetting").InnerText.ToString())) ?? null;
                         

@@ -71,8 +71,8 @@ namespace BPS.EdOrg.Loader.Controller
                         var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(staffEmploymentNodeList.educationOrganizationIdValue)).FirstOrDefault();
                         if (educationOrganizationId == null)
                         {
-                            staffEmploymentNodeList.educationOrganizationIdValue = Constants.educationOrganizationIdValueCentralStaff;
-                            GetEmploymentAssociationId(token, staffEmploymentNodeList);
+                            //staffEmploymentNodeList.educationOrganizationIdValue = Constants.educationOrganizationIdValueCentralStaff;
+                            //GetEmploymentAssociationId(token, staffEmploymentNodeList);
                             UpdateStaffSchoolAssociation(token, Constants.educationOrganizationIdValueCentralStaff, staffEmploymentNodeList.empDesc, staffEmploymentNodeList.staffUniqueIdValue, Constants.StaffEmploymentUrl);
                         }
                         // updating the values in Employment Association for 350000
@@ -753,8 +753,8 @@ namespace BPS.EdOrg.Loader.Controller
                     var original = JsonConvert.DeserializeObject<List<StaffAssignmentDescriptor>>(response.Content);
                     foreach (var data in original)
                     {
-                       if (string.IsNullOrEmpty(data.EndDate))
-                       {
+                        if (string.IsNullOrEmpty(data.EndDate))
+                        {
                             DateTime beginDate;
                             DateTime.TryParse(data.BeginDate, out beginDate);
                             int result = DateTime.Compare(beginDate, maxValue);
