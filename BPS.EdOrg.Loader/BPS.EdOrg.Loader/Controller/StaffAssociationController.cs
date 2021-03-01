@@ -68,13 +68,13 @@ namespace BPS.EdOrg.Loader.Controller
                         var deptName = GetDepartmentName(staffEmploymentNodeList.staffUniqueIdValue, "1", staffEmploymentNodeList.empDesc, token);
 
                         //Inserting data for CentralEmployees to Employments Association for 9035
-                        var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(staffEmploymentNodeList.educationOrganizationIdValue)).FirstOrDefault();
-                        if (educationOrganizationId == null)
-                        {
-                            //staffEmploymentNodeList.educationOrganizationIdValue = Constants.educationOrganizationIdValueCentralStaff;
-                            //GetEmploymentAssociationId(token, staffEmploymentNodeList);
-                            UpdateStaffSchoolAssociation(token, Constants.educationOrganizationIdValueCentralStaff, staffEmploymentNodeList.empDesc, staffEmploymentNodeList.staffUniqueIdValue, Constants.StaffEmploymentUrl);
-                        }
+                        //var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(staffEmploymentNodeList.educationOrganizationIdValue)).FirstOrDefault();
+                        //if (educationOrganizationId == null)
+                        //{
+                        //    staffEmploymentNodeList.educationOrganizationIdValue = Constants.educationOrganizationIdValueCentralStaff;
+                        //    GetEmploymentAssociationId(token, staffEmploymentNodeList);
+                        //    UpdateStaffSchoolAssociation(token, Constants.educationOrganizationIdValueCentralStaff, staffEmploymentNodeList.empDesc, staffEmploymentNodeList.staffUniqueIdValue, Constants.StaffEmploymentUrl);
+                        //}
                         // updating the values in Employment Association for 350000
                         if (!string.IsNullOrEmpty(staffEmploymentNodeList.staffUniqueIdValue) && !string.IsNullOrEmpty(staffEmploymentNodeList.hireDateValue) && !string.IsNullOrEmpty(staffEmploymentNodeList.empDesc))
                         {
@@ -763,10 +763,10 @@ namespace BPS.EdOrg.Loader.Controller
                                 maxValue = beginDate;
                             }
 
-                        }
-
-
                     }
+
+
+                }
                     EdOrgId = original.Where(a => a.BeginDate == maxValue.ToString("yyyy-MM-dd")).Select(x => x.EducationOrganizationReference.educationOrganizationId).FirstOrDefault();
 
                     if (!String.IsNullOrEmpty(EdOrgId) && EdOrgId != null)

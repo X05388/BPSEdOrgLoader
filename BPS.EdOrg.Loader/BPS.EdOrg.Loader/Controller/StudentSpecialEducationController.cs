@@ -408,11 +408,11 @@ namespace BPS.EdOrg.Loader.Controller
 
                 if (spList.ServiceDescriptor != null)
                 {
-                    PostServiceDescriptor(Constants.GetTransportationEligibility(spList.ServiceDescriptor), token);
+                    PostServiceDescriptor(spList.ServiceDescriptor, token);
                     var transportationCodeService = new Service
-                    {
+                    {                        
                         PrimaryIndicator = false, // default is false
-                        SpecialEducationProgramServiceDescriptor = "uri://mybps.org/SpecialEducationProgramServiceDescriptor#" + $"{Constants.GetTransportationEligibility(spList.ServiceDescriptor)}",
+                        SpecialEducationProgramServiceDescriptor = "uri://mybps.org/SpecialEducationProgramServiceDescriptor#" + $"{string.Concat(spList.ServiceDescriptor.ToString().Trim().Take(50))}",
                         ServiceBeginDate = spList.IepBeginDate,
                         ServiceEndDate = spList.IepEndDate
                     };
@@ -530,8 +530,16 @@ namespace BPS.EdOrg.Loader.Controller
                     beginDate = spList.beginDate,                     
                     schoolHoursPerWeek = spList.schoolHoursPerWeek,
                     specialEducationHoursPerWeek = spList.specialEducationHoursPerWeek,
-                    specialEducationSettingDescriptor = spList.specialEducationSettingDescriptorId,
-                    specialEducationProgramServices = new List<Service>()
+                    specialEducationSettingDescriptor = spList.specialEducationSettingDescriptorId,                    
+                    specialEducationProgramServices = new List<Service>(),
+                    _ext = new EdFiExt()
+                    {
+                        StudentIndividualEducationPlan = new Ext()
+                        {
+                            iepExitDate = spList.iepExitDate
+                        }
+                    }
+
                 };
                
                 if (spList.relatedServices != null)
@@ -544,7 +552,7 @@ namespace BPS.EdOrg.Loader.Controller
                         var relatedService = new Service
                         {
                             PrimaryIndicator = false, // default is false
-                            SpecialEducationProgramServiceDescriptor = "uri://mybps.org/SpecialEducationProgramServiceDescriptor#" + serviceItem.SpecialEducationProgramServiceDescriptor,
+                            SpecialEducationProgramServiceDescriptor = "uri://mybps.org/SpecialEducationProgramServiceDescriptor#" +$"{string.Concat(serviceItem.SpecialEducationProgramServiceDescriptor.ToString().Trim().Take(50))}",
                             ServiceBeginDate = serviceItem.ServiceBeginDate,
                             ServiceEndDate = serviceItem.ServiceEndDate
                         };
@@ -702,6 +710,7 @@ namespace BPS.EdOrg.Loader.Controller
                 spEducation.iepBeginDate = node.SelectSingleNode("iepBeginDate").InnerText.ToString() ?? null;
                 spEducation.iepEndDate = node.SelectSingleNode("iepEndDate").InnerText.ToString() ?? null;
                 spEducation.iepReviewDate = node.SelectSingleNode("iepReviewDate").InnerText.ToString() ?? null;
+                spEducation.iepExitDate = node.SelectSingleNode("exitDate").InnerText.ToString() ?? null;
                 spEducation.lastEvaluationDate = node.SelectSingleNode("lastEvaluationDate").InnerText.ToString() ?? null;
                 string beginDate = node.SelectSingleNode("dateSigned").InnerText ?? null;
                 //Exit Date : logic needs to be implemented for IEP records already ended

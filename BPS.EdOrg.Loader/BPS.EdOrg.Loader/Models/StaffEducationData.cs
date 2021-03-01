@@ -79,6 +79,7 @@ namespace BPS.EdOrg.Loader.Models
         public string iepReviewDate { get; set; }
         public string iepBeginDate { get; set; }
         public string iepEndDate { get; set; }
+        public string iepExitDate { get; set; }
         public List<Service> relatedServices { get; set; }       
 
     }
@@ -132,6 +133,23 @@ namespace BPS.EdOrg.Loader.Models
         public object specialEducationSettingDescriptor { get; set; }
         public decimal? specialEducationHoursPerWeek { get; set; }        
         public List<Service> specialEducationProgramServices { get; set; }
+        public EdFiExt _ext { get; set; }
+    }
+
+    public class EdFiExt
+    {
+        public EdFiExt()
+        { }
+        public Ext StudentIndividualEducationPlan { get; set; }
+    }
+
+    public class Ext
+    {
+        public Ext()
+        { }
+        public string iepExitDate { get; set; }
+        public string costSharingAgency { get; set; }
+        public bool isCostSharing { get; set; }
     }
     public class SpecialEducationReference
     {
