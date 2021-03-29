@@ -18,7 +18,22 @@ namespace BPS.EdOrg.Loader.Models
         public List<EdFiIdentificationCode> IdentificationCodes { get; set; }
         public List<StaffContactData> Telephones { get; set; }
         public List<StaffElectronicMailsData> ElectronicMails { get; set; }
+        public StaffEdFiExtension _ext { get; set; }
 
+    }
+    public class StaffEdFiExtension
+    {
+        public StaffEdFiExtension()
+        { }
+        public StaffExtension Staff { get; set; }
+    }
+
+    public class StaffExtension
+    {
+        public StaffExtension()
+        { }
+        public string unionCode { get; set; }
+       
     }
     public class EdFiIdentificationCode
     {
@@ -60,30 +75,7 @@ namespace BPS.EdOrg.Loader.Models
 
 
     }
-    public partial class StudentSpecialEducationProgramAssociation
-    {
-        public int StdId { get; set; }
-        public string studentUniqueId { get; set; }
-        public string educationOrganizationId { get; set; }
-        public string programTypeDescriptorId { get; set; }
-        public string programName { get; set; }
-        public string programEducationOrganizationId { get; set; }
-        public string beginDate { get; set; }       
-        public string ideaEligibility { get; set; }
-        public string specialEducationSettingDescriptorId { get; set; }
-        public decimal? specialEducationHoursPerWeek { get; set; }
-        public decimal? schoolHoursPerWeek { get; set; }
-        public int? multiplyDisabled { get; set; }
-        public int? medicallyFragile { get; set; }
-        public string lastEvaluationDate { get; set; }        
-        public string iepReviewDate { get; set; }
-        public string iepBeginDate { get; set; }
-        public string iepEndDate { get; set; }
-        public string iepExitDate { get; set; }
-        public List<Service> relatedServices { get; set; }       
-
-    }
-
+    
 
     public class StaffAssignmentDescriptor
     {
@@ -113,73 +105,9 @@ namespace BPS.EdOrg.Loader.Models
 
     }
 
-    public class EdFiStudentSpecialEducation
-    {
-        public string id { get; set; }
-        public string beginDate { get; set; }
-        public EdFiEducationReference educationOrganizationReference { get; set; }       
-        public ProgramReference programReference { get; set; }
-        public StudentReference studentReference { get; set; }         
-        public string endDate { get; set; }
-        public object ideaEligibility { get; set; }
-        public string lastEvaluationDate { get; set; }
-        public string iepReviewDate { get; set; }
-        public string iepBeginDate { get; set; }
-        public string iepEndDate { get; set; }
-        public object multiplyDisabled { get; set; }
-        public object medicallyFragile { get; set; }
-        public string reasonExitedDescriptor { get; set; }
-        public decimal? schoolHoursPerWeek { get; set; }
-        public object specialEducationSettingDescriptor { get; set; }
-        public decimal? specialEducationHoursPerWeek { get; set; }        
-        public List<Service> specialEducationProgramServices { get; set; }
-        public EdFiExt _ext { get; set; }
-    }
+    
 
-    public class EdFiExt
-    {
-        public EdFiExt()
-        { }
-        public Ext StudentIndividualEducationPlan { get; set; }
-    }
-
-    public class Ext
-    {
-        public Ext()
-        { }
-        public string iepExitDate { get; set; }
-        public string costSharingAgency { get; set; }
-        public bool isCostSharing { get; set; }
-    }
-    public class SpecialEducationReference
-    {
-        public SpecialEducationReference()
-        { }
-        public string id { get; set; }
-        public EdFiEducationReference educationOrganizationReference { get; set; }
-        public ProgramReference programReference { get; set; }
-        public StudentReference studentReference { get; set; }
-        public string beginDate { get; set; }
-        public string endDate { get; set; }
-        public bool ideaEligibility { get; set; }
-        public string iepBeginDate { get; set; }
-        public string iepEndDate { get; set; }
-        public string iepParentResponse { get; set; }
-        public string iepSignatureDate { get; set; }
-        public string Eligibility504 { get; set; }
-        public string iepReviewDate { get; set; }
-        public string lastEvaluationDate { get; set; }
-        public bool medicallyFragile { get; set; }
-        public bool multiplyDisabled { get; set; }
-        public string reasonExitedDescriptor { get; set; }
-        public int schoolHoursPerWeek { get; set; }
-        public bool servedOutsideOfRegularSession { get; set; }
-        public int specialEducationHoursPerWeek { get; set; }
-        public string specialEducationSettingDescriptor { get; set; }
-        public List<Service> specialEducationProgramServices { get; set; }
-        
-    }
-
+   
     public class EdFiEducationReference
     {
         public string educationOrganizationId { get; set; }
@@ -210,11 +138,7 @@ namespace BPS.EdOrg.Loader.Models
     }
 
 
-    public class StudentReference
-    {
-        public string studentUniqueId { get; set; }
-        public Link Link { get; set; }
-    }
+   
 
     public class Link
     {
@@ -337,9 +261,11 @@ namespace BPS.EdOrg.Loader.Models
         public string middleName { get; set; }
         public string lastName { get; set; }
         public string birthDate { get; set; }
+        public string unionCode { get; set; }
 
     }
-    public class UpdateEndDate
+    
+    public class UpdateEndDateStaff
     {
         public string StaffUniqueId { get; set; }
         public string BeginDate { get; set; }

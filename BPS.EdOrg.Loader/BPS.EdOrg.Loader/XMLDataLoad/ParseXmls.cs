@@ -393,7 +393,6 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 writer.WriteStartElement("StaffUniqueId");
                 writer.WriteString(staffData.staffId);
                 writer.WriteEndElement();
-
                 writer.WriteStartElement("FirstName");
                 writer.WriteString(staffData.firstName);
                 writer.WriteEndElement();
@@ -405,6 +404,9 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 writer.WriteEndElement();
                 writer.WriteStartElement("BirthDate");
                 writer.WriteString(staffData.birthDate);
+                writer.WriteEndElement();
+                writer.WriteStartElement("UnionCode");
+                writer.WriteString(staffData.unionCode);
                 writer.WriteEndElement();
 
                 writer.WriteEndElement();

@@ -115,7 +115,7 @@ namespace BPS.EdOrg.Loader.Controller
            
             if (!string.IsNullOrEmpty(staffEmploymentNodeList.staffUniqueIdValue) && !string.IsNullOrEmpty(staffEmploymentNodeList.staff.firstName) && !string.IsNullOrEmpty(staffEmploymentNodeList.staff.lastName) && !string.IsNullOrEmpty(staffEmploymentNodeList.staff.birthDate))
             {
-                UpdatingNewStaffData(token, staffEmploymentNodeList.staffUniqueIdValue, staffEmploymentNodeList.staff.firstName, staffEmploymentNodeList.staff.middleName, staffEmploymentNodeList.staff.lastName, staffEmploymentNodeList.staff.birthDate);
+                UpdatingNewStaffData(token, staffEmploymentNodeList);
             }
 
         }
@@ -139,13 +139,13 @@ namespace BPS.EdOrg.Loader.Controller
 
                         educationOrganizationIdValue = EducationNode.SelectSingleNode("EducationOrganizationId").InnerText ?? null,
                         staffUniqueIdValue = staffNode.SelectSingleNode("StaffUniqueId").InnerText ?? null,
-                        
                         staff = new StaffData
                         {
                             firstName = staffNode.SelectSingleNode("FirstName").InnerText ?? null,
                             middleName = staffNode.SelectSingleNode("MiddleName").InnerText ?? null,
                             lastName = staffNode.SelectSingleNode("LastName").InnerText ?? null,
                             birthDate = staffNode.SelectSingleNode("BirthDate").InnerText ?? null,
+                            unionCode = staffNode.SelectSingleNode("UnionCode").InnerText ?? null,
                         },
                         status = EmploymentNode.SelectSingleNode("Status").InnerText ?? null,
                         hireDateValue = EmploymentNode.SelectSingleNode("HireDate").InnerText ?? null,
@@ -360,7 +360,7 @@ namespace BPS.EdOrg.Loader.Controller
                         {
                             string schoolid = null;
                             // Getting the EdOrgId for the Department ID 
-                            var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(staffAssignmentNodeList.EducationOrganizationIdValue) && x.OperationalStatus.Equals("Active")).FirstOrDefault();
+                            var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(staffAssignmentNodeList.EducationOrganizationIdValue) && x.OperationalStatus.Equals(Constants.OperationalStatusActive)).FirstOrDefault();
 
                             // setting the DeptId as EdOrgId for the staff, if no corresponding school is found
                             if (educationOrganizationId != null) schoolid = educationOrganizationId.SchoolId;
@@ -579,7 +579,7 @@ namespace BPS.EdOrg.Loader.Controller
                 {
                     if (response.Content.Length > 2)
                     {                        
-                        var original = JsonConvert.DeserializeObject<List<UpdateEndDate>>(response.Content);
+                        var original = JsonConvert.DeserializeObject<List<UpdateEndDateStaff>>(response.Content);
 
                         foreach (var data in original)
                         {
@@ -610,7 +610,7 @@ namespace BPS.EdOrg.Loader.Controller
             return endDate;
         }
 
-        private void UpdatingNewStaffData(string token, string staffUniqueIdValue, string fname, string mname, string lname, string birthDate)
+        private void UpdatingNewStaffData(string token, StaffEmploymentAssociationData staffNodeList)
         {
             try
             {
@@ -619,7 +619,7 @@ namespace BPS.EdOrg.Loader.Controller
                 List<StaffElectronicMailsData> respEmail= null;
                 List<StaffContactData> respTel = null;
 
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + Constants.staffUniqueId1 + staffUniqueIdValue);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + Constants.staffUniqueId1 + staffNodeList.staffUniqueIdValue);
                 response = _edfiApi.GetData(client, token);
                 if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
                 {
@@ -637,11 +637,11 @@ namespace BPS.EdOrg.Loader.Controller
                     
                     var rootObject = new StaffDescriptor
                     {
-                        StaffUniqueId = staffUniqueIdValue,
-                        FirstName = fname,
-                        MiddleName = mname,
-                        LastSurname = lname,
-                        BirthDate = birthDate,
+                        StaffUniqueId = staffNodeList.staffUniqueIdValue,
+                        FirstName = staffNodeList.staff.firstName,
+                        MiddleName = staffNodeList.staff.middleName,
+                        LastSurname = staffNodeList.staff.lastName,
+                        BirthDate = staffNodeList.staff.birthDate,
                         ElectronicMails = respEmail,
                         Telephones = respTel,
                         IdentificationCodes = new List<EdFiIdentificationCode> {
@@ -649,9 +649,16 @@ namespace BPS.EdOrg.Loader.Controller
                             {
                                 AssigningOrganizationIdentificationCode = null,
                                 StaffIdentificationSystemDescriptor = Constants.StaffIdentificationSystemDescriptor,
-                                IdentificationCode = staffUniqueIdValue
+                                IdentificationCode = staffNodeList.staffUniqueIdValue
 
 
+                            }
+                        },
+                        _ext = new StaffEdFiExtension()
+                        {
+                            Staff = new StaffExtension()
+                            {
+                                unionCode = staffNodeList.staff.unionCode
                             }
                         }
 
@@ -663,7 +670,7 @@ namespace BPS.EdOrg.Loader.Controller
                         List<StaffDescriptor> data = JsonConvert.DeserializeObject<List<StaffDescriptor>>(response.Content);
                            var id = data[0].Id;
                             response = _edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + "/" + id), token);
-                            _log.Info("Updating  edfi.staff for Staff Id : " + staffUniqueIdValue);
+                            _log.Info("Updating  edfi.staff for Staff Id : " + staffNodeList.staffUniqueIdValue);
 
                        
 
@@ -671,13 +678,13 @@ namespace BPS.EdOrg.Loader.Controller
                     else
                     {                     
                         response = _edfiApi.PostData(json, client, token);
-                        _log.Info("Inserting  edfi.staff for Staff Id : " + staffUniqueIdValue);                        
+                        _log.Info("Inserting  edfi.staff for Staff Id : " + staffNodeList.staffUniqueIdValue);                        
                     }
                 }
             }
             catch (Exception ex)
             {
-                _log.Error("Error inserting staff in edfi.staff for Staff Id : " + staffUniqueIdValue + " Exception : " + ex.Message);
+                _log.Error("Error inserting staff in edfi.staff for Staff Id : " + staffNodeList.staffUniqueIdValue + " Exception : " + ex.Message);
 
             }
 
@@ -708,6 +715,7 @@ namespace BPS.EdOrg.Loader.Controller
                                 BirthDate = data.BirthDate,
                                 IdentificationCodes = data.IdentificationCodes,
                                 Telephones = staffData,
+                                _ext = data._ext,
                                 ElectronicMails = data.ElectronicMails
 
 

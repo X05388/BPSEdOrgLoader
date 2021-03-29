@@ -21,7 +21,7 @@ namespace BPS.EdOrg.Loader
         public static string hireDate = @"&hireDate=";
         public static string beginDate = @"&beginDate=";
         public static string SpecEduBeginDate = @"?beginDate=";
-        public static string beginDateDefaultValue = @"2017-07-01";
+        public static string beginDateDefaultValue = @"2018-09-04";
         public static string staffUniqueId = @"&staffUniqueId=";
         public static string staffUniqueId1 = @"?staffUniqueId="; 
         public static string programName = @"&programName=";
@@ -118,6 +118,22 @@ namespace BPS.EdOrg.Loader
                  return "1";
             else
                 return "2";
+        }
+
+        
+        public static string GetSDRecurrenceDesc(string desc)
+        {
+            if (!string.IsNullOrEmpty(desc))
+                return desc;
+            else
+                return "day";
+        }
+        public static string GetSDUnitDesc(string desc)
+        {
+            if (!string.IsNullOrEmpty(desc))
+                return desc;
+            else
+                return "Minute(s)";
         }
         public static string StaffClassificationDescriptorCode(string jobCode, int deptID, string unionCode)
        {
