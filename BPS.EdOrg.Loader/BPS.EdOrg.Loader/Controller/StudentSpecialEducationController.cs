@@ -60,24 +60,24 @@ namespace BPS.EdOrg.Loader.Controller
             }
 
         }
-        public void UpdateEndDateSpecialEducation(string token, ParseXmls prseXMl)
+        public void UpdateEndDateSpecialEducation(string specialEdPlan, string token, ParseXmls prseXMl)
         {
             try {
                 int offset = 0;
                 List<UpdateEndDateStudent> studentSpecialEducations = null;
-                studentSpecialEducations = GetStudentSpecialEducation(token, offset);
+                studentSpecialEducations = GetStudentSpecialEducation(specialEdPlan,token, offset);
                 while (studentSpecialEducations != null && studentSpecialEducations.Any())
                 {
                     foreach (var item in studentSpecialEducations)
                     {
-                        var endDate = GetEndDateProgramAssociation(token, item);
+                        var endDate = GetEndDateProgramAssociation(specialEdPlan,token, item);
                         if (!String.IsNullOrEmpty(endDate))
                         item.EndDate = endDate.Split()[0];                        
-                        SetEndDate(token, item);
+                        SetEndDate(specialEdPlan,token, item);
                     }
 
                     offset = offset + 100;
-                    studentSpecialEducations = GetStudentSpecialEducation(token, offset);
+                    studentSpecialEducations = GetStudentSpecialEducation(specialEdPlan,token, offset);
                 }
 
             }
@@ -92,15 +92,15 @@ namespace BPS.EdOrg.Loader.Controller
        
 
 
-        public List<UpdateEndDateStudent> GetStudentSpecialEducation(string token,int offset = 0)
+        public List<UpdateEndDateStudent> GetStudentSpecialEducation(string specialEdPlan, string token,int offset = 0)
         {
             List<UpdateEndDateStudent> data =  null;
             try
             {
                 if (token != null)
                 {
-                    var client = offset == 0 ? new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducationLimit+ Constants.program504Plan)
-                                           : new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducationLimit+ Constants.program504Plan + "&offset=" + offset);
+                    var client = offset == 0 ? new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducationLimit + specialEdPlan)
+                                           : new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducationLimit + specialEdPlan + "&offset=" + offset);
                     var response = edfiApi.GetData(client, token);
 
                     if (IsSuccessStatusCode((int)response.StatusCode))                                           
@@ -168,7 +168,9 @@ namespace BPS.EdOrg.Loader.Controller
                 Log.Error(ex.Message);
             }
         }
+       
 
+       
         public static IRestResponse VerifyProgramData(string token, string educationOrganizationId, string programName, string programType)
         {
             IRestResponse response = null;
@@ -224,14 +226,14 @@ namespace BPS.EdOrg.Loader.Controller
             return ((int)statusCode >= 200) && ((int)statusCode <= 204);
         }
         
-        private static string GetEndDateProgramAssociation(string token, UpdateEndDateStudent spList)
+        private static string GetEndDateProgramAssociation(string specialEdPlan,string token, UpdateEndDateStudent spList)
         {
             string endDate = DateTime.Now.ToString();
             try
             {
                 
                 IRestResponse response = null;                 
-                var client =new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation+ Constants.studentUniqueId + spList.studentReference.studentUniqueId+ Constants.program504Plan);
+                var client =new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation+ Constants.studentUniqueId + spList.studentReference.studentUniqueId + specialEdPlan);
                 response = edfiApi.GetData(client, token);
                 if (response.Content.Length > 2)
                 {
@@ -277,11 +279,11 @@ namespace BPS.EdOrg.Loader.Controller
         }
 
 
-        private static void SetEndDate(string token, UpdateEndDateStudent spItem)
+        private static void SetEndDate(string specialEdPlan,string token, UpdateEndDateStudent spItem)
         {           
             try
             {    IRestResponse response = null;                
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + Constants.studentUniqueId + spItem.studentReference.studentUniqueId + Constants.program504Plan+ Constants.beginDate+ spItem.BeginDate);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + Constants.studentUniqueId + spItem.studentReference.studentUniqueId + specialEdPlan + Constants.beginDate+ spItem.BeginDate);
                 response = edfiApi.GetData(client, token);
                 //dynamic original = JsonConvert.DeserializeObject(response.Content);
                 List<SpecialEducationReference> original = JsonConvert.DeserializeObject<List<SpecialEducationReference>>(response.Content);
@@ -307,59 +309,7 @@ namespace BPS.EdOrg.Loader.Controller
 
         }
 
-        private static string GetEndDateProgramAssociation1(string token, SpecialEducation spList)
-        {
-            string endDate = spList.IepSignatureDate;
-            try
-            {
-
-                IRestResponse response = null;
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + Constants.studentUniqueId + spList.StudentUniqueId + Constants.program504Plan);
-                response = edfiApi.GetData(client, token);
-                if (response.Content.Length > 2)
-                {
-                    List<SpecialEducationReference> data = JsonConvert.DeserializeObject<List<SpecialEducationReference>>(response.Content);
-                    if (data.Count() >= 2)
-                    {
-                        DateTime beginDate;
-                        DateTime.TryParse(spList.IepSignatureDate, out beginDate);
-                        DateTime maxValue = default(DateTime);
-                        foreach (var item in data)
-                        {
-                            DateTime inputDateTime;
-                            DateTime.TryParse(item.beginDate, out inputDateTime);
-                            int result = DateTime.Compare(inputDateTime, maxValue);
-                            if (result >= 0)
-                                maxValue = inputDateTime;
-
-                        }
-                        //Compare BeginDate
-                        int resultDate = DateTime.Compare(beginDate, maxValue);
-                        if (resultDate >= 0)
-                            endDate = null;
-                        else
-                            endDate = spList.BeginDate;
-                    }
-
-                    else
-                        endDate = null;
-                }
-
-
-                return endDate;
-            }
-
-
-            catch (Exception ex)
-            {
-                Log.Error("Something went wrong while updating the data in ODS, check the XML values" + ex.Message);
-                return endDate;
-            }
-
-
-        }
-
-
+        
         private static void InsertAlertDataSpecialEducation(string token, SpecialEducation spList)
         {
             try
@@ -420,7 +370,7 @@ namespace BPS.EdOrg.Loader.Controller
                 string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
 
                // check for Student and BeginDate 
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + Constants.studentUniqueId + spList.StudentUniqueId + Constants.beginDate + spList.IepSignatureDate);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + Constants.studentUniqueId + spList.StudentUniqueId + "&programName=504 Plan" + Constants.beginDate + spList.IepSignatureDate);
                 response = edfiApi.GetData(client, token);
                 dynamic original = JsonConvert.DeserializeObject(response.Content);
                 if (IsSuccessStatusCode((int)response.StatusCode))
@@ -678,7 +628,8 @@ namespace BPS.EdOrg.Loader.Controller
 
                     };
                 }
-                 
+                if (String.IsNullOrEmpty(studentEducationRefList.EducationOrganizationId))
+                    studentEducationRefList.EducationOrganizationId = Constants.educationOrganizationIdValue;
                 return studentEducationRefList;
             }
 

@@ -36,6 +36,8 @@ namespace BPS.EdOrg.Loader
         public static string program504PlanValue = Uri.EscapeDataString(@"504 Plan");
         public static string program504Plan = @"&programName="+program504PlanValue;
         public static string ProgramName = "Special Education";
+        public static string specialEdProgramTypeDescriptor = @"&programTypeDescriptor=" + Uri.EscapeDataString("uri://ed-fi.org/ProgramTypeDescriptor#"+ ProgramName);
+        public static string alertProgramTypeDescriptor = @"&programTypeDescriptor=" + Uri.EscapeDataString("uri://ed-fi.org/ProgramTypeDescriptor#" + "Section 504 Placement");
 
 
         public static string StaffIdentificationSystemDescriptor = "uri://ed-fi.org/StaffIdentificationSystemDescriptor#State";

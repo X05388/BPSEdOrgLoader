@@ -238,10 +238,12 @@ namespace BPS.EdOrg.Loader
             //For 504xml.xml            
             var token = edfiApi.GetAuthToken();
             if (token != null)
-            {               
-                studentSpecController.UpdateAlertSpecialEducationData(token, parseXmls);
-                studentSpecController.UpdateEndDateSpecialEducation(token, parseXmls);
+            {
+                studentSpecController.UpdateAlertSpecialEducationData(token, parseXmls);                
+                studentSpecController.UpdateEndDateSpecialEducation(Constants.alertProgramTypeDescriptor, token, parseXmls);
                 studentSpecController.UpdateIEPSpecialEducationProgramAssociationData(token, parseXmls);
+                studentSpecController.UpdateEndDateSpecialEducation(Constants.specialEdProgramTypeDescriptor, token, parseXmls);
+
             }
             else Log.Error("Token is not generated, ODS not updated");
 

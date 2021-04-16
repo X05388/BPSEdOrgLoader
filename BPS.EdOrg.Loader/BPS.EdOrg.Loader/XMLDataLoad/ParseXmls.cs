@@ -406,7 +406,10 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 writer.WriteString(staffData.birthDate);
                 writer.WriteEndElement();
                 writer.WriteStartElement("UnionCode");
+                if(staffData.jobIndicator.Equals("P"))
                 writer.WriteString(staffData.unionCode);
+                else
+                    writer.WriteString(null);
                 writer.WriteEndElement();
 
                 writer.WriteEndElement();
