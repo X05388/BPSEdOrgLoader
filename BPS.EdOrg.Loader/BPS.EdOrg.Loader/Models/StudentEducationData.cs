@@ -81,6 +81,8 @@ namespace BPS.EdOrg.Loader.Models
         public string IepSignatureDate { get; set; }
         public string Eligibility504 { get; set; }
         public string IepReviewDate { get; set; }
+        public string IepExitDate { get; set; }
+        
         public string lastEvaluationDate { get; set; }
         public bool medicallyFragile { get; set; }
         public bool multiplyDisabled { get; set; }
