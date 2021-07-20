@@ -121,6 +121,7 @@ namespace BPS.EdOrg.Loader.Models
         public string iepEndDate { get; set; }
         public string iepExitDate { get; set; }
         public string costSharingAgency { get; set; }
+        public string parentResponse { get; set; }
         public bool isCostSharing { get; set; }
         public List<Service> relatedServices { get; set; }
 

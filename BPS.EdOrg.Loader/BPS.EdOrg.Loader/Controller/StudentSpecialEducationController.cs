@@ -571,6 +571,7 @@ namespace BPS.EdOrg.Loader.Controller
                         StudentIndividualEducationPlan = new Ext()
                         {
                             iepExitDate = spList.iepExitDate,
+                            parentResponse = spList.parentResponse,
                             costSharingAgency = spList.costSharingAgency,
                             isCostSharing = spList.isCostSharing
                            
@@ -789,6 +790,7 @@ namespace BPS.EdOrg.Loader.Controller
                 spEducation.iepReviewDate = node.SelectSingleNode("iepReviewDate").InnerText.ToString() ?? null;
                 spEducation.iepExitDate = node.SelectSingleNode("exitDate").InnerText.ToString() ?? null;
                 spEducation.lastEvaluationDate = node.SelectSingleNode("lastEvaluationDate").InnerText.ToString() ?? null;
+                spEducation.parentResponse = node.SelectSingleNode("parentResponse").InnerText ?? null;
                 string beginDate = node.SelectSingleNode("dateSigned").InnerText ?? null;
                 //Exit Date : logic needs to be implemented for IEP records already ended
                 if (string.IsNullOrEmpty(beginDate))beginDate = spEducation.iepBeginDate ;                
