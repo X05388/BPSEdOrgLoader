@@ -153,14 +153,7 @@ namespace BPS.EdOrg.Loader.Models
         public string OperationalStatus { get; set; }
     }
 
-    public class ErrorLog
-    {
-        public string StaffUniqueId { get; set; }
-        public string EndDate { get; set; }
-        public string ErrorMessage { get; set; }
-        public string PositionTitle { get; set; }
 
-    }
 
     public class SendEmail
     {

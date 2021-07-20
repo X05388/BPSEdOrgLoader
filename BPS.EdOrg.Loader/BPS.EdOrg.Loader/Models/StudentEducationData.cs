@@ -168,6 +168,16 @@ namespace BPS.EdOrg.Loader.Models
         public string iepExitDate { get; set; }
         public string costSharingAgency { get; set; }
         public bool isCostSharing { get; set; }
+        public string parentResponse { get; set; }
+    }
+    public class ErrorLog
+    {
+        public string StudentLocalID { get; set; }
+        public string EducationOrganizationId { get; set; }
+        public string Type { get; set; }
+        public string Name { get; set; }
+        public string ErrorMessage { get; set; }
+
     }
     public class SpecialEducationReference
     {

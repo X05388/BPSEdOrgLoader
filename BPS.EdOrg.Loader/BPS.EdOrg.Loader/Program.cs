@@ -257,24 +257,6 @@ namespace BPS.EdOrg.Loader
 
         
                 
-        private static void ErrorLogging(ErrorLog errorLog)
-        {
-            string strPath = Constants.LOG_FILE;
-            bool isFirst = false;
-            if (!File.Exists(strPath))
-            {
-                File.Create(strPath).Dispose();
-                isFirst = true;
-            }
-            using (StreamWriter sw = File.AppendText(strPath))
-            {
-                if (isFirst)
-                    sw.WriteLine("StudentId,EducationOrganizationId,ProgramTypeID,ProgramName,ErrorMessage");
-                sw.WriteLine("{0},{1},{2},{3},{4}", errorLog.StaffUniqueId, errorLog.EndDate, errorLog.ErrorMessage);
-                sw.Close();
-            }
-
-
-        }
+        
     }
 }

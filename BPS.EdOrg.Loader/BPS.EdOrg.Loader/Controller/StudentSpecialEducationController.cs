@@ -127,7 +127,7 @@ namespace BPS.EdOrg.Loader.Controller
                     Directory.CreateDirectory(ConfigurationManager.AppSettings["XMLExtractedPath"]);
                 string[] filePaths = Directory.GetFiles(ConfigurationManager.AppSettings["XMLExtractedPath"]);
                 foreach (System.IO.FileInfo file in new DirectoryInfo(ConfigurationManager.AppSettings["XMLExtractedPath"]).GetFiles())
-                 file.Delete();
+                    file.Delete();
                 ZipFile.ExtractToDirectory(ConfigurationManager.AppSettings["XMLDeploymentPath"] + ConfigurationManager.AppSettings["XMLZip"], ConfigurationManager.AppSettings["XMLExtractedPath"]);
                 foreach (FileInfo file in new DirectoryInfo(ConfigurationManager.AppSettings["XMLExtractedPath"]).GetFiles())
                 {
@@ -175,7 +175,7 @@ namespace BPS.EdOrg.Loader.Controller
             IRestResponse response = null;
             try
             {
-                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program + Constants.educationOrganizationId + educationOrganizationId + Constants.programName + programName + Constants.programType + programType);
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program+ Constants.educationOrganizationId + educationOrganizationId + Constants.programName + programName + Constants.programType + programType);
 
                 response = edfiApi.GetData(client, token);
                 if (IsSuccessStatusCode((int)response.StatusCode))
@@ -202,8 +202,8 @@ namespace BPS.EdOrg.Loader.Controller
                         };
 
                         string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
-                        response = edfiApi.PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program), token); // Need to Check - Get requred here 
-                        Log.Info("Check if the program data exists in EdfI Program for programTypeId : " + programType);
+                        response = edfiApi.PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.API_Program), token);  
+                        Log.Info("Verify if the program data exists in EdfI Program for programTypeId : " + programType);
                     }
                     
                 }
@@ -285,7 +285,6 @@ namespace BPS.EdOrg.Loader.Controller
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + Constants.studentUniqueId + specialEd.StudentUniqueId + "&programName=504 Plan"+ "&programEducationOrganizationId="+specialEd.EducationOrganizationId);
                 response = edfiApi.GetData(client, token);
                 var data = JsonConvert.DeserializeObject<List<SpecialEducation>>(response.Content);
-                //dynamic original = JsonConvert.DeserializeObject(response.Content);
                 if (IsSuccessStatusCode((int)response.StatusCode))
                 {
                     if (response.Content.Length > 2)
@@ -373,10 +372,11 @@ namespace BPS.EdOrg.Loader.Controller
         
         private static void InsertAlertDataSpecialEducation(string token, SpecialEducation spList)
         {
+            EdFiStudentSpecialEducation specialEducation = new EdFiStudentSpecialEducation();
             try
             {
                 IRestResponse response = null;
-                var rootObject = new EdFiStudentSpecialEducation
+                specialEducation = new EdFiStudentSpecialEducation
                 {
                     educationOrganizationReference = new EdFiEducationReference
                     {
@@ -390,7 +390,7 @@ namespace BPS.EdOrg.Loader.Controller
                     programReference = new ProgramReference
                     {
                         educationOrganizationId = spList.EducationOrganizationId,
-                        programTypeDescriptor = "uri://ed-fi.org/ProgramTypeDescriptor#"+spList.Type,
+                        programTypeDescriptor = "uri://ed-fi.org/ProgramTypeDescriptor#" + spList.Type,
                         ProgramName = spList.Name,
                         Link = new Link
                         {
@@ -417,29 +417,42 @@ namespace BPS.EdOrg.Loader.Controller
                     {
                         StudentIndividualEducationPlan = new Ext()
                         {
-                            iepExitDate = spList.IepExitDate,
-                            
+                            iepExitDate = spList.IepExitDate,                            
+                            parentResponse = spList.IepParentResponse
+
                         }
                     }
 
-                
 
-            };
+
+                };
 
                 if (spList.ServiceDescriptor != null)
                 {
                     PostServiceDescriptor(spList.ServiceDescriptor, token);
                     var transportationCodeService = new Service
-                    {                        
+                    {
                         PrimaryIndicator = false, // default is false
                         SpecialEducationProgramServiceDescriptor = "uri://mybps.org/SpecialEducationProgramServiceDescriptor#" + $"{string.Concat(spList.ServiceDescriptor.ToString().Trim().Take(50))}",
                         ServiceBeginDate = spList.IepBeginDate,
-                        ServiceEndDate = spList.IepEndDate
+                        ServiceEndDate = spList.IepEndDate,
+                        _ext = new EdFiExtension()
+                        {
+                            StudentIndividualEducationPlan =
+                            new Extension
+                            {
+                                serviceDuration = "0",
+                                serviceDurationFrequency = "0",
+                                serviceDurationRecurrenceDescriptor = "uri://ed-fi.org/ServiceDurationRecurrenceDescriptor#" + Constants.GetSDRecurrenceDesc(null),
+                                serviceDurationUnitDescriptor = "uri://ed-fi.org/ServiceDurationUnitDescriptor#" + Constants.GetSDUnitDesc(null),
+                                
+                            }
+                        }
                     };
-                    rootObject.specialEducationProgramServices.Add(transportationCodeService);
+                    specialEducation.specialEducationProgramServices.Add(transportationCodeService);
 
                 }
-                string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                string json = JsonConvert.SerializeObject(specialEducation, Newtonsoft.Json.Formatting.Indented);
 
                // check for Student and BeginDate 
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + Constants.studentUniqueId + spList.StudentUniqueId + "&programName=504 Plan" + Constants.beginDate + spList.IepSignatureDate);
@@ -560,6 +573,7 @@ namespace BPS.EdOrg.Loader.Controller
                             iepExitDate = spList.iepExitDate,
                             costSharingAgency = spList.costSharingAgency,
                             isCostSharing = spList.isCostSharing
+                           
                         }
                     }
 
@@ -567,15 +581,20 @@ namespace BPS.EdOrg.Loader.Controller
                
                 if (spList.relatedServices != null)
 
-                    foreach (var serviceItem in spList.relatedServices.GroupBy(p => p.SpecialEducationProgramServiceDescriptor)
-                           .Select(grp => grp.First())
-                           .ToList())
+                    foreach (var serviceItem in spList.relatedServices)
+                        //.GroupBy(p => p.SpecialEducationProgramServiceDescriptor)
+                        // .Select(grp => grp.First())
+                        //   .ToList())
                     {
-                        PostServiceDescriptor(serviceItem.SpecialEducationProgramServiceDescriptor, token);
+                        var serLocation = Constants.GetServiceLocation(serviceItem._ext.StudentIndividualEducationPlan.serviceLocation);
+                        var array = new[] { serviceItem.SpecialEducationProgramServiceDescriptor, serLocation };                       
+                        var ServiceDescLocation = string.Join(" - ", array.Where(s => !string.IsNullOrEmpty(s))); 
+                        
+                        PostServiceDescriptor(ServiceDescLocation, token);
                         var relatedService = new Service
                         {
                             PrimaryIndicator = false, // default is false
-                            SpecialEducationProgramServiceDescriptor = "uri://mybps.org/SpecialEducationProgramServiceDescriptor#" +$"{string.Concat(serviceItem.SpecialEducationProgramServiceDescriptor.ToString().Trim().Take(50))}",
+                            SpecialEducationProgramServiceDescriptor = "uri://mybps.org/SpecialEducationProgramServiceDescriptor#" +$"{string.Concat(ServiceDescLocation.ToString().Trim().Take(50))}",
                             ServiceBeginDate = serviceItem.ServiceBeginDate,
                             ServiceEndDate = serviceItem.ServiceEndDate,
                             _ext = new EdFiExtension()
@@ -641,10 +660,25 @@ namespace BPS.EdOrg.Loader.Controller
                                                 response = edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StudentSpecialEducation + "/" + id), token);
                                             else
                                                 response = edfiApi.PostData(json, client, token);
+                                                if ((int)response.StatusCode > 204 || (int)response.StatusCode < 200)
+                                                {
+                                                    LogError(item, response);
+
+                                                }
                                         }
-                                       
-                                    } 
-                                }else response = edfiApi.PostData(json, client, token);
+
+                                    }
+                                }
+                                else
+                                {
+                                    response = edfiApi.PostData(json, client, token);
+                                    if ((int)response.StatusCode > 204 || (int)response.StatusCode < 200)
+                                    {
+                                        LogError(item,response);
+
+                                    }
+                                }
+                                
                             }
                             
 
@@ -655,6 +689,8 @@ namespace BPS.EdOrg.Loader.Controller
                     else
                     {
                         response = edfiApi.PostData(json, client, token);
+                        Log.Info("Inserting if record doesn't exist StudentSpecialEdOrg : " + "studentUniqueId" + spEducation.studentUniqueId);
+
                     }
                 }
                 
@@ -792,20 +828,20 @@ namespace BPS.EdOrg.Loader.Controller
                     ServiceBeginDate = nvNode.SelectSingleNode("serviceBeginDate").InnerText.ToString() ?? null,
                     ServiceEndDate = nvNode.SelectSingleNode("serviceEndDate").InnerText.ToString() ?? null,
                     _ext = new EdFiExtension
-                    {
-                         StudentIndividualEducationPlan = new Extension
                          {
-                             serviceLocation = nvNode.SelectSingleNode("serviceLocation").InnerText.ToString() ?? null,
-                             serviceDuration = nvNode.SelectSingleNode("serviceDuration").InnerText.ToString() ?? null,
-                             serviceDurationFrequency = nvNode.SelectSingleNode("serviceDurationFrequency").InnerText.ToString() ?? null,
-                             serviceDurationRecurrenceDescriptor = nvNode.SelectSingleNode("serviceDurationPer").InnerText.ToString() ?? null,
-                             serviceDurationUnitDescriptor = nvNode.SelectSingleNode("serviceDurationIn").InnerText.ToString() ?? null,
+                            StudentIndividualEducationPlan = new Extension
+                            {
+                                serviceLocation = nvNode.SelectSingleNode("serviceLocation").InnerText.ToString() ?? null,
+                                serviceDuration = nvNode.SelectSingleNode("serviceDuration").InnerText.ToString() ?? null,
+                                serviceDurationFrequency = nvNode.SelectSingleNode("serviceDurationFrequency").InnerText.ToString() ?? null,
+                                serviceDurationRecurrenceDescriptor = nvNode.SelectSingleNode("serviceDurationPer").InnerText.ToString() ?? null,
+                                serviceDurationUnitDescriptor = nvNode.SelectSingleNode("serviceDurationIn").InnerText.ToString() ?? null,
                              
 
+                            }
                          }
-                    }
                     };
-
+                    if(!String.IsNullOrEmpty(relatedService.SpecialEducationProgramServiceDescriptor))
                     spEducation.relatedServices.Add(relatedService);
 
                 }
@@ -864,6 +900,36 @@ namespace BPS.EdOrg.Loader.Controller
 
             }
             return isPosted;
+
+        }
+        private static void LogError(EdFiStudentSpecialEducation item,IRestResponse response )
+        {
+            ErrorLog errorLog = new ErrorLog();
+            errorLog.StudentLocalID = item.studentReference.studentUniqueId.Trim() ?? null;
+            errorLog.EducationOrganizationId = item.programReference.educationOrganizationId ?? null;
+            errorLog.Type = item.programReference.programTypeDescriptor ?? null;
+            errorLog.Name = item.programReference.ProgramName ?? null;
+            errorLog.ErrorMessage = response.Content.ToString().Replace(System.Environment.NewLine, string.Empty) ?? null;
+            ErrorLogging(errorLog);
+        }
+
+        private static void ErrorLogging(ErrorLog errorLog)
+        {
+            string strPath = Constants.LOG_FILE;
+            bool isFirst = false;
+            if (!File.Exists(strPath))
+            {
+                File.Create(strPath).Dispose();
+                isFirst = true;
+            }
+            using (StreamWriter sw = File.AppendText(strPath))
+            {
+                if (isFirst)
+                sw.WriteLine("StudentId,EducationOrganizationId,ProgramTypeID,ProgramName,ErrorMessage");
+                sw.WriteLine("{0},{1},{2},{3},{4}", errorLog.StudentLocalID, errorLog.EducationOrganizationId, errorLog.Type, errorLog.Name, errorLog.ErrorMessage);
+                sw.Close();
+            }
+
 
         }
 

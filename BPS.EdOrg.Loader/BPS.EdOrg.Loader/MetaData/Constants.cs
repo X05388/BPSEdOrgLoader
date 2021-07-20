@@ -53,8 +53,8 @@ namespace BPS.EdOrg.Loader
         public static string LOG_FILE_ATT { get; set; } = @"Log File";
         public static string EmailFromAddress = ConfigurationManager.AppSettings["EmailFromAddr"];
         public static string LOG_FILE_REC { get; set; } = ConfigurationManager.AppSettings["ReviewTeam"];
-        public static string LOG_FILE_SUB { get; set; } = @"EndDateDataReview";
-        public static string LOG_FILE_BODY { get; set; } = @"EndDateDataReview Log File";
+        public static string LOG_FILE_SUB { get; set; } = @"IEPDATAReview";
+        public static string LOG_FILE_BODY { get; set; } = @"IEPDATAReview Log File";
 
         public static string SmtpServerHost = ConfigurationManager.AppSettings["SmtpServerHost"];
         public static string StaffUrl { get; set; } = @"ed-fi/staffs";
@@ -248,6 +248,17 @@ namespace BPS.EdOrg.Loader
                 default:
                     return @"Not Eligible";
             }
+        }
+
+        public static string GetServiceLocation(string loc)
+        {
+            if (!string.IsNullOrEmpty(loc))
+            {
+                if (loc.Equals("In general education classroom"))
+                    return "In GE";
+                else return "Out GE";
+            }
+            return null;
         }
         /// <summary>
         /// Gets the LRE Setting code DesciptorId .
