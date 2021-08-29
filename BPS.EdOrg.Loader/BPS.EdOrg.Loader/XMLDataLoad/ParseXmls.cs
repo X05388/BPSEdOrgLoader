@@ -138,7 +138,7 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                         locationIndex = Array.IndexOf(header, "Location");
 
 
-                        if (deptIdIndex < 0 || actionIndex < 0 || empIdIndex < 0 || hireDateIndex < 0 || entryDateIndex < 0)
+                        if (deptIdIndex < 0 || actionIndex < 0 || empIdIndex < 0 || hireDateIndex < 0 || entryDateIndex < 0 || unionCodeIndex <0)
                         {
                             _log.Error($"Input data text file does not contains the ID or JobCode or ActionDt headers");
                         }

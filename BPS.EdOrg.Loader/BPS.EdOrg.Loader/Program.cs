@@ -35,6 +35,8 @@ namespace BPS.EdOrg.Loader
             var result = param.Parse(args);
 
             if (result.HasErrors || !param.Object.IsValid)
+
+
             {
                 System.Console.Write(result.ErrorText);
                 System.Console.Write(param.Object.ErrorText);

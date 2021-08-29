@@ -43,12 +43,16 @@ namespace BPS.EdOrg.Loader
         public static string StaffIdentificationSystemDescriptor = "uri://ed-fi.org/StaffIdentificationSystemDescriptor#State";
         public static string ProgramAssignmentDescriptor = @"?programAssignmentDescriptor =" + Uri.EscapeDataString("uri://ed-fi.org/ProgramAssignmentDescriptor#Regular Education ");
         public static string EmploymentStatusDescriptor = @"&employmentStatusDescriptor=" + Uri.EscapeDataString("uri://mybps.org/EmploymentStatusDescriptor#");
+        public static string EmploymentStatusDescriptorOther = @"&employmentStatusDescriptor=" + Uri.EscapeDataString("uri://ed-fi.org/EmploymentStatusDescriptor#");
         public static string StaffClassificationDescriptor1 = @"& StaffClassificationDescriptor = " +Uri.EscapeDataString("uri://ed-fi.org/StaffClassificationDescriptor#");
         public static string StaffClassificationDescriptor = @"&uri://ed-fi.org/StaffClassificationDescriptor#";
         public static string EmploymentStatusDescriptorField = "uri://mybps.org/EmploymentStatusDescriptor#";
+
+        public static string EmploymentStatusDescriptorFieldOther = "uri://ed-fi.org/EmploymentStatusDescriptor#";
         public static string StaffClassificationDescriptorField = "uri://ed-fi.org/StaffClassificationDescriptor#";
         public static string ProgramAssignmentDescriptorField = "uri://ed-fi.org/ProgramAssignmentDescriptor#Regular Education";
         public static string OperationalStatusActive = "uri://ed-fi.org/OperationalStatusDescriptor#Active";
+        public static string Active = "Active";
         public static string LOG_FILE { get; set; } = ConfigurationManager.AppSettings["LogFileDrive"] + DateTime.Today.ToString("yyyyMMdd") + ".csv";
         public static string LOG_FILE_ATT { get; set; } = @"Log File";
         public static string EmailFromAddress = ConfigurationManager.AppSettings["EmailFromAddr"];
@@ -70,8 +74,30 @@ namespace BPS.EdOrg.Loader
         public static string SchoolUrl { get; set; } = @"ed-fi/schools";
         public static string API_SpecialEdServiceDescriptor { get; set; } = @"ed -fi/specialEducationSettingDescriptors";
         public static string StaffAssociationUrl { get; set; } = @"ed-fi/staffSchoolAssociations";
-       
-       public static string EmpClassCode(string empCode)
+
+
+        public static string GetEmpStatusDescp(string descCode)
+        {
+            if (descCode.Equals("Other"))
+                return EmploymentStatusDescriptorOther;
+            else
+                return EmploymentStatusDescriptor;
+
+
+
+        }
+
+        public static string GetEmpStatusDescpField(string descCode)
+        {
+            if (descCode.Equals("Other"))
+                return EmploymentStatusDescriptorFieldOther;
+            else
+                return EmploymentStatusDescriptorField;
+
+
+
+        }
+        public static string EmpClassCode(string empCode)
        {
                 if (empCode.Equals("4") || empCode.Equals("P"))
                     return "Permanent Academic";
@@ -282,11 +308,12 @@ namespace BPS.EdOrg.Loader
                 case 36:
                 case 40:
                     return @"uri://ed-fi.org/SpecialEducationSettingDescriptor#Inside regular class less than 40% of the day";
-                case 38:
-                case 42:
+                case 38:                
                 case 41:
+                    return @"uri://mybps.org/SpecialEducationSettingDescriptor#Public Separate School";
+                case 42:
                 case 50:
-                    return @"uri://ed-fi.org/SpecialEducationSettingDescriptor#Separate School";
+                    return @"uri://mybps.org/SpecialEducationSettingDescriptor#Private Separate School";
                 case 44:
                 case 60:
                     return @"uri://ed-fi.org/SpecialEducationSettingDescriptor#Residential Facility";

@@ -189,7 +189,9 @@ namespace BPS.EdOrg.Loader.Models
         public List<ServiceAddresses> Addresses { get; set; }
         public List<ServiceIdentificationCode> IdentificationCodes { get; set; }      
         public string EducationServiceCenterId { get; set; }
-       
+        public string OperationalStatusDescriptor { get; set; }
+
+
     }
 
     public class ServiceAddresses
