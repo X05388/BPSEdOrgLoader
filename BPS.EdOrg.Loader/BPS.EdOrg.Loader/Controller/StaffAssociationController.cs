@@ -247,7 +247,7 @@ namespace BPS.EdOrg.Loader.Controller
                         IdentificationCodes = serviceCenterNodeList.IdentificationCodes,
                         NameOfInstitution = serviceCenterNodeList.NameOfInstitution,
                         ShortNameOfInstitution = serviceCenterNodeList.ShortNameOfInstitution,
-                        OperationalStatusDescriptor = Constants.Active
+                        OperationalStatusDescriptor = "uri://ed-fi.org/OperationalStatusDescriptor#"+Constants.Active
 
                     };
 

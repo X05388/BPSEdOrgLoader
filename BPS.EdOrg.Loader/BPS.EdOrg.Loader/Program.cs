@@ -162,7 +162,7 @@ namespace BPS.EdOrg.Loader
             if (token != null)
             {
                 staffController = new StaffAssociationController(token, param.Object, Log);
-                //staffController.UpdateEducationServiceCenter(token, param.Object);
+                staffController.UpdateEducationServiceCenter(token, param.Object);
 
             }
 

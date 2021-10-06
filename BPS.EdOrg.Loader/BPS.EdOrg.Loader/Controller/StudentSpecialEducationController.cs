@@ -127,12 +127,12 @@ namespace BPS.EdOrg.Loader.Controller
                     Directory.CreateDirectory(ConfigurationManager.AppSettings["XMLExtractedPath"]);
                 string[] filePaths = Directory.GetFiles(ConfigurationManager.AppSettings["XMLExtractedPath"]);
                 foreach (System.IO.FileInfo file in new DirectoryInfo(ConfigurationManager.AppSettings["XMLExtractedPath"]).GetFiles())
-                    file.Delete();
+                  file.Delete();
                 ZipFile.ExtractToDirectory(ConfigurationManager.AppSettings["XMLDeploymentPath"] + ConfigurationManager.AppSettings["XMLZip"], ConfigurationManager.AppSettings["XMLExtractedPath"]);
                 foreach (FileInfo file in new DirectoryInfo(ConfigurationManager.AppSettings["XMLExtractedPath"]).GetFiles())
                 {
                     var fragments = File.ReadAllText(file.FullName).Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
-                    fragments = fragments.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>", "");
+                    fragments = fragments.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>", "").Replace("&", "&amp;");
                     var doc = XDocument.Parse(fragments);
                     XmlDocument xmlDoc = prseXMl.ToXmlDocument(doc);
                     XmlNodeList nodeList = xmlDoc.SelectNodes("//root/iep");
@@ -443,8 +443,8 @@ namespace BPS.EdOrg.Loader.Controller
                             {
                                 serviceDuration = "0",
                                 serviceDurationFrequency = "0",
-                                serviceDurationRecurrenceDescriptor = "uri://ed-fi.org/ServiceDurationRecurrenceDescriptor#" + Constants.GetSDRecurrenceDesc(null),
-                                serviceDurationUnitDescriptor = "uri://ed-fi.org/ServiceDurationUnitDescriptor#" + Constants.GetSDUnitDesc(null),
+                                serviceDurationRecurrenceDescriptor = "uri://mybps.org/ServiceDurationRecurrenceDescriptor#" + Constants.GetSDRecurrenceDesc(null),
+                                serviceDurationUnitDescriptor = "uri://mybps.org/ServiceDurationUnitDescriptor#" + Constants.GetSDUnitDesc(null),
                                 
                             }
                         }
@@ -605,8 +605,8 @@ namespace BPS.EdOrg.Loader.Controller
                             {
                                 serviceDuration = serviceItem._ext.StudentIndividualEducationPlan.serviceDuration,
                                 serviceDurationFrequency = serviceItem._ext.StudentIndividualEducationPlan.serviceDurationFrequency,
-                                serviceDurationRecurrenceDescriptor = "uri://ed-fi.org/ServiceDurationRecurrenceDescriptor#"+Constants.GetSDRecurrenceDesc(serviceItem._ext.StudentIndividualEducationPlan.serviceDurationRecurrenceDescriptor),
-                                serviceDurationUnitDescriptor = "uri://ed-fi.org/ServiceDurationUnitDescriptor#"+ Constants.GetSDUnitDesc(serviceItem._ext.StudentIndividualEducationPlan.serviceDurationUnitDescriptor),
+                                serviceDurationRecurrenceDescriptor = "uri://mybps.org/ServiceDurationRecurrenceDescriptor#" + Constants.GetSDRecurrenceDesc(serviceItem._ext.StudentIndividualEducationPlan.serviceDurationRecurrenceDescriptor),
+                                serviceDurationUnitDescriptor = "uri://mybps.org/ServiceDurationUnitDescriptor#" + Constants.GetSDUnitDesc(serviceItem._ext.StudentIndividualEducationPlan.serviceDurationUnitDescriptor),
                                 serviceLocation = serviceItem._ext.StudentIndividualEducationPlan.serviceLocation
                             }
                             }
