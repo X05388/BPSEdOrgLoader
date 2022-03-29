@@ -13,7 +13,10 @@ using BPS.EdOrg.Loader.Models;
 using BPS.EdOrg.Loader.XMLDataLoad;
 using BPS.EdOrg.Loader.MetaData;
 using BPS.EdOrg.Loader.EdFi.Api;
-
+using System.DirectoryServices;
+using System.Web;
+using System.DirectoryServices.AccountManagement;
+using System.Text.RegularExpressions;
 
 namespace BPS.EdOrg.Loader.Controller
 {
@@ -44,24 +47,32 @@ namespace BPS.EdOrg.Loader.Controller
             {
                 XmlDocument xmlDoc = _prseXML.LoadXml("StaffAssociation");
                 _restServiceManager = new RestServiceManager(configuration, token, _log);
-                
                 var nodeList = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationAssociation").Cast<XmlNode>().OrderBy(element => element.SelectSingleNode("EmploymentPeriod/EndDate").InnerText).ToList();
+                
                 var schoolDeptids = GetDeptList(configuration);
                 foreach (XmlNode node in nodeList)
                 {
+                   
                     // Extracting the data froom the XMl file
                     var staffEmploymentNodeList = GetEmploymentAssociationXml(node);
-
+                    var educationOrganizationId = schoolDeptids.Where(x => x.DeptId.Equals(staffEmploymentNodeList.educationOrganizationIdValue) && x.OperationalStatus.Equals(Constants.OperationalStatusInactive)).FirstOrDefault();
+                    
                     if (staffEmploymentNodeList != null)
                     {
-                       // Add new staff from peoplesoft file.
+                        // Add new staff from peoplesoft file.
                         UpdateStaff(token,staffEmploymentNodeList);
 
                         //If there are more than one records,set enDate to null     
                         if (staffEmploymentNodeList.status == "T")
                         {
                             int countStd = xmlDoc.SelectNodes(@"//InterchangeStaffAssociation/StaffEducationOrganizationAssociation/StaffReference/StaffIdentity/StaffUniqueId").Cast<XmlNode>().Where(a => a.InnerText == staffEmploymentNodeList.staffUniqueIdValue).Distinct().Count();
-                            if (countStd > 1) staffEmploymentNodeList.endDateValue = null;
+                            if (countStd > 1)
+                            {
+                                if (educationOrganizationId != null && educationOrganizationId.OperationalStatus.Equals(Constants.OperationalStatusInactive))
+                                    staffEmploymentNodeList.endDateValue = DateTime.Now.ToString("M/d/yyyy");
+                                else staffEmploymentNodeList.endDateValue = null;
+                            }
+                                
 
                         }
                         // Getting the Department from Assignment
@@ -223,6 +234,53 @@ namespace BPS.EdOrg.Loader.Controller
         }
 
         /// <summary>
+        /// Gets the Work email from LDAP and Home Email from PPsft file and updates the ODS.
+        /// </summary>
+        /// <returns></returns>
+        public void UpdateStaffEmailData(string token, EdorgConfiguration configuration)
+        {
+            
+
+            try
+            {
+                var staffEmailsLDAP = GetStaffEmail(token);
+                var staffEmailsHome = GetStaffEmailPersonal(configuration, token, _log);
+
+                
+                bool indicator = true;
+               
+                foreach (var item in staffEmailsLDAP)
+                {
+                    List<StaffElectronicMailsData> respEmail = new List<StaffElectronicMailsData>();
+                    
+                        var staffEmailPersonal = staffEmailsHome.Where(x => x.Id.Equals(item.Key)).FirstOrDefault();
+                        if (staffEmailPersonal != null)
+                        {
+                            if (staffEmailPersonal.electronicMailAddress != null) respEmail.Add(new StaffElectronicMailsData { Id = item.Key, electronicMailAddress = staffEmailPersonal.electronicMailAddress, electronicMailTypeDescriptor = "uri://ed-fi.org/ElectronicMailTypeDescriptor#Home/Personal", primaryEmailAddressIndicator = staffEmailPersonal.primaryEmailAddressIndicator });
+                            indicator = staffEmailPersonal.primaryEmailAddressIndicator;
+                        }
+                        var staffEmail = staffEmailsLDAP.Where(x => x.Key.Equals(item.Key)).Select(a => a.Value).FirstOrDefault();
+
+                        if (staffEmail != null) respEmail.Add(new StaffElectronicMailsData { Id = item.Key, electronicMailAddress = staffEmail, electronicMailTypeDescriptor = "uri://ed-fi.org/ElectronicMailTypeDescriptor#Work", primaryEmailAddressIndicator = Constants.GetPrimaryIndicator(indicator.ToString()) });
+                        UpdateStaffLDAPEmail(respEmail, token);
+                
+
+            }
+
+            }
+
+
+
+
+            catch (Exception ex)
+            {
+                _log.Error(ex.Message);
+            }
+
+        }
+
+
+        /// <summary>
         /// Gets the data from the xml and updates Department table.
         /// </summary>
         /// <returns></returns>
@@ -233,7 +291,7 @@ namespace BPS.EdOrg.Loader.Controller
                 var schoolDeptids = GetDeptList(configuration);
                 
                 XmlDocument xmlDoc = _prseXML.LoadXml("EducationOrganization");
-                var nodeList = xmlDoc.SelectNodes(@"//InterchangeEducationOrganization/EducationServiceCenter");
+                var nodeList = xmlDoc.SelectNodes(@"//StaffEducationOrganizationAssociation/EducationServiceCenter");
                 
                 foreach (XmlNode node in nodeList)
                 {
@@ -275,6 +333,38 @@ namespace BPS.EdOrg.Loader.Controller
                     }
                 }
 
+
+                if (File.Exists(Constants.LOG_FILE))
+                    _notification.SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex.Message);
+            }
+
+        }
+        // <summary>
+        /// Gets the data from the xml and updates StaffAddress from PPsft files.
+        /// </summary>
+        /// <returns></returns>
+        public void UpdateStaffAddress(string token, EdorgConfiguration configuration)
+        {
+            try
+            {
+                XmlDocument xmlDoc = _prseXML.LoadXml("StaffAddressEmployee");
+                //var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
+                //nsmgr.AddNamespace("a", "http://ed-fi.org/0220");
+
+                var nodeList = xmlDoc.SelectNodes(@"//InterchangeStaffAddressAssociation/StaffEducationOrganizationAssociation").Cast<XmlNode>().ToList();
+           
+                foreach (XmlNode node in nodeList)
+                {
+                    var id = node.SelectSingleNode(@"StaffAddress/StaffUniqueId").InnerText;
+                    // Extracting the data froom the XMl file
+                    var staffAddressNodeList = GetStaffAddressXml(node);
+                    UpdatingStaffAddressData(token,id, staffAddressNodeList);
+
+                }
 
                 if (File.Exists(Constants.LOG_FILE))
                     _notification.SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
@@ -524,6 +614,41 @@ namespace BPS.EdOrg.Loader.Controller
             }
 
         }
+
+
+        private List<StaffAddressData> GetStaffAddressXml(XmlNode node)
+        {
+            try
+            {
+                List<StaffAddressData> staffAssignmentList = new List<StaffAddressData>();
+                // XmlNode staffNode = node.SelectSingleNode("StaffReference/StaffIdentity");
+                XmlNode StaffAddressNode = node.SelectSingleNode("StaffAddress");
+
+                if (StaffAddressNode != null)
+                {
+                    var staffAddress = new StaffAddressData
+                    {
+                        Id = StaffAddressNode.SelectSingleNode("StaffUniqueId").InnerText ?? null,
+                        addressTypeDescriptor = StaffAddressNode.SelectSingleNode("StaffAddressType").InnerText ?? null,
+                        streetNumberName = StaffAddressNode.SelectSingleNode("StaffAddress").InnerText ?? null,
+                        city = StaffAddressNode.SelectSingleNode("StaffCity").InnerText ?? null,
+                        stateAbbreviationDescriptor = StaffAddressNode.SelectSingleNode("StaffState").InnerText ?? null,
+                        postalCode = StaffAddressNode.SelectSingleNode("StaffZip").InnerText ?? null,
+                        localeDescriptor = StaffAddressNode.SelectSingleNode("StaffLocale").InnerText ?? null
+
+                    };
+                    staffAssignmentList.Add(staffAddress);
+                }
+                return staffAssignmentList;
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Error extracting data for AssignmentAssociation Exception : " + ex.Message);
+                return null;
+
+            }
+
+        }
         private StaffAssignmentAssociationData GetAssignmentAssociationTransferXml(XmlNode node)
         {
             try
@@ -608,9 +733,9 @@ namespace BPS.EdOrg.Loader.Controller
             try
             {
                 IRestResponse response = null;
-                List<StaffDescriptor> resp = null;
-                List<StaffElectronicMailsData> respEmail= null;
+                List<StaffDescriptor> resp = null;               
                 List<StaffContactData> respTel = null;
+                List<StaffElectronicMailsData> respEmail = null;
 
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + Constants.staffUniqueId1 + staffNodeList.staffUniqueIdValue);
                 response = _edfiApi.GetData(client, token);
@@ -620,22 +745,41 @@ namespace BPS.EdOrg.Loader.Controller
                     {
                         resp = JsonConvert.DeserializeObject<List<StaffDescriptor>>(response.Content);
                         foreach( var item in resp)
-                        {
-                            respEmail = item.ElectronicMails;
+                        {             
+                            //foreach (var email in item.ElectronicMails)
+                            //{
+                            //    var obj = item.ElectronicMails.Find(x => (x.electronicMailAddress == email.electronicMailAddress));
+                            //    if (!item.ElectronicMails.Contains(obj))
+                            //        item.ElectronicMails.Add(email);
+                            //}
                             respTel = item.Telephones;
+                            respEmail = item.ElectronicMails;
                         }
-                       
-                    }                  
-                      
-                    
+
+                    }
+                   
+
                     var rootObject = new StaffDescriptor
                     {
                         StaffUniqueId = staffNodeList.staffUniqueIdValue,
                         FirstName = staffNodeList.staff.firstName,
                         MiddleName = staffNodeList.staff.middleName,
                         LastSurname = staffNodeList.staff.lastName,
-                        BirthDate = staffNodeList.staff.birthDate,
+                        BirthDate = staffNodeList.staff.birthDate,                        
+                        //ElectronicMails = staffEmail,
+
                         ElectronicMails = respEmail,
+                        //new List<StaffElectronicMailsData>
+                        //{
+                        //    new StaffElectronicMailsData
+                        //    {
+                        //        electronicMailAddress = staffEmail,
+                        //        primaryEmailAddressIndicator = true,
+                        //        electronicMailTypeDescriptor = "uri://ed-fi.org/ElectronicMailTypeDescriptor#Work"
+                        //    }
+                        //},
+
+
                         Telephones = respTel,
                         IdentificationCodes = new List<EdFiIdentificationCode> {
                         new EdFiIdentificationCode
@@ -708,6 +852,7 @@ namespace BPS.EdOrg.Loader.Controller
                                 BirthDate = data.BirthDate,
                                 IdentificationCodes = data.IdentificationCodes,
                                 Telephones = staffData,
+                                Addresses = data.Addresses,
                                 _ext = data._ext,
                                 ElectronicMails = data.ElectronicMails
 
@@ -732,6 +877,269 @@ namespace BPS.EdOrg.Loader.Controller
 
             }
 
+        }
+
+
+        private void UpdatingStaffAddressData(string token,string staffUniqueId, List<StaffAddressData> staffData)
+        {
+            try
+            {
+                IRestResponse response = null;
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + Constants.staffUniqueId1 + staffUniqueId);
+                response = _edfiApi.GetData(client, token);
+                var original = JsonConvert.DeserializeObject<List<StaffDescriptor>>(response.Content);
+                foreach (var data in original)
+                {
+                    if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
+                    {
+                        if (staffData != null)
+                        {
+                            StaffDescriptor rootObject = new StaffDescriptor
+                            {
+                                StaffUniqueId = data.StaffUniqueId,
+                                FirstName = data.FirstName,
+                                MiddleName = data.MiddleName,
+                                LastSurname = data.LastSurname,
+                                BirthDate = data.BirthDate,
+                                IdentificationCodes = data.IdentificationCodes,
+                                Telephones = data.Telephones,
+                                Addresses = staffData,
+                                _ext = data._ext,
+                                ElectronicMails = data.ElectronicMails
+
+
+                            };
+                            string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                            response = _edfiApi.PostData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl), token);
+                            _log.Info("Updating  edfi.staffAddress for Staff Id : " + staffUniqueId);
+                        }
+
+
+                    }
+
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Error inserting staff in edfi.staff for Staff Id : " + staffUniqueId + " Exception : " + ex.Message);
+
+            }
+
+        }
+
+
+        private IDictionary<string,string> GetStaffEmail(string token)
+        {
+            try
+            {
+                IDictionary<string, string> staffEmail = new Dictionary<string, string>();
+                DirectoryEntry directoryEntry = new DirectoryEntry("LDAP://cdnimda04.admin.mybps.org/OU=staff,DC=admin,DC=mybps,DC=org");
+                DirectorySearcher dSearcher = new DirectorySearcher(directoryEntry);
+                string filter = "(objectClass=user)";
+                dSearcher.Filter = filter;
+                dSearcher.PageSize = 15000;
+                var results = dSearcher.FindAll();
+                int count = results.Count;
+                foreach (SearchResult sr in results)
+                {
+                    PrincipalContext context = new PrincipalContext(ContextType.Domain);                   
+                    var userName = GetProperty(sr, "samAccountName");
+                    UserPrincipal user = UserPrincipal.FindByIdentity(context, userName);
+                    var email = GetProperty(sr, "mail");
+                    if (user.Enabled == true) _log.Info("The user is enabled  through AD : " + userName + " Email : " + email);
+                    else _log.Info("The user is disabled through AD : " + userName + " Email : " + email);                     
+                    staffEmail.Add(userName, email);
+                    if (userName.StartsWith("4000") || userName.StartsWith("X0"))
+                    {                    
+                            //adding Sponsored Staff to email
+                            var firstName = GetProperty(sr, "givenname");
+                            var lastName = GetProperty(sr, "sn");
+                            AddSponsoredStaff(userName, firstName, lastName, token);
+                    }
+                    
+                    
+                }
+                return staffEmail;
+            }
+            catch(Exception ex)
+            {
+                _log.Error(" Error getting staffemails from LDAP for Staff Id : " +  ex.Message);
+                return null;
+            }
+
+        }
+
+
+        private List<StaffElectronicMailsData> GetStaffEmailPersonal(EdorgConfiguration configuration, string token, ILog logger)
+        {
+            try
+            {
+                XmlDocument xmlDoc = _prseXML.LoadXml("StaffEmailPersonal");
+                _restServiceManager = new RestServiceManager(configuration, token, _log);
+                var nodeList = xmlDoc.SelectNodes(@"//InterchangeStaffEmailAssociation/StaffEducationOrganizationAssociation").Cast<XmlNode>().ToList();
+                List<StaffElectronicMailsData> staffEmailList = new List<StaffElectronicMailsData>();
+                StaffElectronicMailsData staffEmail = null;
+                foreach (XmlNode node in nodeList)
+                {
+                    XmlNode staffNode = node.SelectSingleNode("StaffPersonalEmail");
+                    if (staffNode != null)
+                    {
+                        staffEmail = new StaffElectronicMailsData
+                        {                           
+                            Id = staffNode.SelectSingleNode("StaffUniqueId").InnerText ?? null,
+                            electronicMailAddress = staffNode.SelectSingleNode("StaffEmail").InnerText ?? null,
+                            electronicMailTypeDescriptor = staffNode.SelectSingleNode("Type").InnerText ?? null,
+                            primaryEmailAddressIndicator = Constants.GetBoolIndicator(staffNode.SelectSingleNode("EmailAddressIndicator").InnerText)
+
+                        };
+                    }
+                    if (!staffEmail.electronicMailAddress.EndsWith("@boston.k12.ma.us")&& !Regex.IsMatch(staffEmail.electronicMailAddress, @"^\d+"))
+                      staffEmailList.Add(staffEmail);
+                }
+                
+
+                return staffEmailList;
+            }
+            
+            catch (Exception ex)
+            {
+                _log.Error(" Error getting staffemails from PPsft for Staff Id : " + ex.Message);
+                return null;
+            }
+
+        }
+
+        private static string GetProperty(SearchResult searchResult, string PropertyName)
+        {
+            if (searchResult.Properties.Contains(PropertyName))
+            {
+                return searchResult.Properties[PropertyName][0].ToString();
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+
+        private void AddSponsoredStaff(string uName, string fname, string lName, string token)
+        {
+            List<StaffElectronicMailsData> respEmail = null;
+            List<StaffContactData> respTel = null;
+            List<StaffDescriptor> resp = null;
+            List<StaffAddressData> respAddr = null;
+            IRestResponse response = null;
+
+
+            var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + Constants.staffUniqueId1 + uName);
+            response = _edfiApi.GetData(client, token);
+            if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
+            {
+                if (response.ContentLength > 2)
+                {
+                    resp = JsonConvert.DeserializeObject<List<StaffDescriptor>>(response.Content);
+                    foreach (var item in resp)
+                    {
+                        respAddr = item.Addresses;
+                        respTel = item.Telephones;
+                        respEmail = item.ElectronicMails;
+                    }
+
+                }
+            }
+            var rootObject = new StaffDescriptor
+            {
+                StaffUniqueId = uName,
+                FirstName = fname,               
+                LastSurname = lName,
+                ElectronicMails = respEmail,
+                Telephones = respTel,
+                Addresses = respAddr
+
+            };
+            string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+            if (response.Content.Length > 2)
+            {
+                List<StaffDescriptor> data = JsonConvert.DeserializeObject<List<StaffDescriptor>>(response.Content);
+                var id = data[0].Id;
+                response = _edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + "/" + id), token);
+                _log.Info("Updating  edfi.staff for Staff Id : " + uName);
+
+
+
+            }
+            else
+            {
+                response = _edfiApi.PostData(json, client, token);
+                _log.Info("Inserting  edfi.staff for Staff Id : " + uName);
+            }
+        }
+        private void UpdateStaffLDAPEmail(List<StaffElectronicMailsData> respstaffEmail, string token)
+        {
+            List<StaffContactData> respTel = null;
+            List<StaffDescriptor> resp = null;
+            List<StaffAddressData> respAddr = null;
+            IRestResponse response = null;
+            string fName = null;
+            string mName = null;
+            string lName = null;
+            string birthdate = null;
+
+            foreach (var staff in respstaffEmail)
+            {
+                var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + Constants.staffUniqueId1 + staff.Id);
+                response = _edfiApi.GetData(client, token);
+                if (_restServiceManager.IsSuccessStatusCode((int)response.StatusCode))
+                {
+                    if (response.ContentLength > 2)
+                    {
+                        resp = JsonConvert.DeserializeObject<List<StaffDescriptor>>(response.Content);
+                        foreach (var item in resp)
+                        {
+                            fName = item.FirstName;
+                            mName = item.MiddleName;
+                            lName = item.LastSurname;
+                            birthdate = item.BirthDate;
+                            respTel = item.Telephones;
+                            respAddr = item.Addresses;
+                        }
+
+                    }
+                }
+                var rootObject = new StaffDescriptor
+                {
+                    
+                    FirstName = fName,
+                    LastSurname = lName,
+                    MiddleName = mName,
+                    BirthDate = birthdate,
+                    StaffUniqueId = staff.Id,
+                    ElectronicMails = respstaffEmail,
+                    Telephones = respTel,
+                    Addresses = respAddr
+
+                };
+                string json = JsonConvert.SerializeObject(rootObject, Newtonsoft.Json.Formatting.Indented);
+                if (response.Content.Length > 2)
+                {
+                    List<StaffDescriptor> data = JsonConvert.DeserializeObject<List<StaffDescriptor>>(response.Content);
+                    var id = data[0].Id;
+                    response = _edfiApi.PutData(json, new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffUrl + "/" + id), token);
+                    _log.Info("Updating  edfi.staff for Staff Id : " + staff.Id);
+
+
+
+                }
+                else
+                {
+                    response = _edfiApi.PostData(json, client, token);
+                    _log.Info("Inserting  edfi.staff for Staff Id : " + staff.Id);
+                }
+            }
+        
         }
 
         /// <summary>
@@ -795,7 +1203,7 @@ namespace BPS.EdOrg.Loader.Controller
                     dynamic original = JsonConvert.DeserializeObject(response.Content);
                     foreach (var data in original)
                     {
-                        nameOfInstitution = schoolId +'-'+ data.shortNameOfInstitution;
+                        nameOfInstitution = schoolId +" - "+ data.shortNameOfInstitution;
                     }
 
                 }

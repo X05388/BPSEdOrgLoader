@@ -78,6 +78,37 @@ namespace BPS.EdOrg.Loader.MetaData
             .SetDefault(GetFirstValue(
                 ConfigurationManager.AppSettings["DataFilePathJobTransfer"],
                 Directory.GetCurrentDirectory()));
+
+            Setup(arg => arg.DataFilePathStaffAddressEmployees).As('h', "DataFilePathStaffAddressEmployees")
+           .WithDescription("Path to folder containing the input text data files to be loaded")
+           .SetDefault(GetFirstValue(
+               ConfigurationManager.AppSettings["DataFilePathStaffAddressEmployees"],
+               Directory.GetCurrentDirectory()));
+
+            Setup(arg => arg.DataFilePathStaffAddressA).As('1', "DataFilePathStaffAddressA")
+          .WithDescription("Path to folder containing the input text data files to be loaded")
+          .SetDefault(GetFirstValue(
+              ConfigurationManager.AppSettings["DataFilePathStaffAddressA"],
+              Directory.GetCurrentDirectory()));
+
+            Setup(arg => arg.DataFilePathStaffAddressB).As('2', "DataFilePathStaffAddressB")
+          .WithDescription("Path to folder containing the input text data files to be loaded")
+          .SetDefault(GetFirstValue(
+              ConfigurationManager.AppSettings["DataFilePathStaffAddressB"],
+              Directory.GetCurrentDirectory()));
+
+            Setup(arg => arg.DataFilePathEdPlantoApen).As('3', "DataFilePathEdPlantoApen")
+            .WithDescription("Path to folder containing the input text data files to be loaded")
+            .SetDefault(GetFirstValue(
+                ConfigurationManager.AppSettings["DataFilePathEdPlantoApen"],
+                Directory.GetCurrentDirectory()));
+
+            Setup(arg => arg.DataFilePathStaffEmail).As('f', "DataFilePathStaffEmail")
+            .WithDescription("Path to folder containing the input text data files to be loaded")
+            .SetDefault(GetFirstValue(
+                ConfigurationManager.AppSettings["DataFilePathStaffEmail"],
+                Directory.GetCurrentDirectory()));
+
             Setup(arg => arg.DataFilePathStaffPhoneNumbers).As('g', "DataFilePathStaffPhoneNumbers")
             .WithDescription("Path to folder containing the input text data files to be loaded")
             .SetDefault(GetFirstValue(
@@ -90,7 +121,7 @@ namespace BPS.EdOrg.Loader.MetaData
               ConfigurationManager.AppSettings["CrossWalkFilePath"],
               Directory.GetCurrentDirectory()));
 
-            Setup(arg => arg.ApiLoaderExePath).As('l', "ApiLoaderPath")
+            Setup(arg => arg.ApiLoaderExePath).As('l', "ApiLoaderExePath")
                 .WithDescription("Path to EdFi.ApiLoader.Console executable")
                 .SetDefault(GetFirstValue(
                     ConfigurationManager.AppSettings["ApiLoaderExePath"],

@@ -11,6 +11,8 @@ using BPS.EdOrg.Loader.XMLDataLoad;
 using BPS.EdOrg.Loader.MetaData;
 using BPS.EdOrg.Loader.EdFi.Api;
 using BPS.EdOrg.Loader.Controller;
+using System.DirectoryServices;
+
 namespace BPS.EdOrg.Loader
 {
     class Program
@@ -49,12 +51,13 @@ namespace BPS.EdOrg.Loader
                     LogConfiguration(param.Object);
 
                     // creating the xml and executing the file through command line parser                    
-                    RunDeptFile(param);
-                    RunJobCodeFile(param);
-                    RunStaffContactFile(param);
-                    RunTransferCasesFile(param);
+                    //RunDeptFile(param);
+                    //RunStaffEmail(param);
+                    //RunJobCodeFile(param);
+                    //RunStaffAddressFile(param);
+                    //RunStaffContactFile(param);
+                    //RunTransferCasesFile(param);
                     RunAlertIEPFile(param);
-
                 }
                 catch (Exception ex)
                 {
@@ -88,7 +91,8 @@ namespace BPS.EdOrg.Loader
             Log.Info($"Input Data Text File Path Job:   {configuration.DataFilePathJob}");
             Log.Info($"Input Data Text File Path Job:   {configuration.DataFilePathJobPreviousFile}");
             Log.Info($"Input Data Text File Path DataFilePathJobTransfer:   {configuration.DataFilePathJobTransfer}");
-            Log.Info($"Input Data Text File Path DataFilePathStaffPhoneNumbers:   {configuration.DataFilePathStaffPhoneNumbers}");            
+            Log.Info($"Input Data Text File Path DataFilePathStaffPhoneNumbers:   {configuration.DataFilePathStaffPhoneNumbers}");
+            Log.Info($"Input Data Text File Path DataFilePathEdPlantoApen:   {configuration.DataFilePathEdPlantoApen}");
             Log.Info($"CrossWalk File Path: {configuration.CrossWalkFilePath}");
             Log.Info($"Working Folder: {configuration.WorkingFolder}");
             Log.Info($"Xsd Folder:  {configuration.XsdFolder}");
@@ -167,6 +171,21 @@ namespace BPS.EdOrg.Loader
             }
 
         }
+        private static void RunStaffEmail(CommandLineParser param)
+        {
+
+            //For Dept_tbl.txt           
+            ParseXmls parseXmls = new ParseXmls(param.Object, Log);
+            parseXmls.CreateXmlStaffEmail();
+            var token = edfiApi.GetAuthToken();
+            if (token != null)
+            {
+                staffController = new StaffAssociationController(token, param.Object, Log);
+                staffController.UpdateStaffEmailData(token, param.Object);
+            }
+        }
+
+        
         private static void RunJobCodeFile(CommandLineParser param)
         {
 
@@ -185,7 +204,9 @@ namespace BPS.EdOrg.Loader
 
             else Log.Error("Token is not generated, ODS not updated");
 
+
         }
+
         private static void RunStaffContactFile(CommandLineParser param)
         {
             try
@@ -209,6 +230,28 @@ namespace BPS.EdOrg.Loader
             }
 
 
+        }
+
+        private static void RunStaffAddressFile(CommandLineParser param)
+        {
+            try
+            {
+
+                ParseXmls parseXmls = new ParseXmls(param.Object, Log);
+                parseXmls.CreateXmlStaffAddress();
+                var token = edfiApi.GetAuthToken();
+                if (token != null)
+                {
+                    staffController = new StaffAssociationController(token, param.Object, Log);
+                    staffController.UpdateStaffAddress(token, param.Object);
+                }
+                else Log.Error("Token is not generated, ODS not updated");
+            }
+            catch (Exception ex)
+            {
+                notification = new Notification(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
+                notification.SendMail(Constants.LOG_FILE_REC, Constants.LOG_FILE_SUB, Constants.LOG_FILE_BODY, Constants.LOG_FILE_ATT);
+            }
         }
         private static void RunTransferCasesFile(CommandLineParser param)
         {
@@ -236,15 +279,16 @@ namespace BPS.EdOrg.Loader
         }
         private static void RunAlertIEPFile(CommandLineParser param)
         {
-
-            //For 504xml.xml            
+            ParseXmls parseXmls = new ParseXmls(param.Object, Log);
+            parseXmls.CreateXmlEdPlanToAspenTxt();
             var token = edfiApi.GetAuthToken();
             if (token != null)
             {
-                studentSpecController.UpdateAlertSpecialEducationData(token, parseXmls);                
-                studentSpecController.UpdateEndDateSpecialEducation(Constants.alertProgramTypeDescriptor, token, parseXmls);
+                StudentSpecialEducationController controller = new StudentSpecialEducationController();
+                //studentSpecController.UpdateAlertSpecialEducationData(token, parseXmls);                
+                //studentSpecController.UpdateEndDateSpecialEducation(Constants.alertProgramTypeDescriptor, token, parseXmls, controller.GetStudentsInAlertXml(parseXmls));
                 studentSpecController.UpdateIEPSpecialEducationProgramAssociationData(token, parseXmls);
-                studentSpecController.UpdateEndDateSpecialEducation(Constants.specialEdProgramTypeDescriptor, token, parseXmls);
+                studentSpecController.UpdateEndDateSpecialEducation(Constants.specialEdProgramTypeDescriptor, token, parseXmls, controller.GetStudentsInIEPXml(parseXmls));
 
             }
             else Log.Error("Token is not generated, ODS not updated");

@@ -15,8 +15,11 @@ namespace BPS.EdOrg.Loader.Models
         public string MiddleName { get; set; }
         public string LastSurname { get; set; }
         public string BirthDate { get; set; }
+
+        public List<StaffAddressData> Addresses { get; set; }
         public List<EdFiIdentificationCode> IdentificationCodes { get; set; }
         public List<StaffContactData> Telephones { get; set; }
+        public List<StaffAddressData> InternationalAddresses { get; set; }
         public List<StaffElectronicMailsData> ElectronicMails { get; set; }
         public StaffEdFiExtension _ext { get; set; }
 
@@ -224,6 +227,40 @@ namespace BPS.EdOrg.Loader.Models
         public string orderOfPriority { get; set; }
 
     }
+    
+    public class EdPlanToAspenTxt
+    {
+        public string studentNumber { get; set; }
+        public string placementSchool { get; set; }
+        public string program { get; set; }
+        public string iepBeginDate { get; set; }
+        public string iepEndDate { get; set; }
+        public string iepReviewDate { get; set; }
+        public string spEdExitDate { get; set; }
+        public string nextEvalDate { get; set; }
+        public string parentResponse { get; set; }
+        public string dateSigned { get; set; }
+        public string agency { get; set; }
+        public string costShare { get; set; }
+
+    }
+    public class StaffAddressData
+    {
+        public string Id { get; set; }        
+        public string streetNumberName { get; set; }
+        public string apartmentRoomSuiteNumbe { get; set; }
+        public string buildingSiteNumber { get; set; }
+        public string city { get; set; }
+        public string postalCode { get; set; }
+        public string addressTypeDescriptor { get; set; }
+        public string stateAbbreviationDescriptor { get; set; }
+        public string localeDescriptor { get; set; }      
+        public string latitude { get; set; }
+        public string longitude { get; set; }
+        public string nameOfCounty { get; set; }
+
+    }
+
     public class StaffElectronicMailsData
     {
         public string Id { get; set; }
@@ -234,6 +271,8 @@ namespace BPS.EdOrg.Loader.Models
        
 
     }
+
+
     public class StaffEmploymentAssociationData
     {
 

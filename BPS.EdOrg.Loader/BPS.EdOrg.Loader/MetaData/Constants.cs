@@ -10,6 +10,8 @@ namespace BPS.EdOrg.Loader
     class Constants
     {
         public static string JobFile = @"R0100156_JOB_W_ORIGHIRDT.txt";
+        public static string JobEdPlanTxtFile = @"EdPlanToAspen"+ DateTime.Now.ToString("_MMddyyyy_")+".txt";
+        public static string JobEdPlanXmlFile = @"EdPlanToAspen"+DateTime.Now.ToString("_MMddyyyy_")+".txt";
         public static string educationOrganizationId = @"?educationOrganizationId=";
         public static string SpecEduEducationOrganizationId = @"&educationOrganizationId=";
         public static string educationServiceCenterId = @"?educationServiceCenterId=";
@@ -35,6 +37,7 @@ namespace BPS.EdOrg.Loader
         public static string schoolId1=  @"?schoolId=";
         public static string program504PlanValue = Uri.EscapeDataString(@"504 Plan");
         public static string program504Plan = @"&programName="+program504PlanValue;
+        public static string programName504PlanValue = "504 Plan";
         public static string ProgramName = "Special Education";
         public static string specialEdProgramTypeDescriptor = @"&programTypeDescriptor=" + Uri.EscapeDataString("uri://ed-fi.org/ProgramTypeDescriptor#"+ ProgramName);
         public static string alertProgramTypeDescriptor = @"&programTypeDescriptor=" + Uri.EscapeDataString("uri://ed-fi.org/ProgramTypeDescriptor#" + "Section 504 Placement");
@@ -52,6 +55,7 @@ namespace BPS.EdOrg.Loader
         public static string StaffClassificationDescriptorField = "uri://ed-fi.org/StaffClassificationDescriptor#";
         public static string ProgramAssignmentDescriptorField = "uri://ed-fi.org/ProgramAssignmentDescriptor#Regular Education";
         public static string OperationalStatusActive = "uri://ed-fi.org/OperationalStatusDescriptor#Active";
+        public static string OperationalStatusInactive = "uri://ed-fi.org/OperationalStatusDescriptor#Inactive";
         public static string Active = "Active";
         public static string LOG_FILE { get; set; } = ConfigurationManager.AppSettings["LogFileDrive"] + DateTime.Today.ToString("yyyyMMdd") + ".csv";
         public static string LOG_FILE_ATT { get; set; } = @"Log File";
@@ -75,18 +79,37 @@ namespace BPS.EdOrg.Loader
         public static string API_SpecialEdServiceDescriptor { get; set; } = @"ed -fi/specialEducationSettingDescriptors";
         public static string StaffAssociationUrl { get; set; } = @"ed-fi/staffSchoolAssociations";
 
-
+        // Get and set the GetEmpStatusDescp on desc code
         public static string GetEmpStatusDescp(string descCode)
         {
             if (descCode.Equals("Other"))
                 return EmploymentStatusDescriptorOther;
             else
                 return EmploymentStatusDescriptor;
+        }
 
+        // Get the Data Source as Txt or Xml for IEP and set it as source
+        public static string GetDataSource(string dataSource)
+        {
+            if (dataSource == null || dataSource == "")
+                return "In Xml";
+            else
+                return "In Txt";
+        }
 
+        // Get the Data Source from ODS and verify if tit exists in Both Xml and Txt
+        public static string SetDataSource(string dataSourceOp, string dataSourceIn)
+        {
+            if (dataSourceOp == "" || dataSourceOp == null)
+                return dataSourceIn;
+            if (dataSourceOp.Equals(dataSourceIn))
+                return dataSourceIn;
+            else
+                return "In Both";
 
         }
 
+        // Get and set the EmpDescField on desc code
         public static string GetEmpStatusDescpField(string descCode)
         {
             if (descCode.Equals("Other"))
@@ -97,8 +120,11 @@ namespace BPS.EdOrg.Loader
 
 
         }
+
+
+        // Set the EmpClassCode based on the empCode 
         public static string EmpClassCode(string empCode)
-       {
+        {
                 if (empCode.Equals("4") || empCode.Equals("P"))
                     return "Permanent Academic";
                 if (empCode.Equals("Q") || empCode.Equals("2") || empCode.Equals("3"))
@@ -116,6 +142,7 @@ namespace BPS.EdOrg.Loader
             
         }
 
+        // Set the JobOrderAssignment based on the jobcode 
         public static string JobOrderAssignment(string jobcode)
         {
             if (jobcode.Equals("P"))
@@ -125,6 +152,8 @@ namespace BPS.EdOrg.Loader
             else
                 return "0";
         }
+
+        // Set the TelephoneType based on the type 
         public static string GetTelephoneType(string type)
         {
             if (type.Equals("HOME") || type.Equals("Home"))
@@ -168,20 +197,20 @@ namespace BPS.EdOrg.Loader
             if (jobCode.Equals("S00022") || jobCode.Equals("S00023") || jobCode.Equals("S00170") ||
                 jobCode.Equals("S00167") || jobCode.Equals("S00200") || jobCode.Equals("S00218") ||
                 jobCode.Equals("S00340") || jobCode.Equals("S00445") || jobCode.Equals("S20324") || 
-                jobCode.Equals("S01077") && (deptID >= 101200 && 101699 <= deptID))
+                jobCode.Equals("S01077") && deptID >= 101200 && deptID <= 101699)
                 return "School Leader";
 
             if (jobCode.Equals("S00065") || jobCode.Equals("S00169") || jobCode.Equals("S00183") ||
                 jobCode.Equals("S00257") || jobCode.Equals("S00281") || jobCode.Equals("S00354") ||
                 jobCode.Equals("S00406") || jobCode.Equals("S00407") || jobCode.Equals("S00413") ||
                 jobCode.Equals("S01070") || jobCode.Equals("S20113") || jobCode.Equals("S20201") ||
-                jobCode.Equals("S20267") || jobCode.Equals("S20302") && (deptID >= 101200 && 101699 <= deptID))
+                jobCode.Equals("S20267") || jobCode.Equals("S20302") && deptID >= 101200 && deptID <= 101699 )
                 return "School Specialist";
 
             if (jobCode.Equals("S00116") || jobCode.Equals("S00118") || jobCode.Equals("S00220") ||
                 jobCode.Equals("S00245") || jobCode.Equals("S00465") || jobCode.Equals("S01079") ||
                 jobCode.Equals("S11100") || jobCode.Equals("S85026") && (unionCode.Equals("BAS") || unionCode.Equals("BPS")) &&
-                (deptID >= 101200 && 101699 <= deptID))
+                deptID >= 101200 && deptID <= 101699)
                 return "School Administrator";
 
             if (jobCode.Equals("S00116") || jobCode.Equals("S00118") || jobCode.Equals("S00220") ||
@@ -275,6 +304,42 @@ namespace BPS.EdOrg.Loader
                     return @"Not Eligible";
             }
         }
+
+        public static Boolean GetBoolIndicator(string strIndicator)
+        {
+            bool indicator = false;
+            if (strIndicator == "Y" || strIndicator.Equals("Y") || strIndicator == "True"|| strIndicator.Equals("True"))
+            {
+                indicator = true;
+            }
+
+            return indicator;
+
+        }
+        public static Boolean GetPrimaryIndicator(string strIndicator)
+        {
+            bool indicator = true;
+            if (strIndicator == "Y" || strIndicator.Equals("Y") || strIndicator == "True" || strIndicator.Equals("True"))
+            {
+                indicator = false;
+            }
+
+            return indicator;
+
+        }
+
+        
+        public static string GetAddressDescriptor(string desc)
+        {
+            if (desc == "MAIL" || desc == "mail")
+            {
+                
+             desc =  "Mailing";
+                
+            }
+            return desc;
+        }
+
 
         public static string GetServiceLocation(string loc)
         {

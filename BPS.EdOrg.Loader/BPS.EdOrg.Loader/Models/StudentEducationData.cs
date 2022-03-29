@@ -37,7 +37,7 @@ namespace BPS.EdOrg.Loader.Models
         {
         public EdFiExtension()
         { }
-        public Extension StudentIndividualEducationPlan { get; set; }
+        public Extension myBPS { get; set; }
         }
         public class Extension
         {
@@ -48,8 +48,9 @@ namespace BPS.EdOrg.Loader.Models
             public string serviceDuration { get; set; }
             public string serviceDurationFrequency { get; set; }
             public string serviceLocation { get; set; }
-            
-        }
+            public string serviceClass { get; set; }
+
+    }
 
 
     public class StaffAlertDescriptor
@@ -122,6 +123,7 @@ namespace BPS.EdOrg.Loader.Models
         public string iepExitDate { get; set; }
         public string costSharingAgency { get; set; }
         public string parentResponse { get; set; }
+        public string dataSource { get; set; }
         public bool isCostSharing { get; set; }
         public List<Service> relatedServices { get; set; }
 
@@ -139,6 +141,8 @@ namespace BPS.EdOrg.Loader.Models
         public string iepReviewDate { get; set; }
         public string iepBeginDate { get; set; }
         public string iepEndDate { get; set; }
+        public string iepExitDate { get; set; }
+        
         public object multiplyDisabled { get; set; }
         public object medicallyFragile { get; set; }
         public string reasonExitedDescriptor { get; set; }
@@ -159,7 +163,7 @@ namespace BPS.EdOrg.Loader.Models
     {
         public EdFiExt()
         { }
-        public Ext StudentIndividualEducationPlan { get; set; }
+        public Ext myBPS { get; set; }
     }
 
     public class Ext
@@ -170,6 +174,7 @@ namespace BPS.EdOrg.Loader.Models
         public string costSharingAgency { get; set; }
         public bool isCostSharing { get; set; }
         public string parentResponse { get; set; }
+        public string dataSource { get; set; }
     }
     public class ErrorLog
     {
