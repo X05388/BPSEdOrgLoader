@@ -229,6 +229,7 @@ namespace BPS.EdOrg.Loader.Controller
                             // Check if the Program already exists in the ODS if not first enter the Progam.
                             VerifyProgramData(token, spEducation.programEducationOrganizationId, spEducation.programName, spEducation.programTypeDescriptorId);
 
+                            // Insert if SignatureDate, IepBeginDate,IepEndDate is not null
                             if (!string.IsNullOrEmpty(spEducation.beginDate) && !string.IsNullOrEmpty(spEducation.iepBeginDate) && !string.IsNullOrEmpty(spEducation.iepEndDate))                                                          
                                 InsertIEPStudentSpecialEducation(token, spEducation);
                            
