@@ -1153,7 +1153,7 @@ namespace BPS.EdOrg.Loader.Controller
                 XmlNode studentNode = node.SelectSingleNode("studentReference");
                 if (studentNode != null)
                 {
-                    spEducation.studentUniqueId = studentNode.SelectSingleNode("StudentUniqueId").InnerText.ToString() ?? null;
+                    spEducation.studentUniqueId = studentNode.SelectSingleNode("studentUniqueId").InnerText.ToString() ?? null;
                     
                 }                
                 //spEducation.ideaEligibility = node.SelectSingleNode("ideaEligiblity").InnerText.ToString();
