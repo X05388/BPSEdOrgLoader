@@ -974,7 +974,7 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
 
                 writer.WriteStartElement("studentReference");
 
-                writer.WriteStartElement("StudentUniqueId");
+                writer.WriteStartElement("studentUniqueId");
                 writer.WriteString(IepData.studentNumber);
                 writer.WriteEndElement();
 
