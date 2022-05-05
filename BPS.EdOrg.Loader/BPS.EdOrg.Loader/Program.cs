@@ -51,9 +51,9 @@ namespace BPS.EdOrg.Loader
                     LogConfiguration(param.Object);
 
                     // creating the xml and executing the file through command line parser                    
-                    RunDeptFile(param);
-                    RunStaffEmail(param);
+                    RunDeptFile(param);                    
                     RunJobCodeFile(param);
+                    RunStaffEmail(param);
                     RunStaffAddressFile(param);
                     RunStaffContactFile(param);
                     RunTransferCasesFile(param);
@@ -78,6 +78,7 @@ namespace BPS.EdOrg.Loader
             Log.Info($"Api Url: {configuration.ApiUrl}");
             Log.Info($"CrossWalk Cross Walk OAuth Url:   {configuration.CrossWalkOAuthUrl}");
             Log.Info($"CrossWalk School Api Url:   {configuration.CrossWalkSchoolApiUrl}");
+            Log.Info($"CrossWalk EdOrgServiceCenter Api Url:   {configuration.CrossWalkEdServicecenterApiUrl}");
             Log.Info($"CrossWalk Staff Api Url:   {configuration.CrossWalkStaffApiUrl}");
             Log.Info($"School Year: {configuration.SchoolYear}");
             Log.Info($"CrossWalk Key:   {configuration.CrossWalkKey}");
