@@ -105,6 +105,7 @@ namespace BPS.EdOrg.Loader.Models
     {
         public int StdId { get; set; }
         public string studentUniqueId { get; set; }
+        public string iepUniqueId { get; set; }
         public string educationOrganizationId { get; set; }
         public string programTypeDescriptorId { get; set; }
         public string programName { get; set; }
@@ -175,6 +176,7 @@ namespace BPS.EdOrg.Loader.Models
         public bool isCostSharing { get; set; }
         public string parentResponse { get; set; }
         public string dataSource { get; set; }
+        public string sourceSystemId { get; set; }
     }
     public class ErrorLog
     {

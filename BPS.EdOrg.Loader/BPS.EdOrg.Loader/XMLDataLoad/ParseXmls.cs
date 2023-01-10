@@ -411,8 +411,8 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 string dataFilePath = _configuration.DataFilePathJob;
                 string[] previousFileLines = null;
                 if (dataFilePathPreviousFile != null)
-                    previousFileLines = File.ReadAllLines(dataFilePathPreviousFile).Skip(1).ToArray();                
-                string[] currentFileLines = File.ReadAllLines(dataFilePathCurrentFile);
+                    previousFileLines = File.ReadAllLines(dataFilePathPreviousFile).Skip(1).ToArray();
+                string[] currentFileLines = File.ReadAllLines(dataFilePathCurrentFile, System.Text.Encoding.GetEncoding("iso-8859-1")); // parsing the special characters
                 // New records that need to be Updated or Inserted
                 IEnumerable<String> lines = currentFileLines.Except(previousFileLines);
                 
@@ -449,7 +449,7 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                         locationIndex = Array.IndexOf(header, "Location");
 
 
-                        if (deptIdIndex < 0 || actionIndex < 0 || empIdIndex < 0 || hireDateIndex < 0 || entryDateIndex < 0 || unionCodeIndex <0)
+                        if (deptIdIndex < 0 || actionIndex < 0 || empIdIndex < 0 || hireDateIndex < 0 || entryDateIndex < 0 || unionCodeIndex <0 || firstNameIndex < 0 || lastNameIndex < 0)
                         {
                             _log.Error($"Input data text file does not contains the ID or JobCode or ActionDt headers");
                         }
@@ -1197,8 +1197,8 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                 string backupPath = Path.Combine(configuration.XMLOutputPath, "Backup");
                 
                 string[] fileList = Directory.GetFiles(rootFolderPath, Constants.JobFile) ;   // Move Job file for comparison)
-                fileList = Directory.GetFiles(rootFolderPath, Constants.JobEdPlanTxtFile);  // Archive Txt file
-                fileList = Directory.GetFiles(ConfigurationManager.AppSettings["XMLExtractedPath"], Constants.JobEdPlanXmlFile); // Archive Xml file
+                //fileList = Directory.GetFiles(rootFolderPath, Constants.JobEdPlanTxtFile);  // Archive Txt file
+                //fileList = Directory.GetFiles(ConfigurationManager.AppSettings["XMLExtractedPath"], Constants.JobEdPlanXmlFile); // Archive Xml file
 
                 if (!Directory.Exists(backupPath))
                 {
@@ -1213,7 +1213,7 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
                     {
                         FileInfo fi = new FileInfo(file);
                         //Archiving files only for 7 days
-                        if (fi.LastAccessTime< DateTime.Now.AddDays(-7))
+                        //if (fi.LastAccessTime< DateTime.Now.AddDays(-7))
                             File.Delete(moveTo);
                     }
                     File.Copy(fileToMove, moveTo,true);
