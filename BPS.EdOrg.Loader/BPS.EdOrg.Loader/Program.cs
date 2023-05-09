@@ -50,7 +50,7 @@ namespace BPS.EdOrg.Loader
                     parseXmls = new ParseXmls(param.Object, Log);                    
                     LogConfiguration(param.Object);
 
-                    // creating the xml and executing the file through command line parser   
+                    //Creating the xml and executing the file through command line parser   
                     RunDeptFile(param);                    
                     RunJobCodeFile(param);
                     RunAlertIEPFile(param);
@@ -95,6 +95,7 @@ namespace BPS.EdOrg.Loader
             Log.Info($"Input Data Text File Path DataFilePathJobTransfer:   {configuration.DataFilePathJobTransfer}");
             Log.Info($"Input Data Text File Path DataFilePathStaffPhoneNumbers:   {configuration.DataFilePathStaffPhoneNumbers}");
             Log.Info($"Input Data Text File Path DataFilePathEdPlantoApen:   {configuration.DataFilePathEdPlantoApen}");
+            Log.Info($"Input Data Text File Path DataFilePathSpedSims:   {configuration.DataFilePathSpedSims}");
             Log.Info($"CrossWalk File Path: {configuration.CrossWalkFilePath}");
             Log.Info($"Working Folder: {configuration.WorkingFolder}");
             Log.Info($"Xsd Folder:  {configuration.XsdFolder}");
@@ -288,7 +289,8 @@ namespace BPS.EdOrg.Loader
         private static void RunAlertIEPFile(CommandLineParser param)
         {
             ParseXmls parseXmls = new ParseXmls(param.Object, Log);
-            parseXmls.CreateXmlEdPlanToAspenTxt();
+            //parseXmls.CreateXmlEdPlanToAspenTxt();
+            parseXmls.CreateXmlSpedSimsTxt();
             var token = edfiApi.GetAuthToken();
             if (token != null)
             {

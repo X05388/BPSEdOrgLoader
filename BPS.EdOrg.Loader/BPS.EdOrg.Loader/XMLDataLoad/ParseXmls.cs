@@ -756,6 +756,71 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
             }
         }
 
+        public void CreateXmlSpedSimsTxt()
+        {
+            try
+            {
+                string xmlOutPutPath = ConfigurationManager.AppSettings["XMLOutputPath"];
+                string filePath = Path.Combine(xmlOutPutPath, $"SpedSims-{DateTime.Now.Date.Month}-{ DateTime.Now.Date.Day}-{ DateTime.Now.Date.Year}.xml");
+                XmlTextWriter writer = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
+                CreateXmlGenericStart(writer);
+                writer.WriteStartElement("root");
+
+                string dataFilePath = _configuration.DataFilePathSpedSims;
+                string[] lines = File.ReadAllLines(dataFilePath);
+                int i = 0;  int studentNumberIndex = 0; int disabilityDescIndex = 0; int levelNeedInfoIndex = 0; int numberOfRecordsCreatedInXml = 0;
+                int numberOfRecordsSkipped = 0;
+                foreach (string line in lines)
+                {
+                    _log.Debug(line);
+                    if (i++ == 0)
+                    {
+                        string[] header = line.Split('\t');
+                        studentNumberIndex = Array.IndexOf(header, "DOE001");
+                        disabilityDescIndex = Array.IndexOf(header, "DOE036");
+                        levelNeedInfoIndex = Array.IndexOf(header, "DOE038");
+                        
+                        if (studentNumberIndex < 0)
+                        {
+                            _log.Error($"Input data text file does not contains StudentNumber headers");
+                        }
+                        continue;
+                    }
+
+                    string[] fields = line.Split('\t');
+                    if (fields.Length > 0)
+                    {
+                        var SpedSimsTxt = new SpedSimsTxt
+                        {
+                            studentNumber = fields[studentNumberIndex]?.Trim(),
+                            disabilityInfo = fields[disabilityDescIndex]?.Trim(),
+                            levelNeedInfo = fields[levelNeedInfoIndex]?.Trim()
+                            
+                        };
+
+
+                        _log.Debug($"Creating node for {SpedSimsTxt.studentNumber}-{SpedSimsTxt.disabilityInfo}-{SpedSimsTxt.levelNeedInfo}");
+                        if(!SpedSimsTxt.disabilityInfo.Equals("500") || !SpedSimsTxt.levelNeedInfo.Equals("500"))
+                        CreateNodeSpedSimsTxt(SpedSimsTxt, writer);
+                        numberOfRecordsCreatedInXml++;
+                    }
+                }
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
+                writer.Close();
+                if (numberOfRecordsSkipped > 0)
+                {
+                    _log.Info($"Number Of records created In Xml {numberOfRecordsCreatedInXml}");
+                    _log.Info($"Number of records skipped because crosswalk contains the PeopleSoftIds - {numberOfRecordsSkipped}");
+                }
+                _log.Info("CreateXML ended successfully");
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error while creating JobCode XML , Exception: {ex.Message}");
+            }
+        }
+
         private  XmlNodeList GetDeptforLocation()
         {
             try
@@ -1028,6 +1093,38 @@ namespace BPS.EdOrg.Loader.XMLDataLoad
             catch (Exception ex)
             {
                 _log.Error($"There is exception while creating Node for Contact:{IepData.studentNumber} and Phone:{IepData.program}, Exception  :{ex.Message}");
+            }
+        }
+
+        private void CreateNodeSpedSimsTxt(SpedSimsTxt IepData, XmlTextWriter writer)
+        {
+            try
+            {
+                _log.Info($"CreateNode started for Student:{IepData.studentNumber} and DisabilityDescriptor:{IepData.disabilityInfo}");
+
+                writer.WriteStartElement("iep");
+
+                writer.WriteStartElement("studentNumber");
+                writer.WriteString(IepData.studentNumber);
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("disabilityDesc");
+                writer.WriteString(IepData.disabilityInfo);
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("levelNeed");
+                writer.WriteString(IepData.levelNeedInfo);
+                writer.WriteEndElement();
+
+
+                writer.WriteEndElement();              
+
+                _log.Info($"CreateNode Ended successfully for Contact:{IepData.studentNumber} and Phone:{IepData.disabilityInfo}");
+
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"There is exception while creating Node for Contact:{IepData.studentNumber} and Phone:{IepData.disabilityInfo}, Exception  :{ex.Message}");
             }
         }
         private void CreateNodeStaffContact(StaffContactData staffData, XmlTextWriter writer)

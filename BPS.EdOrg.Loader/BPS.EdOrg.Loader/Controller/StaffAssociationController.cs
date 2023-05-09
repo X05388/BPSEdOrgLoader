@@ -1046,14 +1046,21 @@ namespace BPS.EdOrg.Loader.Controller
                     UserPrincipal user = UserPrincipal.FindByIdentity(context, userName);
                     var email = GetProperty(sr, "mail");
                     if (user != null)
-                        if (user.Enabled == true) {
-                            Console.WriteLine(userName);
+                        if (user.Enabled == true)
+                        {
+                            Console.WriteLine("The user is enabled  through AD : " + userName + " Email : " + email);
                             _log.Info("The user is enabled  through AD : " + userName + " Email : " + email);
                         }
-                        else _log.Info("The user is disabled through AD : " + userName + " Email : " + email);                     
+                        else                   
+                            
+                            _log.Info("The user is disabled through AD : " + userName + " Email : " + email);
+                        
+
                     staffEmail.Add(userName, email);
-                    if (userName.StartsWith("4000") || userName.StartsWith("X0")) 
-                    { 
+
+
+                    if (userName.StartsWith("4000") || userName.StartsWith("X0"))
+                    {
                         //adding Sponsored Staff to email
                         var SponsoredStaff = new SponsoredStaff()
                         {
@@ -1062,15 +1069,15 @@ namespace BPS.EdOrg.Loader.Controller
                             lastName = GetProperty(sr, "sn"),
                             startDate = GetProperty(sr, "extensionName"), //extensionName AD attribute used as startDate
                             endDate = GetProperty(sr, "destinationIndicator"), //destinationIndicator AD attribute used as endDate
-                            department = GetProperty(sr,"department"),
+                            department = GetProperty(sr, "department"),
                             positionTitle = Constants.sponsoredPositionTitle
                         };
-                       AddSponsoredStaff
-                            (SponsoredStaff, schoolIds, token);
-                       _log.Info("user start end date from AD : " + userName + " StartDate : " + SponsoredStaff.startDate + " endDate : " + SponsoredStaff.endDate);
+                        AddSponsoredStaff
+                             (SponsoredStaff, schoolIds, token);
+                        _log.Info("user start end date from AD : " + userName + " StartDate : " + SponsoredStaff.startDate + " endDate : " + SponsoredStaff.endDate);
                     }
-                    
-                    
+
+
                 }
                 return staffEmail;
             }
@@ -1813,7 +1820,7 @@ namespace BPS.EdOrg.Loader.Controller
             IRestResponse response = null;
             try
             {
-                var endDate = GetAssignmentEndDate(token, StaffUniqueIdValue, empDesc, schoolId,url);
+                //var endDate = GetAssignmentEndDate(token, StaffUniqueIdValue, empDesc, schoolId,url);
                 var client = new RestClient(ConfigurationManager.AppSettings["ApiUrl"] + Constants.StaffAssociationUrl +Constants.schoolId1 + Constants.GetSchooId(schoolId) + Constants.staffUniqueId + StaffUniqueIdValue);
                 response = _edfiApi.GetData(client, token);
                 var rootObject = new StaffSchoolAssociation
@@ -1829,7 +1836,7 @@ namespace BPS.EdOrg.Loader.Controller
                     },
                     SchoolYearTypeReference = new EdFiSchoolYearTypeReference
                     {
-                        SchoolYear = GetSchoolYear(endDate).ToString(),
+                        SchoolYear = Constants.SchoolYear,
 
                         Link = new Link
                         {

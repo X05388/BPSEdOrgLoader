@@ -42,7 +42,7 @@ namespace BPS.EdOrg.Loader
         public static string ProgramName = "Special Education";
         public static string specialEdProgramTypeDescriptor = @"&programTypeDescriptor=" + Uri.EscapeDataString("uri://ed-fi.org/ProgramTypeDescriptor#"+ ProgramName);
         public static string alertProgramTypeDescriptor = @"&programTypeDescriptor=" + Uri.EscapeDataString("uri://ed-fi.org/ProgramTypeDescriptor#" + "Section 504 Placement");
-
+        public static string SchoolYear = ConfigurationManager.AppSettings["SchoolYear"];
 
         public static string StaffIdentificationSystemDescriptor = "uri://ed-fi.org/StaffIdentificationSystemDescriptor#State";
         public static string ProgramAssignmentDescriptor = @"?programAssignmentDescriptor=" + Uri.EscapeDataString("uri://ed-fi.org/ProgramAssignmentDescriptor#Regular Education");
@@ -363,12 +363,12 @@ namespace BPS.EdOrg.Loader
             }
             return null;
         }
+
         /// <summary>
         /// Gets the LRE Setting code DesciptorId .
         /// </summary>
         /// <param name="descSetting"></param>
         /// <returns></returns>
-
         public static string GetSpecialEducationSetting(int? descSetting)
         {
             switch (descSetting)
@@ -406,7 +406,72 @@ namespace BPS.EdOrg.Loader
 
 
         }
-      
+        /// <summary>
+        /// Gets the LevelOfNeed DesciptorId .
+        /// </summary>
+        /// <param name="descSetting"></param>
+        /// <returns></returns>
+        public static string GetLevelOfNeed(string lodId)
+        {
+            switch (lodId)
+            {
+                case "04":
+                    return @"uri://mybps.org/LevelOfNeedDescriptor#04";               
+                case "03":
+                    return @"uri://mybps.org/LevelOfNeedDescriptor#03";
+                case "02":
+                    return @"uri://mybps.org/LevelOfNeedDescriptor#02";
+                case "01":
+                    return @"uri://mybps.org/LevelOfNeedDescriptor#01";
+                default:
+                    return null;
+            }
+
+
+        }
+
+        /// <summary>
+        /// Gets the Disability DesciptorId .
+        /// </summary>
+        /// <param name="descSetting"></param>
+        /// <returns></returns>
+        public static string GetDisabilityDescriptor(string disabilityId)
+        {
+            switch (disabilityId)
+            {
+                case "01":
+                    return @"uri://ed-fi.org/DisabilityDescriptor#Intellectual Disability";
+                case "02":
+                    return @"uri://ed-fi.org/DisabilityDescriptor#Sensory impairment";
+                case "03":
+                    return @"uri://ed-fi.org/DisabilityDescriptor#Speech or Language Impairment";
+                case "04":
+                    return @"uri://ed-fi.org/DisabilityDescriptor#Visual Impairment, including Blindness";
+                case "05":
+                    return @"uri://ed-fi.org/DisabilityDescriptor#Serious Emotional Disability";
+                case "06":
+                    return @"uri://ed-fi.org/DisabilityDescriptor#Physical Disability";
+                case "07":
+                    return @"uri://ed-fi.org/DisabilityDescriptor#Other Health Impairment";
+                case "08":
+                    return @"uri://ed-fi.org/DisabilityDescriptor#Specific Learning Disability";
+                case "09":
+                    return @"uri://ed-fi.org/DisabilityDescriptor#Deaf-Blindness";
+                case "10":
+                    return @"uri://ed-fi.org/DisabilityDescriptor#Multiple Disabilities";
+                case "11":
+                    return @"uri://ed-fi.org/DisabilityDescriptor#Autism Spectrum Disorders";
+                case "12":
+                    return @"uri://ed-fi.org/DisabilityDescriptor#Mental impairment";
+                case "13":
+                    return @"uri://mybps.org/DisabilityDescriptor#Developmental Delay (ages 3–9 only)";
+                default:
+                    return null;
+            }
+
+
+        }
     }
 
 }
+

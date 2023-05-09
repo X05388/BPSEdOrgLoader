@@ -242,7 +242,10 @@ namespace BPS.EdOrg.Loader.Models
         public string orderOfPriority { get; set; }
 
     }
-    
+
+   
+
+
     public class EdPlanToAspenTxt
     {
         public string studentNumber { get; set; }
@@ -259,6 +262,8 @@ namespace BPS.EdOrg.Loader.Models
         public string costShare { get; set; }
 
     }
+
+    
     public class StaffAddressData
     {
         public string Id { get; set; }        
